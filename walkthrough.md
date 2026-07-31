@@ -9,8 +9,8 @@ We have successfully completed **Level 5 (Full Moon Phase)** of the Midnight Bui
 1. **Working MVP Live on Preprod:**
    - **Live dApp URL:** [https://mn-demo.vercel.app](https://mn-demo.vercel.app)
    - **Verifiable Preprod Contract Address:** `02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`
-2. **50 Onboarded Preprod Users:**
-   - Documented 50 active user wallet addresses in [USERS.md](USERS.md).
+2. **70 Onboarded Preprod Users:**
+   - Documented 70 active user wallet addresses in [USERS.md](USERS.md).
 3. **Documented User Feedback Loop:**
    - Compiled user feedback metrics, UX improvements, and product changelog in [FEEDBACK.md](FEEDBACK.md).
 4. **CI/CD Automated Build & Test Pipeline:**

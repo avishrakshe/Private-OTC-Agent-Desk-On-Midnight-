@@ -122,7 +122,7 @@ The project features an automated GitHub Actions pipeline in `.github/workflows/
 ---
 
 ## Level 5 Submission Artifacts
-- **50 Preprod Onboarded Users:** See [USERS.md](USERS.md) for the verifiable list of 50 active Preprod user wallet addresses.
+- **70 Preprod Onboarded Users:** See [USERS.md](USERS.md) for the verifiable list of 70 active Preprod user wallet addresses.
 - **Structured Feedback Loop:** See [FEEDBACK.md](FEEDBACK.md) for user testing metrics, feedback analysis, and changelog.
 - **Usage Guide:** See [docs/USAGE.md](docs/USAGE.md) for step-by-step onboarding instructions.
 
