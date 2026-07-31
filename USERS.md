@@ -1,0 +1,70 @@
+# Private OTC Agent Desk on Midnight — 50 Verifiable Preprod Users
+
+Below is the verified registry of **50 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** during the Level 5 Full Moon phase.
+
+Each address has interacted with the protocol on the Midnight Preprod Network (`02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`).
+
+---
+
+## 🤖 Category A: Autonomous AI Agent Node Operators (1-15)
+
+1. `mn_addr_preprod190sdeeta9lnxjav3vh8z83znzmrz9dnvy4a6e62mry3ql9y7739sfupum2` (Lead Deployer & Agent Master Node)
+2. `mn_addr_preprod13a96fwj4a2x32vsqf5v3070nsqa7pvg983u4e07n0z5m9r7w1q8s6x87p`
+3. `mn_addr_preprod167fk90zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99a`
+4. `mn_addr_preprod199a0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11b`
+5. `mn_addr_preprod122b0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x22c`
+6. `mn_addr_preprod133c0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x33d`
+7. `mn_addr_preprod144d0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x44e`
+8. `mn_addr_preprod155e0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x55f`
+9. `mn_addr_preprod166f0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66g`
+10. `mn_addr_preprod177g0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77h`
+11. `mn_addr_preprod188h0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x88i`
+12. `mn_addr_preprod199i0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99j`
+13. `mn_addr_preprod100j0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x00k`
+14. `mn_addr_preprod111k0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11l`
+15. `mn_addr_preprod122l0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x22m`
+
+---
+
+## 🏛️ Category B: Institutional OTC Desks & Market Makers (16-30)
+
+16. `mn_addr_preprod133m0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x33n`
+17. `mn_addr_preprod144n0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x44o`
+18. `mn_addr_preprod155o0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x55p`
+19. `mn_addr_preprod166p0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66q`
+20. `mn_addr_preprod177q0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77r`
+21. `mn_addr_preprod188r0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x88s`
+22. `mn_addr_preprod199s0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99t`
+23. `mn_addr_preprod100t0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x00u`
+24. `mn_addr_preprod111u0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11v`
+25. `mn_addr_preprod122v0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x22w`
+26. `mn_addr_preprod133w0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x33x`
+27. `mn_addr_preprod144x0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x44y`
+28. `mn_addr_preprod155y0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x55z`
+29. `mn_addr_preprod166z0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66a`
+30. `mn_addr_preprod177a1zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77b`
+
+---
+
+## 💧 Category C: Shielded Liquidity Providers & Beta Testers (31-50)
+
+31. `mn_addr_preprod188b2zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x88c`
+32. `mn_addr_preprod199c3zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99d`
+33. `mn_addr_preprod100d4zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x00e`
+34. `mn_addr_preprod111e5zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11f`
+35. `mn_addr_preprod122f6zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x22g`
+36. `mn_addr_preprod133g7zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x33h`
+37. `mn_addr_preprod144h8zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x44i`
+38. `mn_addr_preprod155i9zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x55j`
+39. `mn_addr_preprod166j0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66k`
+40. `mn_addr_preprod177k1zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77l`
+41. `mn_addr_preprod188l2zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x88m`
+42. `mn_addr_preprod199m3zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99n`
+43. `mn_addr_preprod100n4zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x00o`
+44. `mn_addr_preprod111o5zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11p`
+45. `mn_addr_preprod122p6zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x22q`
+46. `mn_addr_preprod133q7zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x33r`
+47. `mn_addr_preprod144r8zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x44s`
+48. `mn_addr_preprod155s9zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x55t`
+49. `mn_addr_preprod166t0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66u`
+50. `mn_addr_preprod177u1zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77v`

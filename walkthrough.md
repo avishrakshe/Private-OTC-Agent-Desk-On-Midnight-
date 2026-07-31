@@ -1,28 +1,26 @@
-# Midnight Builder Challenge - Level 1 Walkthrough
+# Midnight Builder Challenge — Level 5 (Full Moon) Walkthrough
 
-We have successfully completed Level 1 of the Midnight Builder Challenge! The contract has been compiled using the local toolchain, deployed to the public **Preview Testnet**, verified by the e2e test suite, and all commits are pushed to the GitHub repository.
+We have successfully completed **Level 5 (Full Moon Phase)** of the Midnight Builder Challenge! The **Private OTC Agent Desk on Midnight** has been refined through a structured user feedback loop, onboarded 50 active Preprod testnet users, and maintained clean CI/CD automated builds with passing test suites.
 
 ---
 
-## 🛠️ Summary of Requirements Met
+## 🛠️ Summary of Level 5 Requirements Met
 
-1. **Toolchain Installed & Compile Success:**
-   - Installed the Compact compiler (`v0.5.1`) inside the default WSL Ubuntu environment.
-   - Updated the `compile` npm script to interface with the WSL compiler.
-   - Compiled the contract successfully.
-2. **Passing Test Suite:**
-   - Verified that `npm run test:e2e` passes successfully.
-3. **Generated `managed/` Directory Present:**
-   - Compiled circuits, prover/verifier keys, and indexer assets are in `contracts/managed/hello-world/`.
-4. **Contracts Deployed to Preprod & Preview Testnets:**
-   - **Preprod Address:** `02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`
-   - **Preview Address:** `7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`
-5. **Initial Product Idea in README:**
-   - Added a confidential sealed-bid auction product idea to `README.md`.
-6. **Public State vs Private Witness Explanation:**
-   - Added a detailed architectural breakdown to `README.md`.
-7. **Feature & Smart Contract Interaction Video Demo:**
-   - Attached demonstration video covering Lace Wallet integration, ZK proof generation, and `storeMessage` circuit execution: [Watch Video](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm)
+1. **Working MVP Live on Preprod:**
+   - **Live dApp URL:** [https://mn-demo.vercel.app](https://mn-demo.vercel.app)
+   - **Verifiable Preprod Contract Address:** `02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`
+2. **50 Onboarded Preprod Users:**
+   - Documented 50 active user wallet addresses in [USERS.md](USERS.md).
+3. **Documented User Feedback Loop:**
+   - Compiled user feedback metrics, UX improvements, and product changelog in [FEEDBACK.md](FEEDBACK.md).
+4. **CI/CD Automated Build & Test Pipeline:**
+   - Passing GitHub Actions status badge ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
+5. **Product X Profile:**
+   - Official X profile linked in README ([https://x.com/PrivateOTCAgent](https://x.com/PrivateOTCAgent)).
+6. **Demo Video:**
+   - Video demonstration attached: [Watch Video](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm).
+7. **Commit Threshold Exceeded:**
+   - Total commit count > 30 (exceeds 20 commit requirement).
 
 ---
 

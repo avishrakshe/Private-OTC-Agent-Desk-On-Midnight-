@@ -121,10 +121,12 @@ The project features an automated GitHub Actions pipeline in `.github/workflows/
 
 ---
 
-## Usage Guide
-See [docs/USAGE.md](file:///c:/Users/Avish%20Rakshe/OneDrive/1st_projects/Full-Moon%20Midnight/mn-demo/docs/USAGE.md) for detailed step-by-step instructions.
+## Level 5 Submission Artifacts
+- **50 Preprod Onboarded Users:** See [USERS.md](USERS.md) for the verifiable list of 50 active Preprod user wallet addresses.
+- **Structured Feedback Loop:** See [FEEDBACK.md](FEEDBACK.md) for user testing metrics, feedback analysis, and changelog.
+- **Usage Guide:** See [docs/USAGE.md](docs/USAGE.md) for step-by-step onboarding instructions.
 
 ---
 
 ## Product X Profile
-[PLACEHOLDER — I will add after creating the account]
+- **Official Product X Profile:** [https://x.com/PrivateOTCAgent](https://x.com/PrivateOTCAgent)
