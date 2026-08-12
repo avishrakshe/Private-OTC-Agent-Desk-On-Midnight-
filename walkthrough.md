@@ -16,7 +16,7 @@ We have successfully completed **Level 5 (Full Moon Phase)** of the Midnight Bui
 4. **CI/CD Automated Build & Test Pipeline:**
    - Passing GitHub Actions status badge ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
 5. **Product X Profile:**
-   - Official X profile linked in README ([https://x.com/PrivateOTCAgent](https://x.com/PrivateOTCAgent)).
+   - Official X profile linked in README ([https://x.com/DefiAipy](https://x.com/DefiAipy)).
 6. **Demo Video:**
    - Video demonstration attached: [Watch Video](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm).
 7. **Commit Threshold Exceeded:**

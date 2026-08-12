@@ -26,9 +26,9 @@ jobs:
         run: npm install
 
       - name: Verify managed ZK contract assets present
-        run: ls -la contracts/managed/hello-world
+        run: ls -la contracts/managed/private-otc-desk
 
-      - name: Run Level 3 Unit Tests (Circuit Logic, State Transitions, Privacy)
+      - name: Run Private OTC Agent Desk Unit Tests (Circuit Logic, State Transitions, Privacy)
         run: npm test
 
       - name: Build Web Application

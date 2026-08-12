@@ -48,5 +48,5 @@ During Level 5 (Full Moon Phase), the **Private OTC Agent Desk on Midnight** tra
 
 ## 🔄 Ongoing Feedback Loop Mechanism
 Users can continue submitting feedback via our GitHub Issues tracker or directly through our **Product X Profile**:
-- **Product X Profile:** [https://x.com/PrivateOTCAgent](https://x.com/PrivateOTCAgent)
+- **Product X Profile:** [https://x.com/DefiAipy](https://x.com/DefiAipy)
 - **GitHub Discussions & Issues:** [https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/issues](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/issues)

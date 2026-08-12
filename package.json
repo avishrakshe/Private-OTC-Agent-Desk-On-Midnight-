@@ -6,7 +6,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "compile": "wsl -e /root/.local/bin/compact compile contracts/hello-world.compact contracts/managed/hello-world",
+    "compile": "wsl -e /root/.local/bin/compact compile contracts/private-otc-desk.compact contracts/managed/private-otc-desk",
     "dev": "vite",
     "build": "vite build",
     "setup": "npx tsx src/setup.ts",
@@ -17,7 +17,7 @@
     "proof-server:start": "docker compose up -d",
     "proof-server:stop": "docker compose down",
     "clean": "rm -rf contracts/managed .midnight-state.json .midnight-wallet-state",
-    "test": "tsx --test tests/counter.test.ts",
+    "test": "tsx --test tests/otc-desk.test.ts",
     "test:e2e": "tsx scripts/e2e-check.ts"
   },
   "dependencies": {

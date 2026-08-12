@@ -119,6 +119,10 @@ The project features an automated GitHub Actions pipeline in `.github/workflows/
 3. Executes the full unit test suite (`npm test`)
 4. Verifies the production web build (`npm run build`)
 
+## Social & Product Links
+- **Official Product X (Twitter) Profile:** [https://x.com/DefiAipy](https://x.com/DefiAipy)
+- **Developer / Creator X (Twitter) Profile:** [https://x.com/avishrakshe](https://x.com/avishrakshe)
+
 ---
 
 ## Level 5 Submission Artifacts
@@ -126,7 +130,3 @@ The project features an automated GitHub Actions pipeline in `.github/workflows/
 - **Structured Feedback Loop:** See [FEEDBACK.md](FEEDBACK.md) for user testing metrics, feedback analysis, and changelog.
 - **Usage Guide:** See [docs/USAGE.md](docs/USAGE.md) for step-by-step onboarding instructions.
 
----
-
-## Product X Profile
-- **Official Product X Profile:** [https://x.com/PrivateOTCAgent](https://x.com/PrivateOTCAgent)

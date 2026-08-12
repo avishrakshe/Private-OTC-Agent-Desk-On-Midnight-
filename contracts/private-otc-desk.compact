@@ -1,0 +1,40 @@
+// Private OTC Agent Desk - Product-Specific Compact Smart Contract
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// Public ledger state - visible on Midnight blockchain
+export ledger totalAgents: Cell<Uint<64>>;
+export ledger totalTradesSettled: Cell<Uint<64>>;
+export ledger minReputationThreshold: Cell<Uint<64>>;
+export ledger lastTradeReceipt: Opaque<"string">;
+
+// Circuit 1: Register an autonomous AI agent with local zero-knowledge reputation proof
+export circuit registerAgent(reputationScore: Uint<64>): [] {
+    // Prove client-side that agent reputation satisfies minimum threshold requirement
+    assert reputationScore >= minReputationThreshold "Agent reputation score does not satisfy protocol minimum threshold requirement";
+    totalAgents = totalAgents + 1;
+}
+
+// Circuit 2: Execute sealed-bid private OTC swap
+export circuit settleSealedBidSwap(
+    buyerBidPrice: Uint<64>,
+    sellerAskPrice: Uint<64>,
+    agentReputation: Uint<64>,
+    settlementReceipt: Opaque<"string">
+): [] {
+    // Zero-knowledge constraint validation:
+    // 1. Buyer bid price must be >= Seller ask price
+    assert buyerBidPrice >= sellerAskPrice "Sealed-bid matching condition failed: buyer bid is lower than seller ask";
+    // 2. Agent reputation must satisfy protocol minimum threshold
+    assert agentReputation >= minReputationThreshold "Agent reputation score is below protocol minimum threshold";
+
+    // Disclose settlement receipt to public ledger state & update metrics
+    lastTradeReceipt = disclose(settlementReceipt);
+    totalTradesSettled = totalTradesSettled + 1;
+}
+
+// Circuit 3: Update protocol minimum reputation threshold requirement
+export circuit updateMinReputationThreshold(newThreshold: Uint<64>): [] {
+    minReputationThreshold = newThreshold;
+}

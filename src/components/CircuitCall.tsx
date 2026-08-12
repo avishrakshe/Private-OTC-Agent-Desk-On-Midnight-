@@ -63,7 +63,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreM
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
-            Circuit Execution (<code style={{ fontSize: '14px', color: '#64748b' }}>storeMessage</code>)
+            Circuit Execution (<code style={{ fontSize: '14px', color: '#64748b' }}>settleSealedBidSwap</code>)
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
             Prove state transitions locally with Zero-Knowledge inputs.
@@ -172,7 +172,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreM
             disabled={status === 'executing' || !customMessage}
             style={{ width: '100%', padding: '14px 20px', fontSize: '15px' }}
           >
-            {status === 'executing' ? 'Executing ZK Circuit...' : 'Run Encrypted Task (storeMessage)'}
+            {status === 'executing' ? 'Executing ZK Circuit...' : 'Run Encrypted Task (settleSealedBidSwap)'}
           </button>
 
           {/* Progress Stepper */}

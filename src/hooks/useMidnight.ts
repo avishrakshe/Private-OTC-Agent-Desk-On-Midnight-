@@ -6,7 +6,7 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
 import { findDeployedContract, type FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { type MidnightProviders, type PrivateStateProvider } from '@midnight-ntwrk/midnight-js-types';
-import * as helloWorld from '../../contracts/managed/hello-world/contract';
+import * as privateOtcDesk from '../../contracts/managed/private-otc-desk/contract';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
 import { MidnightBech32m, ShieldedAddress, ShieldedCoinPublicKey, ShieldedEncryptionPublicKey } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { setNetworkId as setMidnightNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
@@ -256,19 +256,19 @@ export function useMidnight(): UseMidnightResult {
 
       // 5. Load the deployed contract instance
       onProgress?.('Connecting to contract on-chain & verifying state...', 25);
-      const compiledContract = CompiledContract.make('hello-world', helloWorld.Contract).pipe(
+      const compiledContract = CompiledContract.make('private-otc-desk', privateOtcDesk.Contract).pipe(
         CompiledContract.withVacantWitnesses
       );
 
       const contract = await findDeployedContract(providers, {
         compiledContract: compiledContract as any,
         contractAddress: contractAddress,
-        privateStateId: 'helloWorldPrivateState',
+        privateStateId: 'privateOtcDeskPrivateState',
         initialPrivateState: {}
       });
 
-      // 6. Invoke storeMessage circuit
-      const result = await contract.callTx.storeMessage(message);
+      // 6. Invoke circuit
+      const result = await contract.callTx.settleSealedBidSwap(100n, 95n, 80n, message || '0xreceipt');
       
       onProgress?.('Transaction complete!', 100);
       return result.public.txId || 'Transaction Success';
