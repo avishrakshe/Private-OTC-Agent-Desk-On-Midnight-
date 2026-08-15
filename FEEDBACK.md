@@ -42,7 +42,7 @@ During Level 5 (Full Moon Phase), the **Private OTC Agent Desk on Midnight** tra
    - Integrated GitHub Actions CI workflow to run test suites and production Vite builds on every commit.
 
 3. **`v1.3.0` - Comprehensive User Onboarding Docs:**
-   - Released step-by-step usage guide ([docs/USAGE.md](USAGE.md)) and verified 50 active Preprod user wallet addresses ([USERS.md](USERS.md)).
+   - Released step-by-step usage guide ([docs/USAGE.md](docs/USAGE.md)) and verified 50 active Preprod user wallet addresses ([USERS.md](USERS.md)).
 
 ---
 
