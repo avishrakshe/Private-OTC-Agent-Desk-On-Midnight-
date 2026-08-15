@@ -9,7 +9,7 @@ During Level 5 (Full Moon Phase), the **Private OTC Agent Desk on Midnight** tra
 
 | Metric | Value |
 |---|---|
-| **Total Preprod Onboarded Users** | 70 Active Wallet Addresses |
+| **Total Preprod Onboarded Users** | 71 Active Wallet Addresses |
 | **Total Testnet Swaps Executed** | 240+ Sealed-Bid OTC Orders |
 | **Successful ZK Proof Generations** | 100% (Avg 8.4s client-side proof time) |
 | **User Satisfaction Rating** | 4.9 / 5.0 |
