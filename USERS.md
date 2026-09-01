@@ -1,6 +1,6 @@
 # Private OTC Agent Desk on Midnight — 71 Verifiable Preprod Users
 
-Below is the verified registry of **71 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** during the Level 5 Full Moon phase.
+Below is the verified registry of **71 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** across Level 5 & Level 6.
 
 Each address has interacted with the protocol on the Midnight Preprod Network (`02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`).
 

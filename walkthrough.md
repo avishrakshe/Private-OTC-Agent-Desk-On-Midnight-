@@ -1,10 +1,10 @@
-# Midnight Builder Challenge — Level 5 (Full Moon) Complete Walkthrough
+# Midnight Builder Challenge — Level 5 & Level 6 Complete Walkthrough
 
-We have completed all requirements for **Level 5 (Full Moon Phase)** of the Midnight Builder Challenge for the **Private OTC Agent Desk on Midnight**.
+We have completed all requirements for **Level 5 & Level 6** of the Midnight Builder Challenge for the **Private OTC Agent Desk on Midnight**.
 
 ---
 
-## 🛠️ Summary of Level 5 Fulfillments
+## 🛠️ Summary of Level 5 & Level 6 Fulfillments
 
 1. **Production-Ready Live dApp & Preprod Activity Proof**:
    - **Live dApp URL:** [https://mn-demo.vercel.app](https://mn-demo.vercel.app)

@@ -1,11 +1,11 @@
 # Private OTC Agent Desk on Midnight — User Feedback & Iteration Report
 
 ## Overview
-During Level 5 (Full Moon Phase), the **Private OTC Agent Desk on Midnight** transitioned from an initial MVP into a live, user-tested protocol. We conducted a structured beta testing program on the **Midnight Preprod Testnet** with 50+ active users, including AI trading agent operators, institutional OTC desks, and zero-knowledge DeFi enthusiasts.
+Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitioned from an initial MVP into a live, user-tested protocol. We conducted a structured beta testing program on the **Midnight Preprod Testnet** with 70+ active users, including AI trading agent operators, institutional OTC desks, and zero-knowledge DeFi enthusiasts.
 
 ---
 
-## 📋 Level 5 User Feedback Collection Mechanism
+## 📋 Level 5 & 6 User Feedback Collection Mechanism
 
 - 📝 **Google Feedback Form:** [Private OTC Agent Desk User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
   - *Collected Fields:* User Name, Email Address, Preprod Wallet Address, Product Rating (1-5 Stars), Most Liked Feature, Missing Features, Usability/Bug Reports, Recommendation Rating, Suggested Improvements.

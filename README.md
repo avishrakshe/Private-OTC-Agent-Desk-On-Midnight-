@@ -50,9 +50,9 @@ Every large trade on a public DEX leaks order size, target price, and trader ide
 
 ---
 
-## 📋 Level 5 User Feedback Loop & Feedback Forms
+## 📋 Level 5 & 6 User Feedback Loop & Feedback Forms
 
-To achieve product-market fit and continuously improve the protocol based on real user feedback during Level 5 (Full Moon Phase), we established a structured feedback collection mechanism for our 50+ Preprod beta testers.
+To achieve product-market fit and continuously improve the protocol based on real user feedback during Level 5 & Level 6, we established a structured feedback collection mechanism for our 70+ Preprod beta testers.
 
 - 📝 **Google Feedback Form:** [Private OTC Agent Desk User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
   - *Form Fields Collected:* User Name, Email Address, Preprod Wallet Address, Overall Product Rating (1-5 Stars), Most Liked Feature, Missing Features, Usability/Bug Reports, Recommendation Rating, and Suggested Improvements.
@@ -112,9 +112,9 @@ Stay connected with the **Private OTC Agent Desk** team and track regular produc
 
 ---
 
-## 👥 Table 1: Users Onboarded (50+ Preprod Users)
+## 👥 Table 1: Users Onboarded (70+ Preprod Users — Level 5/6 Verified)
 
-The table below lists **71 verified active Preprod users** onboarded to the Private OTC Agent Desk during the Level 5 testing phase:
+The table below lists **71 verified active Preprod users** onboarded to the Private OTC Agent Desk:
 
 | User ID | Name | Email | Wallet Address | Feedback Summary |
 |---|---|---|---|---|
@@ -238,7 +238,7 @@ The table below maps specific user feedback submissions to implemented protocol 
 
 ---
 
-## 📄 Level 5 Submission Artifacts & Documentation
+## 📄 Level 5 & Level 6 Submission Artifacts & Documentation
 - **User Usage Guide:** [docs/USAGE.md](docs/USAGE.md)
 - **Feedback & Iteration Report:** [FEEDBACK.md](FEEDBACK.md)
 - **71 Verifiable Preprod Users Registry:** [USERS.md](USERS.md)
