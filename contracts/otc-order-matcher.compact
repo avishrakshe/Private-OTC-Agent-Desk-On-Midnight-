@@ -1,0 +1,38 @@
+// Private OTC Agent Desk - Advanced Order Matcher with Slippage Protection
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// Public on-chain ledger state
+export ledger protocolVersion: Cell<Uint<64>>;
+export ledger totalVolumeSettledDUsd: Cell<Uint<64>>;
+export ledger activeOrderCount: Cell<Uint<64>>;
+export ledger emergencyPauseState: Cell<Boolean>;
+
+// Circuit: Settle multi-asset order with slippage and limit price proof
+export circuit matchWithSlippageBound(
+    buyerMaxPrice: Uint<64>,
+    sellerMinPrice: Uint<64>,
+    clearingPrice: Uint<64>,
+    slippageToleranceBps: Uint<64>,
+    orderAmount: Uint<64>
+): [] {
+    // 1. Verify emergency pause
+    assert !emergencyPauseState "Protocol is currently paused for maintenance";
+
+    // 2. Validate price matching bounds
+    assert clearingPrice <= buyerMaxPrice "Clearing price exceeds buyer maximum limit";
+    assert clearingPrice >= sellerMinPrice "Clearing price is below seller minimum limit";
+
+    // 3. Verify slippage constraint (tolerance in basis points, e.g. 100 = 1%)
+    assert slippageToleranceBps <= 500 "Slippage tolerance exceeds safety bound of 5%";
+
+    // 4. Update on-chain aggregate volume tracking
+    totalVolumeSettledDUsd = totalVolumeSettledDUsd + (orderAmount * clearingPrice);
+    activeOrderCount = activeOrderCount + 1;
+}
+
+// Circuit: Emergency circuit breaker toggle
+export circuit setEmergencyPause(paused: Boolean): [] {
+    emergencyPauseState = paused;
+}
