@@ -78,6 +78,7 @@ export interface UseMidnightResult {
   walletAddress: string | null;
   shieldedAddress: string | null;
   error: string | null;
+  lastProofDurationMs?: number;
   connect: (network: string) => Promise<void>;
   disconnect: () => void;
   runStoreMessage: (
@@ -90,6 +91,7 @@ export interface UseMidnightResult {
 export function useMidnight(): UseMidnightResult {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [lastProofDurationMs, setLastProofDurationMs] = useState<number>(0);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [shieldedAddress, setShieldedAddress] = useState<string | null>(null);
   const [connectedApi, setConnectedApi] = useState<WalletConnectedAPI | null>(null);
@@ -267,8 +269,11 @@ export function useMidnight(): UseMidnightResult {
         initialPrivateState: {}
       });
 
+      const startTime = Date.now();
       // 6. Invoke circuit
       const result = await contract.callTx.settleSealedBidSwap(100n, 95n, 80n, message || '0xreceipt');
+      const elapsedMs = Date.now() - startTime;
+      setLastProofDurationMs(elapsedMs);
       
       onProgress?.('Transaction complete!', 100);
       return result.public.txId || 'Transaction Success';
@@ -282,6 +287,7 @@ export function useMidnight(): UseMidnightResult {
     walletAddress,
     shieldedAddress,
     error,
+    lastProofDurationMs,
     connect,
     disconnect,
     runStoreMessage
