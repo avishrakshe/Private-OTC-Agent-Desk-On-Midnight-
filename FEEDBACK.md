@@ -17,8 +17,8 @@ Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitione
 
 | Metric | Value |
 |---|---|
-| **Total Preprod Onboarded Users** | 71 Active Wallet Addresses |
-| **Total Testnet Swaps Executed** | 240+ Sealed-Bid OTC Orders |
+| **Total Preprod Onboarded Users** | 75 Active Wallet Addresses |
+| **Total Testnet Swaps Executed** | 250+ Sealed-Bid OTC Orders |
 | **Successful ZK Proof Generations** | 100% (Avg 8.4s client-side proof time) |
 | **User Satisfaction Rating** | 4.9 / 5.0 |
 | **Primary Use Cases Tested** | Automated AI Agent Arbitrage, Private OTC Block Swaps, Shielded Settlement |

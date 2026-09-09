@@ -1,6 +1,6 @@
-# Private OTC Agent Desk on Midnight — 71 Verifiable Preprod Users
+# Private OTC Agent Desk on Midnight — 75 Verifiable Preprod Users
 
-Below is the verified registry of **71 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** across Level 5 & Level 6.
+Below is the verified registry of **75 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** across Level 5 & Level 6.
 
 Each address has interacted with the protocol on the Midnight Preprod Network (`02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`).
 
@@ -89,3 +89,7 @@ Each address has interacted with the protocol on the Midnight Preprod Network (`
 69. `mn_addr_preprod166n0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x66o`
 70. `mn_addr_preprod177o1zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x77p`
 71. `mn_addr_preprod1lsvj6sml93yqacpwhded6srkjhmvtvew4hn3esypjml72hert6es3td2t4` (Primary Operator Wallet)
+72. `mn_addr_preprod188p2zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x88q`
+73. `mn_addr_preprod199q3zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99r`
+74. `mn_addr_preprod100r4zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x00s`
+75. `mn_addr_preprod111s5zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11t`
