@@ -1,9 +1,9 @@
 {
   "name": "private-otc-agent-desk-midnight",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "A Midnight Network application created with create-mn-app",
-  "author": "",
+  "author": "avishrakshe",
   "license": "MIT",
   "scripts": {
     "compile": "wsl -e /root/.local/bin/compact compile contracts/private-otc-desk.compact contracts/managed/private-otc-desk",
@@ -17,7 +17,10 @@
     "proof-server:start": "docker compose up -d",
     "proof-server:stop": "docker compose down",
     "clean": "rm -rf contracts/managed .midnight-state.json .midnight-wallet-state",
-    "test": "tsx --test tests/otc-desk.test.ts",
+    "test": "tsx --test tests/otc-desk.test.ts tests/reputation-proofs.test.ts tests/agent-lifecycle.test.ts",
+    "benchmark": "npx tsx scripts/benchmark-proofs.ts",
+    "health-check": "npx tsx scripts/health-check.ts",
+    "scan-balances": "npx tsx scripts/scan-balances.ts",
     "test:e2e": "tsx scripts/e2e-check.ts"
   },
   "dependencies": {

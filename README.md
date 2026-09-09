@@ -240,5 +240,8 @@ The table below maps specific user feedback submissions to implemented protocol 
 
 ## 📄 Level 5 & Level 6 Submission Artifacts & Documentation
 - **User Usage Guide:** [docs/USAGE.md](docs/USAGE.md)
+- **Protocol Architecture Specification:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Security & Threat Model:** [docs/SECURITY.md](docs/SECURITY.md)
+- **Compact SDK & API Reference:** [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
 - **Feedback & Iteration Report:** [FEEDBACK.md](FEEDBACK.md)
-- **71 Verifiable Preprod Users Registry:** [USERS.md](USERS.md)
+- **75 Verifiable Preprod Users Registry:** [USERS.md](USERS.md)
