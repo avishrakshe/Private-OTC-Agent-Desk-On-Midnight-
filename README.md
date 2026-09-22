@@ -249,6 +249,13 @@ Built upon the Level 4 foundation, the Level 5/6 extended MVP includes the follo
 
 ## 🔁 Feedback Loop & Continuous Improvement
 
+> [!IMPORTANT]
+> **Mandatory User Feedback Google Sheet (Level 5 & Level 6):**
+> - 📊 **Public Live Google Sheet:** [Private OTC Agent Desk — User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+> - 📝 **Intake Google Form:** [Private OTC Agent Desk — User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
+> 
+> All 75 beta tester responses, product ratings, bug reports, and UX suggestions are live-collected and publicly tracked in this Google Sheet.
+
 ### Feedback Engineering Pipeline
 
 We implemented an iterative, feedback-driven development cycle engaging our 75 beta testers on the Midnight Preprod testnet:

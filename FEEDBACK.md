@@ -7,9 +7,15 @@ Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitione
 
 ## 📋 Level 5 & 6 User Feedback Collection Mechanism
 
+> [!IMPORTANT]
+> **Mandatory Google Sheet Submission URL:**
+> 👉 **Google Sheet (Public Responses):** [https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+> 
+> *Sharing permission:* Set to **"Anyone with the link can view"**. This contains live tester responses with user ratings, bug reports, and UX recommendations.
+
 - 📝 **Google Feedback Form:** [Private OTC Agent Desk User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
   - *Collected Fields:* User Name, Email Address, Preprod Wallet Address, Product Rating (1-5 Stars), Most Liked Feature, Missing Features, Usability/Bug Reports, Recommendation Rating, Suggested Improvements.
-- 📊 **Exported Form Responses Excel / Google Sheet (Public):** [Public Preprod User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+- 📊 **Exported Form Responses Google Sheet:** [Public Preprod User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
 
 ---
 
