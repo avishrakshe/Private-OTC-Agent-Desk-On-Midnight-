@@ -2,7 +2,7 @@
 
 Below is the verified registry of **75 active Preprod testnet user wallet addresses** onboarded to the **Private OTC Agent Desk on Midnight** across Level 5 & Level 6.
 
-Each address has interacted with the protocol on the Midnight Preprod Network (`02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`).
+Each address has interacted with the protocol on the Midnight Network ([`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1)).
 
 ---
 

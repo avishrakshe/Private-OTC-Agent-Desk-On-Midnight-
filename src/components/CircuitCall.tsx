@@ -13,7 +13,7 @@ type CallStatus = 'idle' | 'executing' | 'success' | 'error';
 
 export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreMessage }) => {
   const [contractAddress, setContractAddress] = useState(
-    '02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a'
+    '7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1'
   );
   const [customMessage, setCustomMessage] = useState('');
   const [status, setStatus] = useState<CallStatus>('idle');

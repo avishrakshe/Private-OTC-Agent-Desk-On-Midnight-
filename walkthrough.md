@@ -8,8 +8,7 @@ We have completed all requirements for **Level 5 & Level 6** of the Midnight Bui
 
 1. **Production-Ready Live dApp & Preprod Activity Proof**:
    - **Live dApp URL:** [https://mn-demo.vercel.app](https://mn-demo.vercel.app)
-   - **Preprod Contract Address:** `02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a` (240+ Swaps)
-   - **Preview Contract Address:** `7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`
+   - **Verified Deployed Contract Address (Preview):** [`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1) (Block: `65647`, Tx: `f149a1ef0aa6ac11d6ba7091cae6a3c4fc659d3b1d136a68162fba54814d0827`)
 
 2. **Google Feedback Form & Public Excel Spreadsheet**:
    - **Google Form URL:** [Private OTC Agent Desk User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)

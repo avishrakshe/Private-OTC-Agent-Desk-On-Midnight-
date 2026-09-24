@@ -33,5 +33,5 @@ sequenceDiagram
 - Generates SNARK zero-knowledge proofs demonstrating arithmetic satisfiability of order constraints.
 
 ### C. Shielded Ledger State
-- Deployed on **Midnight Preprod Testnet** (`02005a3059efee9eeedc1f7ca80004e0e5ea4e8bc1bfaad747e92bcbbbb4cb1a`).
+- Deployed on **Midnight Preview Testnet** ([`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1)).
 - Public state exposes only aggregate counters and blinded receipt hashes.
