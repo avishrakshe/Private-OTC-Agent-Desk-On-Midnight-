@@ -10,6 +10,7 @@ export const App: React.FC = () => {
     isConnecting,
     walletAddress,
     shieldedAddress,
+    networkId,
     error,
     connect,
     disconnect,
@@ -266,6 +267,7 @@ export const App: React.FC = () => {
               <WalletConnect
                 isConnected={isConnected}
                 isConnecting={isConnecting}
+                networkId={networkId}
                 walletAddress={walletAddress}
                 shieldedAddress={shieldedAddress}
                 error={error}
@@ -276,7 +278,7 @@ export const App: React.FC = () => {
 
             {/* Circuit Panel */}
             <section aria-label="Circuit Execution">
-              <CircuitCall isConnected={isConnected} runStoreMessage={runStoreMessage} />
+              <CircuitCall isConnected={isConnected} networkId={networkId} runStoreMessage={runStoreMessage} />
             </section>
           </div>
         </div>

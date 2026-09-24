@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 interface CircuitCallProps {
   isConnected: boolean;
+  networkId?: string;
   runStoreMessage: (
     contractAddress: string,
     message: string,
@@ -11,7 +12,7 @@ interface CircuitCallProps {
 
 type CallStatus = 'idle' | 'executing' | 'success' | 'error';
 
-export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreMessage }) => {
+export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId, runStoreMessage }) => {
   const [contractAddress, setContractAddress] = useState(
     '7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1'
   );
@@ -63,7 +64,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreM
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
-            Circuit Execution (<code style={{ fontSize: '14px', color: '#64748b' }}>settleSealedBidSwap</code>)
+            Circuit Execution (<code style={{ fontSize: '14px', color: '#64748b' }}>storeMessage</code>)
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
             Prove state transitions locally with Zero-Knowledge inputs.
@@ -107,7 +108,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreM
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '18px' }}>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-              Contract Address (Preprod Testnet)
+              Contract Address ({networkId === 'preprod' ? 'Preprod' : 'Preview'} Testnet)
             </label>
             <input
               type="text"
@@ -127,6 +128,11 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, runStoreM
                 outline: 'none',
               }}
             />
+            {networkId && networkId !== 'preview' && (
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#b45309', backgroundColor: '#fffbeb', padding: '8px 12px', borderRadius: '8px', border: '1px solid #fde68a', lineHeight: 1.4 }}>
+                ⚠️ <strong>Network Warning:</strong> You are connected to <strong>{networkId === 'preprod' ? 'Preprod' : networkId}</strong>, but contract <code>{contractAddress.slice(0, 10)}...</code> is on <strong>Preview Testnet</strong>. Please disconnect and reconnect with <strong>Preview Testnet</strong> (and set Lace to Preview) to interact with this contract.
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: '22px' }}>

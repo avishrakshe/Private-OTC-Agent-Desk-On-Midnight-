@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 interface WalletConnectProps {
   isConnected: boolean;
   isConnecting: boolean;
+  networkId?: string;
   walletAddress: string | null;
   shieldedAddress: string | null;
   error: string | null;
@@ -13,6 +14,7 @@ interface WalletConnectProps {
 export const WalletConnect: React.FC<WalletConnectProps> = ({
   isConnected,
   isConnecting,
+  networkId,
   walletAddress,
   shieldedAddress,
   error,
@@ -80,7 +82,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
             }}
           />
           <span style={{ fontSize: '12px', fontWeight: 600, color: isConnected ? '#15803d' : '#b45309' }}>
-            {isConnected ? 'Connected' : 'Disconnected'}
+            {isConnected ? `Connected (${networkId === 'preprod' ? 'Preprod' : networkId === 'undeployed' ? 'Local' : 'Preview'})` : 'Disconnected'}
           </span>
         </div>
       </div>

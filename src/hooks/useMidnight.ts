@@ -4,9 +4,9 @@ import { parseCoinPublicKeyToHex, parseEncPublicKeyToHex } from '@midnight-ntwrk
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
-import { findDeployedContract, type FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
+import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { type MidnightProviders, type PrivateStateProvider } from '@midnight-ntwrk/midnight-js-types';
-import * as privateOtcDesk from '../../contracts/managed/private-otc-desk/contract';
+import * as helloWorld from '../../contracts/managed/hello-world/contract';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
 import { MidnightBech32m, ShieldedAddress, ShieldedCoinPublicKey, ShieldedEncryptionPublicKey } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { setNetworkId as setMidnightNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
@@ -77,6 +77,7 @@ export interface UseMidnightResult {
   isConnecting: boolean;
   walletAddress: string | null;
   shieldedAddress: string | null;
+  networkId: string;
   error: string | null;
   lastProofDurationMs?: number;
   connect: (network: string) => Promise<void>;
@@ -258,20 +259,35 @@ export function useMidnight(): UseMidnightResult {
 
       // 5. Load the deployed contract instance
       onProgress?.('Connecting to contract on-chain & verifying state...', 25);
-      const compiledContract = CompiledContract.make('private-otc-desk', privateOtcDesk.Contract).pipe(
+      const compiledContract = CompiledContract.make('hello-world', helloWorld.Contract).pipe(
         CompiledContract.withVacantWitnesses
       );
 
-      const contract = await findDeployedContract(providers, {
+      const findContractPromise = findDeployedContract(providers, {
         compiledContract: compiledContract as any,
         contractAddress: contractAddress,
-        privateStateId: 'privateOtcDeskPrivateState',
+        privateStateId: 'helloWorldPrivateState',
         initialPrivateState: {}
       });
 
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Contract ${contractAddress.slice(0, 16)}... was not found on ${networkId}. If your contract is on Preview, please ensure your Lace wallet is set to Midnight Preview Testnet.`
+              )
+            ),
+          15000
+        )
+      );
+
+      const contract = await Promise.race([findContractPromise, timeoutPromise]);
+
       const startTime = Date.now();
       // 6. Invoke circuit
-      const result = await contract.callTx.settleSealedBidSwap(100n, 95n, 80n, message || '0xreceipt');
+      onProgress?.('Generating ZK proof & submitting transaction...', 60);
+      const result = await contract.callTx.storeMessage(message);
       const elapsedMs = Date.now() - startTime;
       setLastProofDurationMs(elapsedMs);
       
@@ -284,6 +300,7 @@ export function useMidnight(): UseMidnightResult {
   return {
     isConnected,
     isConnecting,
+    networkId,
     walletAddress,
     shieldedAddress,
     error,
