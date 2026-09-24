@@ -213,17 +213,40 @@ export function useMidnight(): UseMidnightResult {
         MidnightBech32m.parse(rawAddrStr)
       );
 
+      const coinPublicKeyHex: string =
+        typeof (decodedShieldedAddr as any).coinPublicKeyString === 'function'
+          ? (decodedShieldedAddr as any).coinPublicKeyString()
+          : (decodedShieldedAddr.coinPublicKey as any)?.toHexString?.() ||
+            ((decodedShieldedAddr.coinPublicKey as any)?.data
+              ? Array.from((decodedShieldedAddr.coinPublicKey as any).data as Uint8Array)
+                  .map((b) => b.toString(16).padStart(2, '0'))
+                  .join('')
+              : String(decodedShieldedAddr.coinPublicKey));
+
+      const encryptionPublicKeyHex: string =
+        typeof (decodedShieldedAddr as any).encryptionPublicKeyString === 'function'
+          ? (decodedShieldedAddr as any).encryptionPublicKeyString()
+          : (decodedShieldedAddr.encryptionPublicKey as any)?.toHexString?.() ||
+            ((decodedShieldedAddr.encryptionPublicKey as any)?.data
+              ? Array.from((decodedShieldedAddr.encryptionPublicKey as any).data as Uint8Array)
+                  .map((b) => b.toString(16).padStart(2, '0'))
+                  .join('')
+              : String(decodedShieldedAddr.encryptionPublicKey));
+
       const walletProvider = {
-        getCoinPublicKey: () => {
-          return decodedShieldedAddr.coinPublicKey;
-        },
-        getEncryptionPublicKey: () => {
-          return decodedShieldedAddr.encryptionPublicKey;
-        },
+        getCoinPublicKey: () => coinPublicKeyHex,
+        getEncryptionPublicKey: () => encryptionPublicKeyHex,
         balanceTx: async (tx: any, ttl?: Date) => {
           onProgress?.('Balancing & requesting transaction signature from Lace Wallet...', 75);
-          const txString = typeof tx === 'string' ? tx : tx.toString();
-          const response = await connectedApi.balanceUnsealedTransaction(txString, {
+          const serializedTx =
+            typeof tx === 'string'
+              ? tx
+              : typeof tx?.serialize === 'function'
+              ? Array.from(tx.serialize() as Uint8Array)
+                  .map((b: number) => b.toString(16).padStart(2, '0'))
+                  .join('')
+              : String(tx);
+          const response = await connectedApi.balanceUnsealedTransaction(serializedTx, {
             payFees: true
           });
           return response.tx;
@@ -233,7 +256,16 @@ export function useMidnight(): UseMidnightResult {
       const midnightProvider = {
         submitTx: async (tx: any) => {
           onProgress?.('Submitting transaction to Midnight Network...', 90);
-          const txString = typeof tx === 'string' ? tx : tx.toString();
+          const txString =
+            typeof tx === 'string'
+              ? tx
+              : typeof tx?.tx === 'string'
+              ? tx.tx
+              : typeof tx?.serialize === 'function'
+              ? Array.from(tx.serialize() as Uint8Array)
+                  .map((b: number) => b.toString(16).padStart(2, '0'))
+                  .join('')
+              : String(tx);
           await connectedApi.submitTransaction(txString);
           return 'browser-submitted-tx';
         }
@@ -241,9 +273,10 @@ export function useMidnight(): UseMidnightResult {
 
       const rawProofProvider = httpClientProofProvider(proofServerUri, zkConfigProvider);
       const proofProvider = {
-        prove: async (circuitId: string, witness: any) => {
+        ...rawProofProvider,
+        proveTx: async (unprovenTx: any, config?: any) => {
           onProgress?.('Generating ZK proof via local proof server (takes ~15-30s)...', 35);
-          return await rawProofProvider.prove(circuitId, witness);
+          return await rawProofProvider.proveTx(unprovenTx, config);
         }
       };
 
@@ -292,7 +325,13 @@ export function useMidnight(): UseMidnightResult {
       setLastProofDurationMs(elapsedMs);
       
       onProgress?.('Transaction complete!', 100);
-      return result.public.txId || 'Transaction Success';
+      return (
+        (result as any)?.public?.txHash ||
+        (result as any)?.public?.txId ||
+        (result as any)?.txHash ||
+        (result as any)?.txId ||
+        'Transaction Success'
+      );
     },
     [connectedApi, walletAddress, shieldedAddress, networkId]
   );
