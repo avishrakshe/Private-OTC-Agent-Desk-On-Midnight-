@@ -125,6 +125,13 @@ export const App: React.FC = () => {
             >
               Contract on explorer ↗
             </a>
+            <a
+              href="https://preview.midnightexplorer.com/contracts/07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33"
+              target="_blank"
+              rel="noreferrer"
+            >
+              RFQ contract on explorer ↗
+            </a>
             <a href="https://docs.midnight.network" target="_blank" rel="noreferrer">
               Midnight docs ↗
             </a>

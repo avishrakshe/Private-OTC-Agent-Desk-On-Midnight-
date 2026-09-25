@@ -24,6 +24,8 @@ contracts/managed/private-otc-desk/keys/*.prover
 deployment.json
 
 # Wallet seed (sensitive)
+# RFQ desk oracle key + auditor viewing key (written by `npm run deploy:otc`)
+.otc-desk-keys.json
 
 # OS generated files
 .DS_Store

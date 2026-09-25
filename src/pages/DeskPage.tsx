@@ -234,7 +234,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
             id="desk-title"
             eyebrow="Live on Midnight Preview"
             title="Connect, prove, settle."
-            lead="This part goes on-chain: your wallet, a deployed Compact contract, a real proof and a real transaction. It uses the storeMessage demo contract. The RFQ contract above is compiled and tested but not yet deployed."
+            lead="This part goes on-chain: your wallet, a deployed Compact contract, a real proof and a real transaction. It calls the storeMessage demo contract. The RFQ contract is deployed on Preview too (see the footer link), and the agents above run its circuits locally."
           />
           <div className="desk-grid">
             <Reveal>

@@ -152,7 +152,7 @@ async function main() {
 
         case '2':
         case '3':
-          console.log('\n  Not available yet: deploy contracts/private-otc-desk.compact first.\n');
+          console.log('\n  Not available yet: on-chain RFQ calls from the CLI are not wired up (use npm run deploy:otc to deploy).\n');
           break;
 
         case '4': {

@@ -6,6 +6,7 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { inspect } from 'node:util';
 import { resolveNetwork, getOrCreateSeed, recordDeployment } from './network';
 import { createWallet, persistWalletState, unshieldedToken, type WalletContext } from './wallet';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -23,9 +24,14 @@ import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-j
 // @ts-expect-error Required for wallet sync
 globalThis.WebSocket = WebSocket;
 
+// Which contract to deploy: hello-world (default) or the RFQ desk (`--contract otc`).
+const DEPLOY_OTC = process.argv.includes('--contract=otc') ||
+  process.argv.some((a, i) => a === '--contract' && process.argv[i + 1] === 'otc');
+
 // Identifier under which this contract's private state is stored. The
 // hello-world contract has no witnesses, so its private state is empty ({}).
-const PRIVATE_STATE_ID = 'helloWorldPrivateState';
+// The RFQ desk's private state holds the oracle/admin secret key.
+const PRIVATE_STATE_ID = DEPLOY_OTC ? 'privateOtcDeskPrivateState' : 'helloWorldPrivateState';
 
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
@@ -66,20 +72,70 @@ async function waitForProofServer(maxAttempts = 60, delayMs = 2000): Promise<boo
 // ─── Compiled contract loading ─────────────────────────────────────────────────
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
+const contractName = DEPLOY_OTC ? 'private-otc-desk' : 'hello-world';
+const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', contractName);
 const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
 
 if (!fs.existsSync(contractPath)) {
   console.error('\n❌ Contract not compiled! Run: npm run compile\n');
   process.exit(1);
 }
+if (DEPLOY_OTC && !fs.existsSync(path.join(zkConfigPath, 'keys', 'acceptQuote.prover'))) {
+  console.error('\n❌ Prover keys missing (they are gitignored). Recompile private-otc-desk.compact without --skip-zk.\n');
+  process.exit(1);
+}
 
-const HelloWorld = await import(pathToFileURL(contractPath).href);
+const Compiled = await import(pathToFileURL(contractPath).href);
 
-const compiledContract = CompiledContract.make('hello-world', HelloWorld.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
-  CompiledContract.withCompiledFileAssets(zkConfigPath),
-);
+// RFQ desk: the `secretKey` witness returns the caller's key from private state (stored as hex).
+type OtcPrivateState = { secretKey: string };
+const otcWitnesses = {
+  secretKey: ({ privateState }: { privateState: OtcPrivateState }) =>
+    [privateState, Uint8Array.from(Buffer.from(privateState.secretKey, 'hex'))] as const,
+};
+
+const compiledContract = DEPLOY_OTC
+  ? CompiledContract.make(contractName, Compiled.Contract).pipe(
+      CompiledContract.withWitnesses(otcWitnesses as any),
+      CompiledContract.withCompiledFileAssets(zkConfigPath),
+    )
+  : CompiledContract.make(contractName, Compiled.Contract).pipe(
+      CompiledContract.withVacantWitnesses,
+      CompiledContract.withCompiledFileAssets(zkConfigPath),
+    );
+
+/** Oracle/admin key and auditor viewing key for the RFQ desk, saved locally (gitignored). */
+const OTC_KEYS_FILE = path.resolve(__dirname, '..', '.otc-desk-keys.json');
+const OTC_INITIAL_TWAP = 842_000n; // $0.842 in QUOTE micro-units
+const OTC_BAND_BPS = 300n; // ±3%
+
+async function prepareOtcDeploy(): Promise<{ args: unknown[]; initialPrivateState: OtcPrivateState }> {
+  const subtle = globalThis.crypto.subtle;
+  const adminSecret = Buffer.from(globalThis.crypto.getRandomValues(new Uint8Array(32))).toString('hex');
+  const auditor = (await subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits'])) as CryptoKeyPair;
+  const auditorPublic = new Uint8Array(await subtle.exportKey('raw', auditor.publicKey));
+  const fingerprint = new Uint8Array(await subtle.digest('SHA-256', auditorPublic));
+  fs.writeFileSync(
+    OTC_KEYS_FILE,
+    JSON.stringify(
+      {
+        network,
+        createdAt: new Date().toISOString(),
+        oracleAdminSecretKey: adminSecret,
+        auditorViewingKey: {
+          publicKeyRaw: Buffer.from(auditorPublic).toString('hex'),
+          fingerprint: Buffer.from(fingerprint).toString('hex'),
+          privateKeyJwk: await subtle.exportKey('jwk', auditor.privateKey),
+        },
+      },
+      null,
+      2,
+    ),
+    { mode: 0o600 },
+  );
+  console.log(`  Oracle key + auditor viewing key written to ${path.basename(OTC_KEYS_FILE)} (keep it private)`);
+  return { args: [OTC_INITIAL_TWAP, OTC_BAND_BPS, fingerprint], initialPrivateState: { secretKey: adminSecret } };
+}
 
 // ─── Providers ─────────────────────────────────────────────────────────────────
 
@@ -112,7 +168,7 @@ async function createProviders(walletCtx: WalletContext) {
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'hello-world-state',
+      privateStateStoreName: DEPLOY_OTC ? 'otc-desk-state' : 'hello-world-state',
       accountId,
       privateStoragePasswordProvider: () => privateStatePassword,
     }),
@@ -128,7 +184,7 @@ async function createProviders(walletCtx: WalletContext) {
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════════╗');
-  console.log(`║  Deploy mn-demo to ${network}`);
+  console.log(`║  Deploy ${contractName} to ${network}`);
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
   const seed = SEED;
@@ -225,13 +281,26 @@ async function main() {
     // with N signatures matching N inputs. Do NOT call signRecipe again — that
     // would double-sign and the chain rejects with InputsSignaturesLengthMismatch
     // (Custom error 192). Matches upstream example-counter and example-bboard.
-    const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
-      unregisteredUtxos,
-      walletCtx.unshieldedKeystore.getPublicKey(),
-      (payload) => walletCtx.unshieldedKeystore.signData(payload),
-    );
-    const finalized = await walletCtx.wallet.finalizeRecipe(recipe);
-    await walletCtx.wallet.submitTransaction(finalized);
+    // A freshly funded UTXO must first accrue enough generated DUST to pay the
+    // registration fee; that accrues per block, so retry for up to ~10 minutes.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
+          unregisteredUtxos,
+          walletCtx.unshieldedKeystore.getPublicKey(),
+          (payload) => walletCtx.unshieldedKeystore.signData(payload),
+        );
+        const finalized = await walletCtx.wallet.finalizeRecipe(recipe);
+        await walletCtx.wallet.submitTransaction(finalized);
+        break;
+      } catch (err: any) {
+        const msg = inspect(err, { depth: 8 });
+        const retryable = msg.includes('Insufficient generated dust') || msg.includes('disconnected from');
+        if (!retryable || attempt >= 40) throw err;
+        process.stdout.write(`\r  DUST registration not accepted yet, retrying... (${attempt})   `);
+        await new Promise((r) => setTimeout(r, 15_000));
+      }
+    }
   }
 
   if (dustState.dust.balance(new Date()) === 0n) {
@@ -260,6 +329,7 @@ async function main() {
 
   console.log('  Setting up providers...');
   const providers = await createProviders(walletCtx);
+  const deployInputs = DEPLOY_OTC ? await prepareOtcDeploy() : { args: [], initialPrivateState: {} };
 
   // The wallet's reported DUST balance is a *time-projection* of what its
   // registered NIGHT will eventually generate; the tx-builder spends only
@@ -291,9 +361,9 @@ async function main() {
       // conditional args type widens to any[] and an explicit [] is required.)
       deployed = await deployContract(providers, {
         compiledContract: compiledContract as any,
-        args: [],
+        args: deployInputs.args as any,
         privateStateId: PRIVATE_STATE_ID,
-        initialPrivateState: {},
+        initialPrivateState: deployInputs.initialPrivateState as any,
       });
       break;
     } catch (err: any) {

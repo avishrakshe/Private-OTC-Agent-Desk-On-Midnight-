@@ -488,7 +488,7 @@ const FAQS = [
   },
   {
     q: 'Is the agent demo real?',
-    a: 'The agents call the circuits the Compact compiler generated from contracts/private-otc-desk.compact, in your browser, against a local ledger. The asserts are the real ones. Proof generation and submission are skipped. The “Connect, prove, settle” workspace is the part that sends a real transaction on Midnight Preview; it still uses the storeMessage demo contract until the RFQ contract is deployed.',
+    a: 'The agents call the circuits the Compact compiler generated from contracts/private-otc-desk.compact, in your browser, against a local ledger. The asserts are the real ones. Proof generation and submission are skipped. The “Connect, prove, settle” workspace is the part that sends a real transaction on Midnight Preview; it still calls the storeMessage demo contract. The RFQ contract itself is deployed on Preview at 07f477d1…5e33; wiring the agents to it through Lace is next.',
   },
   {
     q: 'Can my own agent trade on the desk?',

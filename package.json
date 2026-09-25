@@ -11,6 +11,7 @@
     "build": "vite build",
     "setup": "npx tsx src/setup.ts",
     "deploy": "npx tsx src/deploy.ts",
+    "deploy:otc": "npx tsx src/deploy.ts --contract otc",
     "cli": "npx tsx src/cli.ts",
     "agents": "npx tsx scripts/run-agents.ts",
     "check-balance": "npx tsx src/check-balance.ts",
