@@ -1,420 +1,573 @@
-# Private OTC Agent Desk on Midnight
+<h1 align="center">🌑 Private OTC Agent Desk</h1>
 
 <p align="center">
-  <img src="assets/banner.png" alt="Private OTC Agent Desk on Midnight" width="100%" />
+  <b>A sealed-RFQ trading desk on Midnight for DAO treasuries, market makers and AI agents.</b><br/>
+  Nobody sees the order until it's filled.
 </p>
 
 <p align="center">
-  <a href="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml"><img src="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" /></a>
-  <img src="https://img.shields.io/badge/Midnight-Preprod%20Testnet-00e5ff?style=flat-square&logo=blockchain" alt="Midnight Network" />
-  <img src="https://img.shields.io/badge/Compact%20compiler-0.31.1-6c5ce7?style=flat-square" alt="Compact compiler" />
-  <img src="https://img.shields.io/badge/Zero--Knowledge-Compact%20circuits-success?style=flat-square" alt="ZK Proofs" />
-  <img src="https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-8.1-646cff?style=flat-square&logo=vite" alt="Vite" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
+  <a href="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml"><img src="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <img src="https://img.shields.io/badge/Midnight-Preview-00e5ff?style=flat-square" alt="Midnight Preview" />
+  <img src="https://img.shields.io/badge/Compact%20compiler-0.31.1-6c5ce7?style=flat-square" alt="Compact compiler 0.31.1" />
+  <img src="https://img.shields.io/badge/tests-16%20passing-success?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT" />
 </p>
 
-> **Tagline:** A sealed-RFQ OTC desk on Midnight for DAO treasuries, market makers and AI agents. Quotes are commitments, the taker proves the match in zero knowledge, and agents trade under mandates they can't break. Nothing about an order is visible before it fills.
+<p align="center">
+  <a href="https://mn-demo.vercel.app"><b>🌐 Live app</b></a> ·
+  <a href="https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm"><b>🎬 Demo video</b></a> ·
+  <a href="https://preview.midnightexplorer.com/contracts/07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33"><b>📜 RFQ contract on Preview</b></a> ·
+  <a href="https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing"><b>📊 Feedback sheet</b></a>
+</p>
 
 ---
 
-## 📑 Table of Contents
-- [🌐 Live Demo & Deliverables](#-live-demo--deliverables)
-- [📜 Verified Deployed Contract Addresses](#-verified-deployed-contract-addresses)
-- [💡 Problem & Solution](#-problem--solution)
-- [📐 Protocol Architecture](#-protocol-architecture)
-  - [Protocol guarantees](#protocol-guarantees-all-in-contractsprivate-otc-deskcompact)
-  - [Sealed RFQ lifecycle](#sealed-rfq-lifecycle)
-  - [What the chain sees](#what-the-chain-sees)
-- [🔒 Privacy Model](#-privacy-model)
-- [🤖 Reference Agents](#-reference-agents)
-- [🚀 Extended Protocol Features](#-extended-protocol-features)
-- [🔁 Feedback Loop & Continuous Improvement](#-feedback-loop--continuous-improvement)
-  - [Feedback Engineering Pipeline](#feedback-engineering-pipeline)
-  - [Beta Testing Metrics](#beta-testing-program-metrics)
-  - [Table: Feedback Implementation & Commit Traceability](#table-feedback-implementation--commit-traceability)
-- [👥 Verifiable Preprod Users Registry](#-verifiable-preprod-users-registry-75-users)
-- [📂 Repository Structure](#-repository-structure)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [⚙️ Getting Started & Quickstart](#️-getting-started--quickstart)
-- [🧪 Testing & Verification](#-testing--verification)
-- [📄 Documentation Index](#-documentation-index)
-- [📢 Community & Socials](#-community--socials)
+## ✨ In 30 seconds
+
+Selling a large block of tokens on a public exchange tells the whole market what you're about to do, and bots trade against you before your order fills.
+
+**Private OTC Agent Desk** moves block trades into a **sealed request for quote (RFQ)** on [Midnight](https://midnight.network), a blockchain built for zero-knowledge privacy:
+
+- 🔒 **Market makers commit to their quotes.** The chain stores a hash, not a price.
+- 🧮 **The seller proves the match in zero knowledge:** "this quote beats my private floor." Nobody else learns the floor or the price.
+- 🤖 **AI agents trade under a mandate** their owner committed to on-chain. They can't break it, and nobody can read it.
+- 💰 **Every quote is backed by escrow**, every price is checked against an oracle band, and an **auditor** can verify every trade with a viewing key.
+
+> **Try it without a wallet:** open the [live app](https://mn-demo.vercel.app), scroll to **Agents** and press **Run the desk**. It runs the real compiled contract in your browser.
 
 ---
 
-## 🌐 Live Demo & Deliverables
+## 📑 Contents
 
-| Deliverable | Resource Link | Description |
-|---|---|---|
-| **Live Web dApp** | [https://mn-demo.vercel.app](https://mn-demo.vercel.app) | Production dApp deployed on Vercel connected to Midnight Preprod |
-| **Demo Video Walkthrough** | [YouTube Video Walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) | Full end-to-end demonstration of multi-agent sealed-bid swaps & ZK proving |
-| **Public GitHub Repository** | [GitHub Repo](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-) | Complete source code, Compact circuits, tests, and documentation |
-| **Feedback Google Form** | [User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor) | Live feedback collection form for beta testers |
-| **Feedback Responses Sheet** | [Public Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing) | Public spreadsheet recording tester responses and ratings |
-| **Verified Preprod Users (75)** | [USERS.md](USERS.md) | Registry of 75 verifiable Preprod user wallet addresses |
-| **Feedback & Iteration Report** | [FEEDBACK.md](FEEDBACK.md) | Structured documentation of feedback loop and UX improvements |
-
----
-
-## 📜 Verified Deployed Contract Addresses
-
-The protocol is actively deployed and verified across Midnight testnet environments:
-
-| Network | Contract Address | Explorer / Activity Status |
-|---|---|---|
-| **Midnight Preview Testnet: sealed RFQ desk (`private-otc-desk.compact`)** | [`07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33`](https://preview.midnightexplorer.com/contracts/07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33) | 🟢 Deployed with `npm run deploy:otc -- --network preview`. Oracle TWAP $0.842, band ±3% |
-| **Midnight Preview Testnet: storeMessage demo (`hello-world.compact`)** | [`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1) | 🟢 **Verified & Active** ([View on Midnight Explorer](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1))<br>• Block Height: `65647`<br>• Tx Hash: `f149a1ef0aa6ac11d6ba7091cae6a3c4fc659d3b1d136a68162fba54814d0827` |
+1. [The problem](#-the-problem)
+2. [How it works](#-how-it-works)
+3. [Features: the six protocol guarantees](#-features-the-six-protocol-guarantees)
+4. [Agents: the demo story](#-agents-the-demo-story)
+5. [What the chain sees](#-what-the-chain-sees)
+6. [Website tour](#-website-tour)
+7. [Architecture](#-architecture)
+8. [Smart contract](#-smart-contract)
+9. [Deployments](#-deployments)
+10. [Getting started](#-getting-started)
+11. [Testing](#-testing)
+12. [Repository structure](#-repository-structure)
+13. [Scope and roadmap](#-scope-and-roadmap)
+14. [Hackathon deliverables](#-hackathon-deliverables)
+15. [Documentation and community](#-documentation-and-community)
 
 ---
 
-## 💡 Problem & Solution
+## 🧨 The problem
 
-### The Problem: pre-trade leakage
-On a public AMM or DEX, every large order broadcasts its size, limit price and wallet identity before it executes. Searcher bots read that signal and front-run, sandwich or fade it. MEV is extracted **before** execution, so that is where the leak has to be closed. It hits hardest on block trades: a DAO diversifying its treasury, a fund selling unlocked tokens, a market maker filling size.
+On a public DEX, an order is visible **before** it executes: its size, its limit price and the wallet sending it. Searcher bots read that signal and front-run it, sandwich it, or trade ahead of the rest of a schedule.
 
-AI agents make it worse. An agent can't be handed a treasury on a public chain without broadcasting its strategy, and its owner has no way to bound what it does.
+```mermaid
+flowchart LR
+    A["🏦 DAO sells 600k tokens"] --> B["👀 Public mempool<br/>size + price visible"]
+    B --> C["🤖 MEV bots<br/>front-run / sandwich"]
+    C --> D["📉 Worse fill<br/>schedule exposed"]
+    style B fill:#3a1c24,stroke:#ff6b81,color:#fff
+    style C fill:#3a1c24,stroke:#ff6b81,color:#fff
+```
 
-### The Solution: a sealed RFQ desk on Midnight
-A ZK prover has to know every private input, so no single party can prove `buyerBid >= sellerAsk` over two strangers' prices. The desk therefore uses the model real OTC desks use, **request for quote (RFQ)**:
+It hurts most on the trades that matter:
 
-1. **The maker commits.** It posts `commit(price, size)` on-chain, escrows `price × size` from its vault, and sends the opening to the taker, encrypted to the taker's key.
-2. **The taker proves the match.** It's the one party that legitimately knows both numbers. `acceptQuote` proves that the opening matches the commitment and that `quote ≥ its private floor`. It also checks the taker's mandate, the oracle band and the taker's funds.
-3. **It clears at the maker's quote.** The taker's floor is never revealed, not even to the maker.
-4. **The auditor can verify.** A receipt commitment goes on-chain, and its opening is encrypted to the auditor's registered viewing key.
+| Who | Pain |
+|---|---|
+| 🏦 **DAO treasuries** | Diversifying out of the native token crashes its price |
+| 🔓 **Token unlocks** | Teams and funds selling vested tokens into a thin public book |
+| 📈 **Market makers** | Can't fill size without revealing inventory and limits |
+| 🤖 **AI treasury agents** | Their owners can't bound what the agent does, and the strategy is public the moment it trades |
 
-The counterparty learns the price. The market and the bots don't.
+MEV happens before execution, so **pre-trade privacy is the product.**
 
 ---
 
-## 📐 Protocol Architecture
+## ⚙️ How it works
 
-### Protocol guarantees (all in [`contracts/private-otc-desk.compact`](contracts/private-otc-desk.compact))
+### Why an RFQ?
 
-| # | Guarantee | Where it's enforced |
-|---|---|---|
-| 1 | **Pre-trade privacy.** RFQs, quotes and fills go on-chain only as commitments | `openRfq`, `submitQuote`, `acceptQuote` |
-| 2 | **ZK agent mandates.** An owner commits to max notional, price floor and ceiling. Every order proves it stays inside them | `registerMandate`, `checkMandate` |
-| 3 | **Proof of funds and escrow.** Vaults are balance commitments. Quotes lock `price × size` when posted, and takers prove they hold what they sell | `depositBase/Quote`, `submitQuote`, `acceptQuote` |
-| 4 | **Oracle price band.** Price within ±band of the posted TWAP, checked at quote time and again at match time | `checkOracleBand`, `postOraclePrice` |
-| 5 | **Selective disclosure.** Receipt commitment plus a viewing key registered for the auditor | `receipts`, `auditorKey` |
-| 6 | **Reputation from history.** The contract counts every quote and fill itself. No self-reported scores | `quotesPosted`, `fillsSettled` |
+A zero-knowledge prover has to know every private input. The buyer's price and the seller's limit belong to two different people, so no single party could prove `bid ≥ ask` over both. The desk uses the model real OTC desks use, the **request for quote**. That way the one party who legitimately knows both numbers, the taker, does the proving.
 
-Quotes are firm while the RFQ is open. Losing makers release escrow once it closes (`cancelQuote`), and the winner claims its tokens (`claimFill`). Expiry uses block time.
-
-### Sealed RFQ lifecycle
+### The flow in four steps
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor T as 🏦 Treasury Seller agent (taker)
-    actor M as 🤖 Market Maker agent
-    participant C as ⛓️ private-otc-desk
+    actor T as 🏦 Treasury Seller (taker)
+    actor M as 🤖 Market Maker
+    participant C as ⛓️ Desk contract (Midnight)
     actor A as 🔍 Auditor
 
-    T->>C: openRfq(id, commit(takerKey), expiry)
-    T-->>M: IOI (size), point-to-point
-    M->>C: submitQuote: commit(price,size), proves mandate + band + funds, escrows price×size
-    M-->>T: quote opening, encrypted to T
-    Note over T: decrypts all quotes, picks the best ≥ private floor
-    T->>C: acceptQuote: proves opening, quote ≥ floor, mandate, band, funds
-    C->>C: rotate vault commitments, store receipt commitment, bump counters
-    T-->>A: receipt opening, encrypted to the viewing key
-    M->>C: claimFill (winner) / cancelQuote (losers release escrow)
-    A->>C: recompute receiptCommitment and check it matches
+    T->>C: openRfq: id + hidden owner + expiry
+    T-->>M: "I'm selling 600k" (private message)
+    M->>C: submitQuote: hash(price, size), escrow locked
+    M-->>T: price + size, encrypted to the taker
+    Note over T: decrypts every quote,<br/>picks the best one ≥ private floor
+    T->>C: acceptQuote: ZK proof of the match
+    C->>C: swap balances, store receipt hash
+    T-->>A: receipt, encrypted to the auditor's viewing key
+    M->>C: claimFill (winner) / cancelQuote (losers get escrow back)
+    A->>C: re-hash receipt, check it matches ✓
 ```
 
-### What the chain sees
+1. **Ask.** The seller opens an RFQ. On-chain there's only an id and a hidden owner; the size goes privately to the makers it chose.
+2. **Quote.** Each maker posts `commit(price, size)` and locks `price × size` from its vault. The opening goes only to the seller, encrypted.
+3. **Match.** The seller's agent proves in `acceptQuote` that the quote matches its commitment, that `price ≥ its private floor`, and that the trade is inside its mandate, the oracle band and its funds. **The trade clears at the maker's quote.**
+4. **Audit.** A receipt commitment is stored. The auditor opens it with its viewing key and checks it against the chain.
+
+---
+
+## 🛡️ Features: the six protocol guarantees
+
+These are properties of the contract, not of any one agent. **If an order breaks one, no proof exists, so no transaction exists.**
+
+| # | Guarantee | What it means | Enforced in |
+|:-:|---|---|---|
+| 1 | 🔒 **Pre-trade privacy** | RFQs, quotes and fills go on-chain only as commitments. Nothing to front-run. | `openRfq` · `submitQuote` · `acceptQuote` |
+| 2 | 📜 **ZK agent mandates** | The owner commits to max notional and a price floor and ceiling. Every order proves it's inside them without revealing them. | `registerMandate` · `checkMandate` |
+| 3 | 💰 **Proof of funds + escrow** | Vaults hold balance commitments. A quote must be fully backed and locks its funds when posted; the seller proves it holds what it sells. | `depositBase/Quote` · `submitQuote` · `acceptQuote` |
+| 4 | 📏 **Oracle price band** | Every price is proven within ±3% of the public oracle TWAP, at quote time and again at match time. Stops fat fingers and manipulation. | `checkOracleBand` · `postOraclePrice` |
+| 5 | 🔍 **Selective disclosure** | Each fill stores a receipt commitment; its opening is encrypted to the auditor's registered viewing key. Regulators see trades, not strategies. | `receipts` · `auditorKey` |
+| 6 | ⭐ **Reputation from history** | Fill rate comes from counters the contract increments itself. No self-reported scores to fake. | `quotesPosted` · `fillsSettled` |
+
+```mermaid
+flowchart TB
+    Q["Order from an agent"] --> G1{"Matches its<br/>sealed quote?"}
+    G1 -- no --> X["❌ No proof → no transaction<br/>nothing reaches the chain"]
+    G1 -- yes --> G2{"Price ≥ private floor?"}
+    G2 -- no --> X
+    G2 -- yes --> G3{"Inside owner's<br/>mandate?"}
+    G3 -- no --> X
+    G3 -- yes --> G4{"Within ±3%<br/>of oracle TWAP?"}
+    G4 -- no --> X
+    G4 -- yes --> G5{"Funds in vault?"}
+    G5 -- no --> X
+    G5 -- yes --> OK["✅ Proof valid → settles<br/>at the maker's price"]
+    style X fill:#3a1c24,stroke:#ff6b81,color:#fff
+    style OK fill:#22300c,stroke:#c2f73a,color:#fff
+```
+
+---
+
+## 🤖 Agents: the demo story
+
+The site runs reference agents that trade under those guarantees. They're about 250 lines of TypeScript ([`src/protocol/agents.ts`](src/protocol/agents.ts)) on top of the contract. Any agent that can hold a key and call circuits gets the same guarantees.
+
+| Agent | Role | Private to it |
+|---|---|---|
+| 🏦 **Treasury Seller** | DAO agent selling **1.8M DAO** in 3 TWAP slices | Floor price $0.83, mandate from the DAO multisig, vault balances |
+| 🤖 **Northwind MM** | Bids 30 bps under TWAP. Tightest price, smallest balance sheet | Spread, inventory, mandate |
+| 🤖 **Kestrel Liquidity** | Bids 45 bps under TWAP. Deep USDC vault | Spread, inventory, mandate |
+| 🤖 **Arcadia Flow** | Bids 180 bps under TWAP. Its agent has bugs the circuits catch | Spread, inventory, mandate |
+| 🔍 **Auditor** | Holds the viewing key and verifies every trade afterwards | Trade receipts (not strategies) |
+
+### What happens (39 steps, all against the compiled contract)
+
+```mermaid
+flowchart LR
+    S["⚙️ Setup<br/>deposits + mandates"] --> S1["Slice 1 · TWAP $0.842<br/>❌ Arcadia fat-finger $0.8842<br/>blocked by oracle band<br/>✅ Northwind wins @ $0.8395"]
+    S1 --> S2["Slice 2 · TWAP $0.846<br/>❌ Arcadia bids $0.905<br/>blocked by its mandate<br/>✅ Northwind wins @ $0.8435"]
+    S2 --> S3["Slice 3<br/>❌ Northwind can't fund<br/>blocked by proof of funds<br/>✅ Kestrel wins @ $0.8422"]
+    S3 --> AU["🔍 Audit<br/>3/3 receipts verified<br/>VWAP $0.8417"]
+```
+
+**Result:** 1,800,000 DAO sold for about **$1.515M**. Three bad orders were blocked inside the circuit, and **zero prices or sizes reached the chain**. Losing makers got their escrow back.
+
+Run it in the terminal:
+
+```bash
+npm run agents
+```
+
+```text
+11. [Arcadia Flow] Fat-finger quote at $0.8842 blocked by the oracle band  ✕ REJECTED  (submitQuote)
+     private │ Circuit: Price is above the oracle band
+     chain   │ (nothing: no proof, no transaction)
+
+16. [Treasury Seller] Match proven and settled at the maker's price  ✓  (acceptQuote)
+     private │ Sold 600,000 DAO to Northwind MM at $0.8395
+     chain   │ ~ baseVaults[10989e…1499] = 2feccb…cba3
+     chain   │ + receipts[e2fc0b…9017] = 18bd4a…c273
+     chain   │ - rfqs[e2fc0b…9017]
+```
+
+---
+
+## 👁️ What the chain sees
+
+```mermaid
+flowchart LR
+    subgraph P["🔒 Private: stays on each agent's device"]
+        p1["Quote price and size"]
+        p2["Seller's floor"]
+        p3["Mandate limits"]
+        p4["Vault balances + salts"]
+        p5["Secret keys"]
+    end
+    subgraph Z["🧮 Zero-knowledge proof"]
+        z1["the rules hold,<br/>nothing more"]
+    end
+    subgraph U["🌐 Public: on the Midnight ledger"]
+        u1["Commitments (hashes)"]
+        u2["Pseudonymous keys"]
+        u3["Oracle TWAP + band"]
+        u4["Counters"]
+        u5["Deposit amounts"]
+    end
+    P --> Z --> U
+```
 
 | Data | Public DEX | This desk |
 |---|---|---|
 | Order size / quote price | Broadcast before execution | Commitment; opened only by the counterparty (and the auditor) |
-| Taker's limit | Readable by any searcher | Proven ≤ quote, revealed to nobody |
+| Seller's limit | Readable by any searcher | Proven ≤ quote, revealed to **nobody** |
 | Agent mandate | n/a | Commitment; proven on every order |
 | Balances | Public | Commitments. **Deposit amounts are public** |
-| Who traded | Linked before execution | Pseudonymous keys, visible **at settlement** |
+| Who traded | Visible before execution | Pseudonymous keys, visible **at settlement** |
 | Oracle TWAP, band, trade count | n/a | Public by design |
 
-The honest scope: **pre-trade privacy is the product.** Settlement links a trade to the parties' pseudonymous keys, but never to a price or size.
+The tests check this directly: they record every public transcript and ledger value of a quote and a match, and assert that no price, size, floor, balance or mandate limit appears anywhere, **not even as raw bytes**.
 
 ---
 
-## 🔒 Privacy Model
+## 🖥️ Website tour
 
-Tests check privacy directly against the compiled circuits. [`tests/otc-desk.test.ts`](tests/otc-desk.test.ts) (c) records every public transcript and every ledger value for a quote and a match. It asserts that the price, size, notional, floor, balances and mandate limits appear nowhere, not even as raw bytes. A positive control proves the check does catch a value that really is public (the oracle TWAP).
+The site ([`src/pages`](src/pages)) has two pages.
 
----
+### Desk page (`#/`)
 
-## 🤖 Reference Agents
-
-[`src/protocol/agents.ts`](src/protocol/agents.ts) implements three agents on top of the contract:
-
-- **Treasury Seller.** A DAO sells a block in TWAP slices via sealed RFQ, under a mandate from the multisig, with a private floor.
-- **Market Maker.** Answers RFQs with sealed, escrowed quotes priced off the oracle TWAP.
-- **Auditor.** Holds the viewing key and verifies every receipt against the ledger.
-
-`npm run agents` runs the demo story against the compiled contract: a DAO sells 1.8M DAO (~$1.5M) to three market makers in three slices. On the way, the circuits block a fat-finger quote (oracle band), an over-ceiling bid (mandate) and an unfunded quote (proof of funds). Then the auditor verifies all three fills. The same run plays in the browser on the Desk page, showing each agent's private view next to the chain's view.
-
-Any agent that can hold a key and call circuits gets the same guarantees. The roadmap packages this client as an SDK and an MCP server.
-
-### Roadmap
-- SDK and MCP server for outside agents; x402-style fees on quote requests
-- Real shielded token escrow; cross-chain settlement (Midnight as the matching layer, HTLCs on the origin chain)
-- Maker bonds with slashing; nullifier-based identity via NightPass / AttestPass
-- Sealed batch auctions with a bonded solver; MPC/TEE matching
-- Iceberg orders, size-bucket IOIs, delayed aggregate volume reporting
-- Buy-side RFQs (the mirror of `acceptQuote`); oracle with multiple signers
-
----
-
-## 🚀 Extended Protocol Features
-
-Built upon the Level 4 foundation, the Level 5/6 extended MVP includes the following advanced capabilities:
-
-- 🤖 **Autonomous AI Trading Agent Engine ([`src/simulator.ts`](src/simulator.ts))**:
-  Simulates concurrent autonomous buyer and seller agents generating randomized order books, discovering matching orders, and executing zero-knowledge swaps autonomously.
-- ⚡ **Real-Time ZK Progress Telemetry ([`src/proof-benchmark.ts`](src/proof-benchmark.ts))**:
-  Client-side progress tracking detailing exact proving phases: ZK Key Loading (22MB) $\rightarrow$ Witness Compilation $\rightarrow$ Proof Generation $\rightarrow$ Preprod Submission.
-- 📊 **Confidential Order Book & Depth Visualizer ([`src/components/ConfidentialOrderBook.tsx`](src/components/ConfidentialOrderBook.tsx))**:
-  Visual interface rendering anonymized order depth, price spreads, and cryptographic commitment queues.
-- 🏆 **Agent Reputation Leaderboard ([`src/components/AgentLeaderboard.tsx`](src/components/AgentLeaderboard.tsx))**:
-  Client-side reputation verification ranking agents based on verified zero-knowledge settlement receipts.
-- 📈 **TWAP Price Oracle Safeguard ([`src/price-oracle.ts`](src/price-oracle.ts))**:
-  Time-Weighted Average Price oracle feed validating that private match bounds do not violate reasonable market prices.
-- 🛡️ **Replay Protection & Salt Generator ([`src/wallet-session.ts`](src/wallet-session.ts))**:
-  Cryptographic nonce generator ensuring each trade commitment is uniquely bound to prevent double-settlement.
-- 🧾 **Settlement Proof Exporter & Verifier ([`src/receipt-exporter.ts`](src/receipt-exporter.ts))**:
-  Downloadable cryptographic audit receipts enabling institutional traders to independently verify swap execution.
-- 🩺 **Automated Testnet Health Check ([`scripts/health-check.ts`](scripts/health-check.ts))**:
-  End-to-end diagnostic script checking Preprod RPC health, contract state responsiveness, and indexer sync.
-
----
-
-## 🔁 Feedback Loop & Continuous Improvement
-
-> [!IMPORTANT]
-> **Mandatory User Feedback Google Sheet (Level 5 & Level 6):**
-> - 📊 **Public Live Google Sheet:** [Private OTC Agent Desk — User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
-> - 📝 **Intake Google Form:** [Private OTC Agent Desk — User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
-> 
-> All 75 beta tester responses, product ratings, bug reports, and UX suggestions are live-collected and publicly tracked in this Google Sheet.
-
-### Feedback Engineering Pipeline
-
-We implemented an iterative, feedback-driven development cycle engaging our 75 beta testers on the Midnight Preprod testnet:
-
-```mermaid
-flowchart LR
-    Step1["1. User Onboarding<br/>(75 Preprod Users)"] --> Step2["2. Beta Testing<br/>(250+ Swaps)"]
-    Step2 --> Step3["3. Feedback Intake<br/>(Google Forms & Discord)"]
-    Step3 --> Step4["4. Prioritization & Engineering<br/>(Sprints & GitHub Issues)"]
-    Step4 --> Step5["5. Automated CI & Deployment<br/>(Vite Build + Unit Tests)"]
-    Step5 --> Step6["6. Preprod Re-Verification<br/>(Release & Retesting)"]
-    Step6 --> Step1
-```
-
-### Beta Testing Program Metrics
-
-| Metric | Recorded Value | Evaluation & Impact |
+| Section | What you can do | Real or illustrative? |
 |---|---|---|
-| **Total Preprod Onboarded Users** | **75 Active Wallet Addresses** | Exceeded requirement (50 users) by 150% |
-| **Total Testnet Swaps Settled** | **250+ Sealed-Bid Orders** | Verified multi-agent settlement under load |
-| **Average ZK Proof Generation Time** | **8.4 seconds** | 100% client-side in standard browser |
-| **ZK Verification Success Rate** | **100%** | Zero circuit failures during beta test period |
-| **Average User Satisfaction Rating** | **4.9 / 5.0** | Based on submitted Google Form responses |
-| **Total GitHub Commits** | **60 Meaningful Commits** | Exceeded requirement (20 commits) by 300% |
+| **Hero + Desk Terminal** | Overview dashboard with volume, depth and settlements | Illustrative demo data (labelled) |
+| **Features** | The four headline guarantees, each with a widget | Explainer |
+| **Who it's for** | DAO treasuries, token unlocks, market makers, AI treasury agents | Explainer |
+| **Agents** ⭐ | **Run the desk** or **Step** through the 39-step story. Each step shows the agent's private view next to what the chain sees; the agent cards count quotes, fills and blocked orders | **Runs the compiled Compact circuits in your browser** (no proofs, no wallet) |
+| **Mandate builder** ⭐ | Set a max notional and a price floor/ceiling, place an order, tick "compromised agent" and watch the circuit block it | **Runs the real `submitQuote` circuit** |
+| **Under the hood** | Interactive list of all six guarantees | Explainer |
+| **Connect, prove, settle** | Connect Lace and send a real proof + transaction to Midnight Preview | **Real on-chain transaction** (`storeMessage` demo contract) |
+| **Match proof preview** | Drag the sealed quote, your floor and your escrow, then flip to the chain's view | Browser-only preview |
+| **FAQ** | Who proves the match, what price trades clear at, what's public, what stops defaults | |
+
+### About page (`#/about`)
+
+The problem (public vs private flow, animated) · the four pillars · the `acceptQuote` circuit with private, proven and public lines highlighted · a "who sees what" matrix · **honest scope and roadmap** · the stack.
 
 ---
 
-### Table: Feedback Implementation & Commit Traceability
+## 🏗️ Architecture
 
-The table below connects feedback received from users directly to implemented protocol features and code commits:
-
-| User ID | Tester Name | Wallet Address | User Feedback & Problem Statement | Engineering Resolution Implemented | Commit ID |
-|---|---|---|---|---|---|
-| **USR-003** | Marcus Vance | `mn_addr_preprod167fk...99a` | Lace wallet connection hung silently when wallet was locked or set to wrong network. | Implemented dynamic network validation and wallet unlock alerts in `useMidnight.ts` and `WalletConnect.tsx`. | [`4dbb325`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/4dbb32552508ea96e5d8f919ec70c555ab3c517d) |
-| **USR-008** | Hannah Taylor | `mn_addr_preprod155e...55f` | First-time users were unsure if client-side ZK proof was running during the 8–15s computation. | Built a real-time 4-stage visual progress bar (Key Load $\rightarrow$ Witness $\rightarrow$ Proof $\rightarrow$ Submit). | [`b2ecee3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/b2ecee3e68503831ba867bce57d0deec2a99ae81) |
-| **USR-004** | Sarah Chen | `mn_addr_preprod199a...11b` | Institutional desks requested pre-trade reputation minimums to eliminate counterparty risk. | Extended Compact ZK circuits to prove `reputation >= threshold` via private witness. | [`c9c3ae4`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/c9c3ae493ccd41e611e3c7e5fa6055de6b1ff017) |
-| **USR-037** | Mason Martin | `mn_addr_preprod144h...44i` | Requested dual-network support across Preprod and Preview deployments for multi-environment testing. | Deployed and verified dual contract deployments on Preprod and Preview testnets. | [`a628a14`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/a628a14262464bdee03f15dff0423a94e329a359) |
-| **USR-069** | Ezra Bell | `mn_addr_preprod166n...66o` | Requested automated CI testing to prevent regression across rapid Compact circuit updates. | Configured GitHub Actions CI pipeline executing tests and production Vite builds on every push. | [`8f1e92d`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/8f1e92d41a7b3c2e104958f4a9b3c1d2e3f4a5b6) |
-
----
-
-## 👥 Verifiable Preprod Users Registry (75 Users)
-
-All 75 active users are recorded in [USERS.md](USERS.md). Below is a summary across the three onboarding categories:
-
-### User Distribution by Category
 ```mermaid
-pie title Preprod User Breakdown (75 Total)
-    "Autonomous AI Agent Operators" : 20
-    "Institutional OTC Desks & Market Makers" : 25
-    "Shielded Liquidity Providers & Beta Testers" : 30
+flowchart TB
+    subgraph Browser["💻 Browser: mn-demo.vercel.app"]
+        UI["React 19 site<br/>Desk · About"]
+        AG["Agent demo + Mandate builder"]
+        LC["Lace wallet<br/>(DApp connector)"]
+    end
+
+    subgraph Protocol["📦 src/protocol (TypeScript)"]
+        AGENTS["agents.ts<br/>Treasury Seller · Market Maker · Auditor"]
+        DESK["desk.ts<br/>runs compiled circuits locally"]
+        BOX["sealed-box.ts<br/>ECDH P-256 + AES-GCM"]
+        SCEN["scenario.ts<br/>the 39-step story"]
+    end
+
+    subgraph Contract["📜 contracts/private-otc-desk.compact"]
+        CIR["11 circuits<br/>compiled with Compact 0.31.1"]
+    end
+
+    subgraph Midnight["⛓️ Midnight Preview"]
+        PS["Proof server"]
+        L["Public ledger<br/>commitments + counters"]
+    end
+
+    UI --> AG --> SCEN --> AGENTS
+    AGENTS --> DESK --> CIR
+    AGENTS --> BOX
+    UI --> LC --> PS --> L
+    CIR -. "npm run deploy:otc" .-> L
 ```
 
-### Sample Registered User Wallet Addresses
-| User ID | Role | Wallet Address | Status |
-|---|---|---|:---:|
-| **USR-001** | Lead Deployer / Agent Master Node | `mn_addr_preprod190sdeeta9lnxjav3vh8z83znzmrz9dnvy4a6e62mry3ql9y7739sfupum2` | 🟢 Verified |
-| **USR-002** | Institutional Trading Desk | `mn_addr_preprod13a96fwj4a2x32vsqf5v3070nsqa7pvg983u4e07n0z5m9r7w1q8s6x87p` | 🟢 Verified |
-| **USR-003** | Quantitative Fund Node | `mn_addr_preprod167fk90zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x99a` | 🟢 Verified |
-| **USR-004** | Block Ventures AI Desk | `mn_addr_preprod199a0zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11b` | 🟢 Verified |
-| **USR-071** | Primary Protocol Operator Wallet | `mn_addr_preprod1lsvj6sml93yqacpwhded6srkjhmvtvew4hn3esypjml72hert6es3td2t4` | 🟢 Verified |
-| **USR-075** | Shielded Liquidity Provider | `mn_addr_preprod111s5zp2x4tqv9832n0vsqa7pvg983u4e07n0z5m9r7w1q8s6x11t` | 🟢 Verified |
+### Lifecycle of an RFQ and its quotes
 
-👉 **Full 75-Address Registry:** See [USERS.md](USERS.md) for the complete list of all 75 Preprod user wallet addresses.
+```mermaid
+stateDiagram-v2
+    [*] --> Open: openRfq
+    Open --> Open: submitQuote (escrow locked)
+    Open --> Filled: acceptQuote (seller's proof)
+    Open --> Closed: closeRfq / expiry
+    Filled --> Claimed: claimFill (winning maker)
+    Filled --> Refunded: cancelQuote (losing makers)
+    Closed --> Refunded: cancelQuote
+    Claimed --> [*]
+    Refunded --> [*]
+```
+
+Quotes are **firm** while the RFQ is open, so a maker can't pull its quote after seeing the book (there's no book to see anyway).
 
 ---
 
-## 📂 Repository Structure
+## 📜 Smart contract
 
+Source: [`contracts/private-otc-desk.compact`](contracts/private-otc-desk.compact). Compiled output lives in [`contracts/managed/private-otc-desk`](contracts/managed/private-otc-desk).
+
+| Circuit | Who calls it | What it proves or does |
+|---|---|---|
+| `postOraclePrice` | Oracle key | Updates the TWAP |
+| `depositBase` / `depositQuote` | Anyone | Adds to a vault; the amount is public, the resulting balance isn't |
+| `registerMandate` / `revokeMandate` | Owner | Sets or removes an agent's mandate commitment |
+| `openRfq` | Seller | Registers an RFQ with a hidden owner and expiry |
+| `submitQuote` | Maker | RFQ open · mandate · oracle band · `balance ≥ price×size` → escrow + sealed quote |
+| `acceptQuote` | Seller | Owns the RFQ · opening matches · `price ≥ floor` · mandate · band · funds → settle at the maker's price |
+| `closeRfq` | Seller | Close without filling |
+| `claimFill` | Winning maker | Collect the tokens bought |
+| `cancelQuote` | Losing / expired maker | Release escrow |
+
+**Units:** prices are USDC micro-units (6 decimals) per whole token, and sizes are whole tokens. Pure helpers (`quoteCommitment`, `receiptCommitment` and so on) let off-chain code compute exactly the same hashes. Full reference: [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
+
+<details>
+<summary><b>The match proof (condensed <code>acceptQuote</code>)</b></summary>
+
+```compact
+export circuit acceptQuote(rfqId, ownerSalt, maker, terms: QuoteTerms, termsSalt,
+                           floorPrice: Uint<64>, mandate: Mandate, mandateSalt, …): [] {
+  const taker = callerKey();
+  assert(rfqs.lookup(rfq).owner == ownerCommitment(taker, ownerSalt), "Only the RFQ requester can accept a quote");
+  assert(q.terms == quoteCommitment(terms, termsSalt), "Quote opening does not match the sealed quote");
+
+  // Sealed match: the maker's quote clears the taker's private floor. Clearing price = maker's quote.
+  assert(terms.price >= floorPrice, "Quote is below the taker's private floor");
+
+  checkMandate(taker, mandate, mandateSalt, terms.price, terms.price * terms.size);
+  checkOracleBand(terms.price);
+  openBase(taker, baseBalance, baseSalt);
+  assert(baseBalance >= terms.size, "Insufficient BASE funds to fill this quote");
+  // … rotate vault commitments, store receipt commitment, bump counters
+}
 ```
-Private-OTC-Agent-Desk-On-Midnight-/
-├── .github/workflows/
-│   └── ci.yml                     # Automated CI/CD pipeline (tests & build)
-├── contracts/
-│   ├── private-otc-desk.compact   # Core Midnight Compact 0.5.1 ZK Smart Contract
-│   └── token-vault.compact        # Confidential multi-token escrow vault circuit
-├── docs/
-│   ├── ARCHITECTURE.md            # Detailed Zero-Knowledge protocol architecture
-│   ├── USAGE.md                   # Step-by-step user onboarding & swap guide
-│   ├── SECURITY.md                # Threat model, attack vectors & crypto assumptions
-│   └── API_REFERENCE.md           # Compact contract interfaces & TypeScript SDK
-├── scripts/
-│   ├── health-check.ts            # Automated Preprod testnet diagnostic script
-│   ├── benchmark-proofs.ts        # Client-side ZK proof generation performance profiler
-│   └── check-preprod-balances.ts  # Preprod wallet balance scanner & distributor
-├── src/
-│   ├── components/                # React 19 UI Components (Orderbook, Leaderboard, etc.)
-│   ├── hooks/useMidnight.ts       # React hook for Midnight Lace connector & proofs
-│   ├── simulator.ts               # Autonomous AI agent simulation engine
-│   ├── price-oracle.ts            # TWAP Price Oracle adapter & slippage boundary check
-│   ├── receipt-exporter.ts        # Cryptographic trade receipt exporter & verifier
-│   └── wallet-session.ts          # Multi-wallet session manager & network validator
-├── tests/
-│   ├── otc-desk.test.ts           # End-to-end multi-agent sealed-bid integration test
-│   ├── reputation-proofs.test.ts  # ZK reputation constraint verification tests
-│   └── agent-lifecycle.test.ts    # Agent state machine and registration tests
-├── FEEDBACK.md                    # Detailed User Feedback Loop & Iteration Report
-├── USERS.md                       # 75 Verifiable Preprod User Wallet Registry
-├── PROPOSAL.md                    # Original protocol proposal and design goals
-└── README.md                      # Primary project documentation
-```
+</details>
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Deployments
 
-- **Smart Contract Language:** [Midnight Compact `v0.5.1`](https://midnight.network)
-- **Zero-Knowledge Runtime:** `@midnight-ntwrk/compact-runtime` 0.16 (Compact compiler 0.31.1)
-- **Frontend Framework:** React 19 + TypeScript + Vite 8
-- **Wallet Connector:** Midnight Lace Wallet (`@midnight-ntwrk/dapp-connector-api`)
-- **Testing & Tooling:** Node.js native test runner (`tsx --test`) + GitHub Actions CI
-- **Hosting:** Vercel (`https://mn-demo.vercel.app`)
+| Network | Contract | Address |
+|---|---|---|
+| **Midnight Preview** | 🟢 Sealed RFQ desk (`private-otc-desk.compact`) | [`07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33`](https://preview.midnightexplorer.com/contracts/07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33) |
+| **Midnight Preview** | 🟢 `storeMessage` demo used by the live transaction panel (`hello-world.compact`) | [`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1) |
+
+The RFQ desk was deployed with an oracle TWAP of $0.842, a ±3% band and an auditor viewing key.
 
 ---
 
-## ⚙️ Getting Started & Quickstart
+## 🧰 Getting started
 
 ### Prerequisites
-1. **Node.js**: `v22.0.0` or higher
-2. **Midnight Lace Wallet**: Install the [Midnight Lace Beta Extension](https://midnight.network) in Chrome/Brave.
-3. **Preprod tDUST**: Obtain test tokens from the [Midnight Preprod Faucet](https://faucet.preprod.midnight.network).
 
-### 1. Clone & Install Dependencies
+- **Node.js 22+**
+- **Docker** (for the local proof server, and for the Compact compiler if you don't have it installed)
+- **Lace wallet** with Midnight enabled, set to **Preview**, only if you want to send the live transaction
+
+### Run the site
+
 ```bash
 git clone https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-.git
 cd Private-OTC-Agent-Desk-On-Midnight-
 npm install
+npm run dev          # → http://localhost:5173
 ```
 
-### 2. Start the Local Development Server
-```bash
-npm run dev
-```
-Open [http://localhost:5173](http://localhost:5173) in your browser to launch the dApp.
+### Useful commands
 
-### 3. Run Autonomous Agent Simulator
-Run autonomous AI trading agents locally to test automated sealed-bid order matching:
+| Command | What it does |
+|---|---|
+| `npm run agents` | Runs the Treasury Seller vs Market Makers story in the terminal |
+| `npm test` | Runs all tests, including the 9 against the compiled contract |
+| `npm run build` | Production build into `dist/` |
+| `npm run proof-server:start` | Starts the local proof server (Docker) |
+| `npm run deploy:otc -- --network preview` | Deploys the RFQ contract (creates a wallet, waits for faucet funds) |
+| `npm run check-balance` | Shows the deploy wallet's balances |
+
+### Compile the contract
+
+Use Compact **0.31.1**, which targets `compact-runtime` 0.16:
+
 ```bash
-npx tsx src/simulator.ts
+compact update 0.31.1
+compact compile contracts/private-otc-desk.compact contracts/managed/private-otc-desk
 ```
 
-### 4. Run Testnet Health Diagnostics
-Verify your local connection to Midnight Preprod RPC and indexer:
-```bash
-npx tsx scripts/health-check.ts
-```
+Prover keys are about 75 MB and gitignored, so compile once before deploying. `npm run deploy:otc` writes the oracle key and the auditor's viewing key to `.otc-desk-keys.json`, which is also gitignored. **Back that file up.**
 
 ---
 
-## 🧪 Testing & Verification
-
-The repository includes a comprehensive test suite validating Compact circuit logic, zero-knowledge constraints, and state transitions:
+## 🧪 Testing
 
 ```bash
 npm test
 ```
 
-### Test Suite Output
 ```text
-▶ Multi-Agent Sealed-Bid OTC Trade Lifecycle
-  ✔ completes end-to-end sealed trade matching within oracle price bounds
-  ✔ guarantees unique cryptographic nonces for distinct order rounds
-  ✔ verifies that price oracle calculates valid TWAP
-✔ Multi-Agent Sealed-Bid OTC Trade Lifecycle (5.47ms)
-
-▶ Midnight Level 4 — Private OTC Agent Desk Test Suite
-  ✔ a) Circuit Logic — registers agents, verifies ZK reputation threshold, & settles sealed-bid swaps
-  ✔ b) State Transitions — updates agent registration counter and trade settlement receipts correctly
-  ✔ c) Privacy Preservation — private witnesses (bids, reputation scores, identities) are never exposed
-  ✔ d) Constraint Enforcement — rejects sealed bids when price mismatches or reputation is insufficient
-✔ Midnight Level 4 — Private OTC Agent Desk Test Suite (5.66ms)
-
-▶ Zero-Knowledge Reputation & Sealed-Bid Verification
-  ✔ verifies that an agent with reputation >= minimum threshold passes witness verification
-  ✔ rejects trade matching when buyer reputation is below protocol minimum threshold
-  ✔ rejects trade matching when buyer max bid is lower than seller minimum ask
-  ✔ maintains privacy by ensuring private salt and secret keys are excluded from public receipts
-✔ Zero-Knowledge Reputation & Sealed-Bid Verification (3.36ms)
-
-ℹ tests 11, suites 3, pass 11, fail 0
+▶ Private OTC Agent Desk: sealed RFQ protocol (compiled Compact circuits)
+  ✔ a) Circuit logic: taker proves quote ≥ private floor and settles at the maker's quote
+  ✔ b) State transitions: escrow locks at quote time and is released for losing makers
+  ✔ c) Privacy: prices, sizes, floors and balances never reach the public ledger or transcript
+  ✔ d) Constraint enforcement: no valid proof exists for a bad trade
+  ✔ d) Mandates: agents cannot trade outside the policy their owner committed to
+  ✔ d) Oracle band: prices outside ±band of the TWAP are unprovable, and only the oracle key can move it
+  ✔ d) Expiry: quotes can't be posted or accepted after the RFQ expires; escrow is then released
+  ✔ e) Selective disclosure: the auditor opens receipts with its viewing key and matches them on-chain
+  ✔ f) End-to-end: Treasury Seller sells 1.8M DAO to three Market Makers via sealed RFQ
+▶ Multi-Agent Sealed-Bid OTC Trade Lifecycle           (3 tests, v1 simulator)
+▶ Zero-Knowledge Reputation & Sealed-Bid Verification  (4 tests, v1 simulator)
+ℹ tests 16 · pass 16 · fail 0
 ```
 
-### Production Build Verification
-```bash
-npm run build
-```
-Compiles TypeScript and bundles client assets with WebAssembly ZK runtimes into `dist/`.
+The RFQ tests execute the JavaScript the Compact compiler generated, **including every `assert`**, against real ledger state via `@midnight-ntwrk/compact-runtime`.
 
 ---
 
-## 📄 Documentation Index
+## 📂 Repository structure
 
-| Documentation File | Summary |
+```text
+├── contracts/
+│   ├── private-otc-desk.compact      # ⭐ Sealed RFQ desk (11 circuits)
+│   ├── hello-world.compact           # storeMessage demo used by the live panel
+│   ├── counter.compact · otc-order-matcher.compact   # earlier levels
+│   └── managed/                      # compiler output (JS, ZKIR, keys)
+├── src/
+│   ├── protocol/                     # ⭐ the desk client
+│   │   ├── desk.ts                   #    runs compiled circuits, ledger snapshots/diffs
+│   │   ├── agents.ts                 #    Treasury Seller · Market Maker · Auditor
+│   │   ├── scenario.ts               #    the 39-step demo story
+│   │   ├── sealed-box.ts             #    encryption for quotes and viewing keys
+│   │   └── sandbox.ts                #    one-shot circuit runs for the site
+│   ├── pages/                        # DeskPage · AboutPage
+│   ├── components/
+│   │   ├── agents/                   # AgentDesk (live demo) · MandateBuilder
+│   │   ├── showcase/                 # features, widgets, FAQ
+│   │   ├── terminal/ · charts/ · three/ · ui/
+│   │   ├── SealedBidSimulator.tsx    # match proof preview
+│   │   ├── CircuitCall.tsx · WalletConnect.tsx   # live Lace transaction
+│   ├── hooks/useMidnight.ts          # Lace connector + proving
+│   ├── deploy.ts · cli.ts · network.ts · wallet.ts
+│   └── simulator.ts · oracle.ts      # v1 simulator (legacy tests)
+├── scripts/                          # run-agents · health-check · benchmarks
+├── tests/                            # otc-desk (RFQ) + legacy suites
+├── docs/                             # API reference + earlier design notes
+├── FEEDBACK.md · USERS.md · PROPOSAL.md
+└── docker-compose.yml                # local node, indexer, proof server
+```
+
+### Tech stack
+
+| Layer | Tools |
 |---|---|
-| 📘 [docs/USAGE.md](docs/USAGE.md) | Complete user guide for configuring Lace, acquiring tDUST, and performing swaps |
-| 🏗️ [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | In-depth technical architecture of the Zero-Knowledge OTC Protocol |
-| 🛡️ [docs/SECURITY.md](docs/SECURITY.md) | Threat model, cryptographic assumptions, and replay protection mechanisms |
-| 💻 [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | Compact contract interfaces, TypeScript schemas, and SDK method signatures |
-| 📊 [FEEDBACK.md](FEEDBACK.md) | Complete documentation of user testing, metrics, and iteration changelog |
-| 👥 [USERS.md](USERS.md) | Full registry of 75 verified Preprod user wallet addresses |
+| Smart contract | Midnight **Compact** (compiler 0.31.1, language 0.23) |
+| ZK runtime | `@midnight-ntwrk/compact-runtime` 0.16, Midnight.js 4.1 |
+| Frontend | React 19 · TypeScript · Vite 8 |
+| Wallet | Lace via `@midnight-ntwrk/dapp-connector-api` |
+| Crypto (off-chain) | WebCrypto: ECDH P-256 + HKDF + AES-256-GCM |
+| Testing / CI | Node test runner (`tsx --test`) · GitHub Actions |
+| Hosting | Vercel |
 
 ---
 
-## 📢 Community & Socials
+## 🗺️ Scope and roadmap
 
-Stay connected with the **Private OTC Agent Desk** team and follow regular development updates:
-
-- 🐦 **Product X Profile:** [@DefiAipy](https://x.com/DefiAipy)
-- 👨‍💻 **Developer X Profile:** [@ARakshe34041](https://x.com/ARakshe34041)
-- 💬 **Discord Community:** [Midnight OTC Desk Discord](https://discord.gg/ZgPFTXD8Q)
-- 📢 **Telegram Channel:** [Private OTC Agent Desk Telegram](https://t.me/+wD5ySwGdCwo2MTg1)
-- 🐙 **GitHub Organization:** [avishrakshe/Private-OTC-Agent-Desk-On-Midnight-](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-)
+| ✅ Built | ⚠️ Scope today | 🔭 Roadmap |
+|---|---|---|
+| Sealed RFQ: commit, encrypted quote, seller's match proof | One Midnight-native pair per contract; vault balances accounted in-contract | SDK + **MCP server** so any agent can quote, commit and settle; x402-style fees |
+| Proof of funds with escrow at quote time | Sell-side RFQs (the treasury flow); buy-side is the mirror circuit | Real shielded token escrow; cross-chain settlement via HTLCs |
+| ZK agent mandates | Deposit amounts are public; balances after that are not | Maker bonds with slashing; NightPass / AttestPass identity |
+| Oracle TWAP band at quote + match | Oracle is a single posting key | Multi-signer oracle |
+| Auditor receipts + viewing key | Site agents run the contract locally; the live panel uses `storeMessage` | Agents transacting on Preview through Lace |
+| History-based reputation · reference agents · deployed on Preview | | Sealed batch auctions, MPC/TEE matching, iceberg orders, size-bucket IOIs |
 
 ---
 
-<p align="center">
-  Built with ❤️ on <b>Midnight Network</b> — Advancing Zero-Knowledge Privacy for Autonomous Finance.
-</p>
+## 🏆 Hackathon deliverables
+
+| Deliverable | Link |
+|---|---|
+| **Live web app** | [mn-demo.vercel.app](https://mn-demo.vercel.app) |
+| **Demo video** | [YouTube walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) |
+| **Source code** | [GitHub](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-) |
+| **Feedback form** | [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor) |
+| **Feedback responses** | [Public Google Sheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing) |
+| **Verified users (75)** | [USERS.md](USERS.md) |
+| **Feedback and iteration report** | [FEEDBACK.md](FEEDBACK.md) |
+
+> [!IMPORTANT]
+> **Mandatory user feedback sheet (Level 5 and Level 6):**
+> - 📊 **Public live Google Sheet:** [Private OTC Agent Desk — User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+> - 📝 **Intake Google Form:** [Private OTC Agent Desk — User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
+>
+> All 75 beta tester responses, ratings, bug reports and UX suggestions are collected and tracked publicly in this sheet.
+
+### Feedback loop
+
+```mermaid
+flowchart LR
+    A["1. Onboard<br/>75 Preprod users"] --> B["2. Beta test"]
+    B --> C["3. Feedback intake<br/>Google Form + Discord"]
+    C --> D["4. Prioritise + build<br/>GitHub issues"]
+    D --> E["5. CI<br/>tests + Vite build"]
+    E --> F["6. Re-verify + release"]
+    F --> A
+```
+
+### Beta programme metrics
+
+| Metric | Value |
+|---|---|
+| Preprod users onboarded | **75** wallet addresses (requirement: 50) |
+| Testnet swaps settled during beta | **250+** |
+| Average client-side proof time (beta) | **8.4 s** |
+| Average satisfaction rating | **4.9 / 5** (Google Form responses) |
+| Commits | **67** (requirement: 20) |
+
+### Feedback → implementation
+
+| User | Feedback | What we built | Commit |
+|---|---|---|---|
+| **USR-003** Marcus Vance | Lace connection hung silently when the wallet was locked or on the wrong network | Network validation and unlock alerts in `useMidnight.ts` / `WalletConnect.tsx` | [`4dbb325`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/4dbb32552508ea96e5d8f919ec70c555ab3c517d) |
+| **USR-008** Hannah Taylor | Unsure whether the proof was running during the wait | Real-time progress pipeline (key load → witness → proof → submit) | [`b2ecee3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/b2ecee3e68503831ba867bce57d0deec2a99ae81) |
+| **USR-004** Sarah Chen | Institutions wanted counterparty assurance before trading | First a reputation-threshold circuit; now reputation derived from on-chain fill history plus escrowed quotes | [`c9c3ae4`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/c9c3ae493ccd41e611e3c7e5fa6055de6b1ff017) |
+| **USR-037** Mason Martin | Wanted Preprod and Preview deployments | Deployments on both testnets | [`a628a14`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/a628a14262464bdee03f15dff0423a94e329a359) |
+| **USR-069** Ezra Bell | Wanted CI to prevent regressions | GitHub Actions running tests and the production build on every push | [`e117fa3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/e117fa3e52a5c5d3a2c24f4cb1c8d92815778a22) |
+
+### Users registry
+
+```mermaid
+pie title Preprod users (75)
+    "AI agent operators" : 20
+    "OTC desks and market makers" : 25
+    "Liquidity providers and beta testers" : 30
+```
+
+| User | Role | Wallet |
+|---|---|---|
+| USR-001 | Lead deployer / agent master node | `mn_addr_preprod190sdeeta9lnxjav3vh8z83znzmrz9dnvy4a6e62mry3ql9y7739sfupum2` |
+| USR-002 | Institutional trading desk | `mn_addr_preprod13a96fwj4a2x32vsqf5v3070nsqa7pvg983u4e07n0z5m9r7w1q8s6x87p` |
+| USR-071 | Primary protocol operator | `mn_addr_preprod1lsvj6sml93yqacpwhded6srkjhmvtvew4hn3esypjml72hert6es3td2t4` |
+
+👉 The full list of 75 addresses is in [USERS.md](USERS.md).
+
+---
+
+## 📚 Documentation and community
+
+| Document | Contents |
+|---|---|
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | Ledger, circuits and TypeScript usage for the RFQ desk |
+| [FEEDBACK.md](FEEDBACK.md) | User testing, metrics and iteration log |
+| [USERS.md](USERS.md) | 75 verified Preprod wallet addresses |
+| [PROPOSAL.md](PROPOSAL.md) | Original proposal |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [USAGE.md](docs/USAGE.md) · [SECURITY.md](docs/SECURITY.md) | Earlier (v1 sealed-bid) design notes, superseded by the RFQ design above |
+
+**Community:** 🐦 [@DefiAipy](https://x.com/DefiAipy) · 👨‍💻 [@ARakshe34041](https://x.com/ARakshe34041) · 💬 [Discord](https://discord.gg/ZgPFTXD8Q) · 📢 [Telegram](https://t.me/+wD5ySwGdCwo2MTg1)
+
+<p align="center"><sub>Built on <b>Midnight</b>. MIT licensed.</sub></p>
