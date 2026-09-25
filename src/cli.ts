@@ -17,7 +17,7 @@ import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config
 import { resolveNetwork, getOrCreateSeed, getDeployment } from './network';
 import { createWallet, persistWalletState, unshieldedToken, type WalletContext } from './wallet';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
-import { AgentSimulator } from './simulator';
+import { runScenario } from './protocol/scenario';
 
 // Enable WebSocket for GraphQL subscriptions
 // @ts-expect-error Required for wallet sync
@@ -85,7 +85,6 @@ async function createProviders(walletCtx: WalletContext) {
 
 async function main() {
   const rl = createInterface({ input: stdin, output: stdout });
-  const simulator = new AgentSimulator();
 
   try {
     console.log('\n=============================================================');
@@ -126,10 +125,10 @@ async function main() {
     let running = true;
     while (running) {
       console.log('─── Private OTC Desk Menu ──────────────────────────────────────');
-      console.log('  1. Register AI Trading Agent (ZK Reputation Proof)');
-      console.log('  2. Settle Confidential Sealed-Bid Swap (Zero-Knowledge)');
-      console.log('  3. Run Autonomous Agent OTC Trade Simulation');
-      console.log('  4. Query Public Ledger OTC State & Settle Counters');
+      console.log('  1. Run sealed RFQ agent demo (compiled circuits, local)');
+      console.log('  2. (reserved: on-chain RFQ calls need the RFQ contract deployed)');
+      console.log('  3. (reserved)');
+      console.log('  4. Query public OTC ledger state');
       console.log('  5. Check Wallet Balance (tNight & DUST)');
       console.log('  6. Exit\n');
 
@@ -137,71 +136,24 @@ async function main() {
 
       switch (choice.trim()) {
         case '1': {
-          const scoreInput = await rl.question('  Enter Agent Reputation Score (e.g. 95): ');
-          const score = BigInt(scoreInput.trim() || '95');
-          console.log('\n  ⚡ Generating client-side ZK proof & submitting on-chain...');
-          try {
-            const tx = await deployed.callTx.registerAgent(score);
-            console.log(`\n  ✅ AI Agent registered successfully!`);
-            console.log(`  Transaction ID: ${tx.public.txId}`);
-            console.log(`  Block height: ${tx.public.blockHeight}\n`);
-          } catch (error) {
-            console.error('\n  ❌ Registration failed:', error instanceof Error ? error.message : error);
+          console.log('\n  🤖 Treasury Seller vs 3 Market Makers, sealed RFQ (see: npm run agents)...');
+          const gen = runScenario();
+          for (let next = await gen.next(); ; next = await gen.next()) {
+            if (next.done) {
+              for (const a of next.value.audits) console.log(`     audited ${a.ok ? '✓' : '✕'} ${a.size} DAO → ${a.maker}`);
+              break;
+            }
+            const e = next.value;
+            console.log(`  ${e.status === 'rejected' ? '✕' : '✓'} [${e.actor}] ${e.title}`);
           }
+          console.log('');
           break;
         }
 
-        case '2': {
-          const bidInput = await rl.question('  Buyer Max Bid (DUST, e.g. 5000): ');
-          const askInput = await rl.question('  Seller Min Ask (DUST, e.g. 4800): ');
-          const repInput = await rl.question('  Agent Reputation (e.g. 90): ');
-          const buyerBid = BigInt(bidInput.trim() || '5000');
-          const sellerAsk = BigInt(askInput.trim() || '4800');
-          const rep = BigInt(repInput.trim() || '90');
-          const receiptHash = `0xzk_swap_${Date.now().toString(36)}`;
-
-          console.log('\n  ⚡ Proving sealed-bid matching constraints client-side (buyer >= seller)...');
-          try {
-            const tx = await deployed.callTx.settleSealedBidSwap(buyerBid, sellerAsk, rep, receiptHash);
-            console.log(`\n  ✅ Confidential OTC Swap Settled on Midnight!`);
-            console.log(`  Receipt Hash: ${receiptHash}`);
-            console.log(`  Transaction ID: ${tx.public.txId}`);
-            console.log(`  Block height: ${tx.public.blockHeight}\n`);
-          } catch (error) {
-            console.error('\n  ❌ Settlement failed:', error instanceof Error ? error.message : error);
-          }
+        case '2':
+        case '3':
+          console.log('\n  Not available yet: deploy contracts/private-otc-desk.compact first.\n');
           break;
-        }
-
-        case '3': {
-          console.log('\n  🤖 Running autonomous multi-agent simulation round...');
-          const witnessA = simulator.generateConfidentialWitness(
-            { agentId: 'bot-1', name: 'AlphaArbitrage', baseReputation: 96, tradeStrategy: 'ARBITRAGE' },
-            'DUST/USDC',
-            'BUY',
-            5200n,
-            1000n
-          );
-          const witnessB = simulator.generateConfidentialWitness(
-            { agentId: 'bot-2', name: 'DeepLiquidity', baseReputation: 91, tradeStrategy: 'PASSIVE' },
-            'DUST/USDC',
-            'SELL',
-            5000n,
-            1000n
-          );
-
-          const simResult = simulator.simulateMatch(witnessA, witnessB, 'DUST/USDC', 80);
-          if (simResult.success && simResult.receipt) {
-            console.log('  ✅ Simulation Match Validated:');
-            console.log(`     Order ID: ${simResult.receipt.orderId}`);
-            console.log(`     Pair: ${simResult.receipt.assetPair}`);
-            console.log(`     Proof Hash: ${simResult.receipt.proofReceiptHash}`);
-            console.log(`     Settled at Block: ${simResult.receipt.settledAtBlock}\n`);
-          } else {
-            console.log(`  ❌ Simulation failed: ${simResult.reason}\n`);
-          }
-          break;
-        }
 
         case '4': {
           console.log('\n  Querying on-chain OTC ledger state...');
@@ -210,9 +162,9 @@ async function main() {
             if (contractState) {
               const ledgerState = PrivateOtcDesk.ledger(contractState.data);
               console.log(`\n  📊 On-Chain OTC Protocol Metrics:`);
-              console.log(`     Total Agents Registered: ${ledgerState.totalAgents.toString()}`);
-              console.log(`     Total Trades Settled: ${ledgerState.totalTradesSettled.toString()}`);
-              console.log(`     Min Reputation Threshold: ${ledgerState.minReputationThreshold.toString()}\n`);
+              console.log(`     Trades settled: ${ledgerState.tradesSettled.toString()}`);
+              console.log(`     Oracle TWAP (micro-USDC): ${ledgerState.oraclePrice.toString()} ±${ledgerState.oracleBandBps.toString()} bps`);
+              console.log(`     Open RFQs: ${ledgerState.rfqs.size().toString()}  Live quotes: ${ledgerState.quotes.size().toString()}\n`);
             } else {
               console.log('\n  📊 No ledger state found (empty).\n');
             }

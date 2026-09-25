@@ -1,326 +1,135 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMidnight } from './hooks';
-import { WalletConnect } from './components/WalletConnect';
-import { CircuitCall } from './components/CircuitCall';
+import { useHashRoute } from './hooks/useHashRoute';
+import { DeskPage } from './pages/DeskPage';
+import { AboutPage } from './pages/AboutPage';
+import { networkLabel } from './components/WalletConnect';
+import type { CallStatus } from './components/CircuitCall';
+import type { OrbMode } from './components/three/ZkOrb';
+import { BrandMark } from './components/ui/icons';
 import './App.css';
+import './premium.css';
+import './agents.css';
+
+const shortAddr = (addr: string | null) => (addr ? `${addr.slice(0, 8)}…${addr.slice(-4)}` : '');
 
 export const App: React.FC = () => {
-  const {
-    isConnected,
-    isConnecting,
-    walletAddress,
-    shieldedAddress,
-    networkId,
-    error,
-    connect,
-    disconnect,
-    runStoreMessage,
-  } = useMidnight();
+  const midnight = useMidnight();
+  const route = useHashRoute();
+  const [callStatus, setCallStatus] = useState<CallStatus>('idle');
+  const [scrolled, setScrolled] = useState(false);
 
-  const formatShortAddr = (addr: string | null) => {
-    if (!addr) return 'Connect Wallet';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  const scrollToExecution = () => {
-    const el = document.getElementById('circuit-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  const handleCallStatus = useCallback((s: CallStatus) => setCallStatus(s), []);
+
+  const orbMode: OrbMode =
+    callStatus === 'executing' || midnight.isConnecting
+      ? 'active'
+      : callStatus === 'success'
+      ? 'success'
+      : callStatus === 'error'
+      ? 'error'
+      : 'idle';
+
+  const { isConnected, isConnecting, shieldedAddress, networkId, connect, disconnect } = midnight;
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', paddingBottom: '60px' }}>
-      {/* ─── Top Floating Header / Navbar (Reference Image Theme) ─── */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 20px 0 20px' }}>
-        <header
-          style={{
-            backgroundColor: '#ffffff',
-            border: '1px solid #e2e8f0',
-            borderRadius: '9999px',
-            padding: '8px 16px 8px 12px',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {/* Left Brand + Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div
-                style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  backgroundColor: '#b5f930',
-                  color: '#000000',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
-                }}
-              >
-                M
-              </div>
-              <span style={{ fontWeight: 800, fontSize: '18px', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                Private OTC Desk
-              </span>
-            </div>
+    <div className="app">
+      <a className="skip-link" href="#main" onClick={(e) => {
+        e.preventDefault();
+        document.getElementById('main')?.focus();
+      }}>
+        Skip to content
+      </a>
 
-            <nav style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px', fontWeight: 500, color: '#475569' }}>
-              <span style={{ cursor: 'pointer', color: '#0f172a', fontWeight: 600 }}>Dashboard</span>
-              <span style={{ cursor: 'pointer' }} onClick={scrollToExecution}>Circuits</span>
-              <span style={{ cursor: 'pointer' }}>Network</span>
-              <span style={{ cursor: 'pointer' }}>Docs</span>
-            </nav>
-          </div>
-
-          {/* Center Dark Status Pill */}
-          <div
-            style={{
-              backgroundColor: '#18181b',
-              color: '#ffffff',
-              borderRadius: '9999px',
-              padding: '6px 16px',
-              fontSize: '13px',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#22c55e',
-                boxShadow: '0 0 8px #22c55e',
-              }}
-            />
-            <span>Preprod Testnet · Contract 0200...4cb1a · Active</span>
-          </div>
-
-          {/* Right Network & Wallet Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
-              <span style={{ fontWeight: 600, color: '#059669' }}>RPC Live</span>
-            </div>
-
-            <div style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'right' }}>
-              <div>Wallet Status</div>
-              <div style={{ fontWeight: 600, color: isConnected ? '#16a34a' : '#0f172a' }}>
-                {isConnected ? 'Connected' : 'Disconnected'}
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                if (isConnected) disconnect();
-                else connect('preview');
-              }}
-              style={{
-                backgroundColor: '#0f172a',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '9999px',
-                padding: '8px 16px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              <span>{formatShortAddr(walletAddress)}</span>
-              <span style={{ fontSize: '10px' }}>▼</span>
-            </button>
-          </div>
-        </header>
+      <div className="ambient" aria-hidden="true">
+        <div className="ambient-grid" />
       </div>
 
-      {/* ─── Hero Section ─── */}
-      <main style={{ maxWidth: '1200px', margin: '40px auto 0 auto', padding: '0 20px' }}>
-        {/* Sub-Badges */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-          <span className="badge-pill">Preview Testnet</span>
-          <span className="badge-pill">Lace Beta Wallet</span>
-          <span className="badge-pill">Zero-Knowledge Cryptography</span>
-        </div>
+      <header className={`nav-wrap ${scrolled ? 'scrolled' : ''}`}>
+        <div className="container nav">
+          <a className="brand" href="#/" aria-label="Private OTC Agent Desk, home">
+            <BrandMark className="brand-mark" />
+            <span className="brand-text">Private OTC Desk</span>
+          </a>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '48px', alignItems: 'start' }}>
-          {/* Hero Headline & Subtext */}
-          <div>
-            <h1
-              style={{
-                fontSize: '48px',
-                fontWeight: 800,
-                lineHeight: 1.08,
-                letterSpacing: '-0.03em',
-                margin: '0 0 20px 0',
-                color: '#09090b',
-              }}
+          <nav className="nav-links" aria-label="Primary">
+            <a href="#/" aria-current={route === 'desk' ? 'page' : undefined}>
+              Desk
+            </a>
+            <a href="#/about" aria-current={route === 'about' ? 'page' : undefined}>
+              About
+            </a>
+          </nav>
+
+          <div className="nav-right">
+            <span className={`chip nav-status ${isConnected ? 'chip-lime' : ''}`}>
+              <span className={`status-dot ${isConnected ? 'on' : ''}`} />
+              {isConnected ? networkLabel(networkId) : 'Not connected'}
+            </span>
+            <button
+              type="button"
+              className={`btn btn-sm wallet-btn ${isConnected ? '' : 'btn-primary'}`}
+              onClick={() => (isConnected ? disconnect() : connect('preview'))}
+              disabled={isConnecting}
+              title={isConnected ? 'Disconnect wallet' : 'Connect Lace wallet'}
             >
-              Midnight Builder Challenge.
-              <br />
-              <span style={{ color: '#94a3b8' }}>Browser ZK Proving &amp; Wallet Connection.</span>
-            </h1>
-
-            <p
-              style={{
-                fontSize: '16px',
-                lineHeight: 1.6,
-                color: '#475569',
-                margin: '0 0 32px 0',
-                maxWidth: '540px',
-              }}
-            >
-              Level 2 scaffolded application showcasing Lace wallet integration, browser-based zero-knowledge proof generation, and confidential contract interactions on the Midnight Network.
-            </p>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button className="lime-btn" onClick={scrollToExecution}>
-                Execute storeMessage Circuit
-              </button>
-              <button
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '9999px',
-                  padding: '14px 24px',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: '#0f172a',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                }}
-                onClick={() => {
-                  if (!isConnected) connect('preview');
-                }}
-              >
-                {isConnected ? '✓ Lace Wallet Connected' : 'Connect Lace Wallet'}
-              </button>
-            </div>
-          </div>
-
-          {/* Right Metrics Card */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '24px',
-              padding: '32px',
-              boxShadow: '0 10px 35px rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>Midnight Network Metrics</h3>
-                <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                  Preview Testnet · ZK Proving Active
-                </p>
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a', backgroundColor: '#f0fdf4', padding: '4px 10px', borderRadius: '9999px' }}>
-                Online
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '36px' }}>
-              <div style={{ textAlign: 'center', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>1</div>
-                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', lineHeight: 1.3 }}>Active Compact Circuit</div>
-              </div>
-
-              <div style={{ textAlign: 'center', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>100%</div>
-                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', lineHeight: 1.3 }}>Private Witness Protection</div>
-              </div>
-
-              <div style={{ textAlign: 'center', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>v0.16</div>
-                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', lineHeight: 1.3 }}>Compact SDK Runtime</div>
-              </div>
-            </div>
+              {isConnecting ? (
+                <span className="spinner" />
+              ) : isConnected ? (
+                <>
+                  <span className="status-dot on" />
+                  <span className="label">{shortAddr(shieldedAddress)}</span>
+                </>
+              ) : (
+                <span>
+                  Connect<span className="label"> wallet</span>
+                </span>
+              )}
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* ─── Interactive Cards Section ─── */}
-        <div style={{ marginTop: '64px' }} id="circuit-section">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-            <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>
-                APPLICATION INTERACTOR
-              </div>
-              <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 800, color: '#0f172a' }}>
-                Wallet &amp; Circuit Execution Dashboard
-              </h2>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '28px', alignItems: 'start' }}>
-            {/* Wallet Panel */}
-            <section aria-label="Wallet Connection">
-              <WalletConnect
-                isConnected={isConnected}
-                isConnecting={isConnecting}
-                networkId={networkId}
-                walletAddress={walletAddress}
-                shieldedAddress={shieldedAddress}
-                error={error}
-                connect={connect}
-                disconnect={disconnect}
-              />
-            </section>
-
-            {/* Circuit Panel */}
-            <section aria-label="Circuit Execution">
-              <CircuitCall isConnected={isConnected} networkId={networkId} runStoreMessage={runStoreMessage} />
-            </section>
-          </div>
-        </div>
-
-        {/* ─── Architectural Privacy Explanation Card ─── */}
-        <div style={{ marginTop: '48px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 30px rgba(0,0,0,0.04)' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
-            🔒 Public State vs. Private Witness Breakdown
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', backgroundColor: '#f8fafc' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#0284c7', backgroundColor: '#e0f2fe', padding: '4px 10px', borderRadius: '6px' }}>Public State</span>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>On-Chain Storage</span>
-              </div>
-              <p style={{ margin: 0, fontSize: '14px', color: '#475569', lineHeight: 1.5 }}>
-                Stored transparently on the Midnight ledger. For example, the updated state hash of `hello-world` contract is indexed publicly and queryable by network observers.
-              </p>
-            </div>
-
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', padding: '24px', backgroundColor: '#f8fafc' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a', backgroundColor: '#dcfce7', padding: '4px 10px', borderRadius: '6px' }}>Private Witness</span>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Local Client Security</span>
-              </div>
-              <p style={{ margin: 0, fontSize: '14px', color: '#475569', lineHeight: 1.5 }}>
-                Your secret custom message remains strictly on your local browser. The proof provider generates a Zero-Knowledge proof locally, enabling validators to verify validity without seeing the input.
-              </p>
-            </div>
-          </div>
-        </div>
+      <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
+        {route === 'about' ? (
+          <AboutPage />
+        ) : (
+          <DeskPage midnight={midnight} orbMode={orbMode} onCallStatus={handleCallStatus} />
+        )}
       </main>
 
-      {/* ─── Footer ─── */}
-      <footer style={{ maxWidth: '1200px', margin: '60px auto 0 auto', padding: '0 20px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
-        <p>
-          Powered by <strong>Midnight Network</strong> &amp; <strong>Lace Beta Wallet</strong>
-        </p>
-        <p style={{ marginTop: '6px' }}>
-          Midnight Builder Challenge · Level 2 Solution · Enabled by Zero-Knowledge Cryptography.
-        </p>
+      <footer className="footer">
+        <div className="container footer-inner">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', fontWeight: 600 }}>
+              <BrandMark className="brand-mark" /> Private OTC Agent Desk
+            </div>
+            <p style={{ margin: '10px 0 0', maxWidth: '44ch' }}>
+              Sealed-bid OTC settlement for institutions and autonomous agents, built on Midnight.
+            </p>
+          </div>
+          <div className="footer-links">
+            <a href="#/">Desk</a>
+            <a href="#/about">About</a>
+            <a
+              href="https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Contract on explorer ↗
+            </a>
+            <a href="https://docs.midnight.network" target="_blank" rel="noreferrer">
+              Midnight docs ↗
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );

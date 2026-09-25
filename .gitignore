@@ -17,6 +17,8 @@ build/
 
 # Contract artifacts
 # contracts/managed/
+# Prover keys are ~75 MB; regenerate with `npm run compile`
+contracts/managed/private-otc-desk/keys/*.prover
 
 # Deployment info
 deployment.json

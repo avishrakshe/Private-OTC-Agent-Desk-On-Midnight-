@@ -1,40 +1,367 @@
-// Private OTC Agent Desk - Product-Specific Compact Smart Contract
+// Private OTC Agent Desk — sealed RFQ protocol (v2)
+//
+// Flow (one pair, BASE/QUOTE; the RFQ requester sells BASE, makers bid in QUOTE):
+//   1. Parties deposit into vaults. A vault is a commitment to a balance, so after the
+//      (public) deposit nobody can see how much is left or locked.
+//   2. An owner registers a mandate commitment for each agent it runs. Every order
+//      the agent makes proves it stays inside the mandate without revealing it.
+//   3. The taker opens an RFQ off-chain (size and pair go only to the makers it picks)
+//      and registers a commitment to its identity on-chain.
+//   4. Each maker posts a sealed quote: commit(price, size). It sends the opening to
+//      the taker encrypted, and escrows price * size out of its QUOTE vault.
+//   5. The taker, who is the only party that knows both its floor and the quote, proves
+//      quote >= floor, mandate, oracle band and funds, and settles at the maker's price.
+//   6. A receipt commitment is stored; the auditor gets its opening under a viewing key.
+//
+// Nothing about price or size is ever written in the clear. Deposits are public, and
+// pseudonymous keys appear on settlement (post-trade), never before it.
 pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 
-// Public ledger state - visible on Midnight blockchain
-export ledger totalAgents: Cell<Uint<64>>;
-export ledger totalTradesSettled: Cell<Uint<64>>;
-export ledger minReputationThreshold: Cell<Uint<64>>;
-export ledger lastTradeReceipt: Opaque<"string">;
+// ─── Types ──────────────────────────────────────────────────────────────────
 
-// Circuit 1: Register an autonomous AI agent with local zero-knowledge reputation proof
-export circuit registerAgent(reputationScore: Uint<64>): [] {
-    // Prove client-side that agent reputation satisfies minimum threshold requirement
-    assert reputationScore >= minReputationThreshold "Agent reputation score does not satisfy protocol minimum threshold requirement";
-    totalAgents = totalAgents + 1;
+export struct QuoteTerms {
+  price: Uint<64>;   // QUOTE micro-units per whole BASE token
+  size: Uint<64>;    // whole BASE tokens
 }
 
-// Circuit 2: Execute sealed-bid private OTC swap
-export circuit settleSealedBidSwap(
-    buyerBidPrice: Uint<64>,
-    sellerAskPrice: Uint<64>,
-    agentReputation: Uint<64>,
-    settlementReceipt: Opaque<"string">
+export struct Mandate {
+  maxNotional: Uint<64>;  // per order, QUOTE micro-units
+  minPrice: Uint<64>;
+  maxPrice: Uint<64>;
+}
+
+export struct Quote {
+  maker: Bytes<32>;
+  rfq: Bytes<32>;
+  terms: Bytes<32>;       // persistentCommit(QuoteTerms, salt)
+  expiresAt: Uint<64>;
+  filled: Boolean;
+}
+
+export struct Rfq {
+  owner: Bytes<32>;       // persistentCommit(taker public key, salt): hides who asked
+  expiresAt: Uint<64>;
+}
+
+export struct Receipt {
+  rfq: Bytes<32>;
+  maker: Bytes<32>;
+  taker: Bytes<32>;
+  price: Uint<64>;
+  size: Uint<64>;
+}
+
+// ─── Public ledger ──────────────────────────────────────────────────────────
+
+export ledger admin: Bytes<32>;
+export ledger auditorKey: Bytes<32>;         // auditor's viewing (encryption) public key
+export ledger oraclePrice: Uint<64>;         // TWAP posted by the oracle key
+export ledger oracleBandBps: Uint<64>;
+
+export ledger baseVaults: Map<Bytes<32>, Bytes<32>>;
+export ledger quoteVaults: Map<Bytes<32>, Bytes<32>>;
+export ledger mandates: Map<Bytes<32>, Bytes<32>>;
+export ledger mandateOwners: Map<Bytes<32>, Bytes<32>>;
+export ledger rfqs: Map<Bytes<32>, Rfq>;
+export ledger quotes: Map<Bytes<32>, Quote>;
+export ledger receipts: Map<Bytes<32>, Bytes<32>>;
+
+// Reputation is derived from protocol history, never self-reported.
+export ledger quotesPosted: Map<Bytes<32>, Uint<64>>;
+export ledger fillsSettled: Map<Bytes<32>, Uint<64>>;
+export ledger tradesSettled: Counter;
+
+witness secretKey(): Bytes<32>;
+
+constructor(initialPrice: Uint<64>, bandBps: Uint<64>, auditor: Bytes<32>) {
+  assert(bandBps <= 10000, "Oracle band must be at most 10000 bps");
+  admin = callerKey();
+  oraclePrice = disclose(initialPrice);
+  oracleBandBps = disclose(bandBps);
+  auditorKey = disclose(auditor);
+}
+
+// ─── Commitment helpers (pure, so off-chain code computes identical values) ─
+
+export pure circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "otc-desk:pk:v1"), sk]);
+}
+
+export pure circuit balanceCommitment(balance: Uint<64>, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Uint<64>>(balance, salt);
+}
+
+export pure circuit mandateCommitment(m: Mandate, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Mandate>(m, salt);
+}
+
+export pure circuit quoteCommitment(t: QuoteTerms, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<QuoteTerms>(t, salt);
+}
+
+export pure circuit ownerCommitment(pk: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Bytes<32>>(pk, salt);
+}
+
+export pure circuit receiptCommitment(r: Receipt, salt: Bytes<32>): Bytes<32> {
+  return persistentCommit<Receipt>(r, salt);
+}
+
+export pure circuit quoteId(rfq: Bytes<32>, maker: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "otc-desk:quote:v1"), rfq, maker]);
+}
+
+circuit callerKey(): Bytes<32> {
+  return disclose(publicKey(secretKey()));
+}
+
+// ─── Guarantees shared by makers and takers ─────────────────────────────────
+
+// ZK agent mandate: the order is inside the owner's private policy.
+circuit checkMandate(agent: Bytes<32>, m: Mandate, salt: Bytes<32>, price: Uint<64>, notional: Uint<128>): [] {
+  assert(mandates.member(agent), "Agent has no active mandate");
+  assert(mandates.lookup(agent) == mandateCommitment(m, salt), "Mandate opening does not match the registered commitment");
+  assert(price >= m.minPrice, "Price is below the mandate floor");
+  assert(price <= m.maxPrice, "Price is above the mandate ceiling");
+  assert(notional <= m.maxNotional, "Order notional exceeds the mandate limit");
+}
+
+// Oracle price band: |price - TWAP| <= band, checked without revealing price.
+circuit checkOracleBand(price: Uint<64>): [] {
+  const scaled = price * 10000;
+  assert(scaled >= oraclePrice * ((10000 - oracleBandBps) as Uint<64>), "Price is below the oracle band");
+  assert(scaled <= oraclePrice * ((10000 + oracleBandBps) as Uint<64>), "Price is above the oracle band");
+}
+
+circuit openBase(who: Bytes<32>, balance: Uint<64>, salt: Bytes<32>): [] {
+  assert(baseVaults.member(who), "No BASE vault for this key");
+  assert(baseVaults.lookup(who) == balanceCommitment(balance, salt), "BASE vault opening does not match");
+}
+
+circuit openQuote(who: Bytes<32>, balance: Uint<64>, salt: Bytes<32>): [] {
+  assert(quoteVaults.member(who), "No QUOTE vault for this key");
+  assert(quoteVaults.lookup(who) == balanceCommitment(balance, salt), "QUOTE vault opening does not match");
+}
+
+circuit addQuotesPosted(who: Bytes<32>): [] {
+  const n = quotesPosted.member(who) ? quotesPosted.lookup(who) : 0;
+  quotesPosted.insert(who, (n + 1) as Uint<64>);
+}
+
+circuit addFillSettled(who: Bytes<32>): [] {
+  const n = fillsSettled.member(who) ? fillsSettled.lookup(who) : 0;
+  fillsSettled.insert(who, (n + 1) as Uint<64>);
+}
+
+// ─── Admin / oracle ─────────────────────────────────────────────────────────
+
+export circuit postOraclePrice(twap: Uint<64>): [] {
+  assert(callerKey() == admin, "Only the oracle key can post prices");
+  assert(twap > 0, "Oracle price must be positive");
+  oraclePrice = disclose(twap);
+}
+
+// ─── Vaults (proof of funds + escrow) ───────────────────────────────────────
+
+// Deposits are public (tokens enter in the clear). The resulting balance is not.
+export circuit depositBase(amount: Uint<64>, oldBalance: Uint<64>, oldSalt: Bytes<32>, newSalt: Bytes<32>): [] {
+  const who = callerKey();
+  if (baseVaults.member(who)) {
+    openBase(who, oldBalance, oldSalt);
+  } else {
+    assert(oldBalance == 0, "New vaults start empty");
+  }
+  baseVaults.insert(who, disclose(balanceCommitment((oldBalance + disclose(amount)) as Uint<64>, newSalt)));
+}
+
+export circuit depositQuote(amount: Uint<64>, oldBalance: Uint<64>, oldSalt: Bytes<32>, newSalt: Bytes<32>): [] {
+  const who = callerKey();
+  if (quoteVaults.member(who)) {
+    openQuote(who, oldBalance, oldSalt);
+  } else {
+    assert(oldBalance == 0, "New vaults start empty");
+  }
+  quoteVaults.insert(who, disclose(balanceCommitment((oldBalance + disclose(amount)) as Uint<64>, newSalt)));
+}
+
+// ─── Mandates ───────────────────────────────────────────────────────────────
+
+export circuit registerMandate(agent: Bytes<32>, commitment: Bytes<32>): [] {
+  const owner = callerKey();
+  const a = disclose(agent);
+  if (mandateOwners.member(a)) {
+    assert(mandateOwners.lookup(a) == owner, "Only the mandate owner can replace it");
+  }
+  mandateOwners.insert(a, owner);
+  mandates.insert(a, disclose(commitment));
+}
+
+export circuit revokeMandate(agent: Bytes<32>): [] {
+  const a = disclose(agent);
+  assert(mandateOwners.member(a), "Agent has no mandate");
+  assert(mandateOwners.lookup(a) == callerKey(), "Only the mandate owner can revoke it");
+  mandates.remove(a);
+}
+
+// ─── Sealed RFQ ─────────────────────────────────────────────────────────────
+
+export circuit openRfq(rfqId: Bytes<32>, ownerSalt: Bytes<32>, expiresAt: Uint<64>): [] {
+  const id = disclose(rfqId);
+  assert(!rfqs.member(id), "RFQ id already used");
+  rfqs.insert(id, Rfq { owner: disclose(ownerCommitment(callerKey(), ownerSalt)), expiresAt: disclose(expiresAt) });
+}
+
+// Maker: sealed quote + proof of funds + escrow + mandate + oracle band.
+export circuit submitQuote(
+  rfqId: Bytes<32>,
+  terms: QuoteTerms,
+  termsSalt: Bytes<32>,
+  mandate: Mandate,
+  mandateSalt: Bytes<32>,
+  vaultBalance: Uint<64>,
+  vaultSalt: Bytes<32>,
+  newVaultSalt: Bytes<32>
 ): [] {
-    // Zero-knowledge constraint validation:
-    // 1. Buyer bid price must be >= Seller ask price
-    assert buyerBidPrice >= sellerAskPrice "Sealed-bid matching condition failed: buyer bid is lower than seller ask";
-    // 2. Agent reputation must satisfy protocol minimum threshold
-    assert agentReputation >= minReputationThreshold "Agent reputation score is below protocol minimum threshold";
+  const maker = callerKey();
+  const rfq = disclose(rfqId);
+  assert(rfqs.member(rfq), "RFQ is not open");
+  const expiresAt = rfqs.lookup(rfq).expiresAt;
+  assert(blockTimeLt(expiresAt), "RFQ has expired");
 
-    // Disclose settlement receipt to public ledger state & update metrics
-    lastTradeReceipt = disclose(settlementReceipt);
-    totalTradesSettled = totalTradesSettled + 1;
+  const id = quoteId(rfq, maker);
+  assert(!quotes.member(id), "Maker already quoted this RFQ");
+  assert(terms.size > 0, "Quote size must be positive");
+
+  const notional = terms.price * terms.size;
+  checkMandate(maker, mandate, mandateSalt, terms.price, notional);
+  checkOracleBand(terms.price);
+
+  openQuote(maker, vaultBalance, vaultSalt);
+  assert(vaultBalance >= notional, "Insufficient QUOTE funds to back this quote");
+  quoteVaults.insert(maker, disclose(balanceCommitment((vaultBalance - notional) as Uint<64>, newVaultSalt)));
+
+  quotes.insert(id, Quote {
+    maker: maker,
+    rfq: rfq,
+    terms: disclose(quoteCommitment(terms, termsSalt)),
+    expiresAt: expiresAt,
+    filled: false
+  });
+  addQuotesPosted(maker);
 }
 
-// Circuit 3: Update protocol minimum reputation threshold requirement
-export circuit updateMinReputationThreshold(newThreshold: Uint<64>): [] {
-    minReputationThreshold = newThreshold;
+// Taker: the match proof. Only the taker knows both the quote (decrypted) and its floor.
+export circuit acceptQuote(
+  rfqId: Bytes<32>,
+  ownerSalt: Bytes<32>,
+  maker: Bytes<32>,
+  terms: QuoteTerms,
+  termsSalt: Bytes<32>,
+  floorPrice: Uint<64>,
+  mandate: Mandate,
+  mandateSalt: Bytes<32>,
+  baseBalance: Uint<64>,
+  baseSalt: Bytes<32>,
+  newBaseSalt: Bytes<32>,
+  quoteBalance: Uint<64>,
+  quoteSalt: Bytes<32>,
+  newQuoteSalt: Bytes<32>,
+  receiptSalt: Bytes<32>
+): [] {
+  const taker = callerKey();
+  const rfq = disclose(rfqId);
+  assert(rfqs.member(rfq), "RFQ is not open");
+  const r = rfqs.lookup(rfq);
+  assert(r.owner == ownerCommitment(taker, ownerSalt), "Only the RFQ requester can accept a quote");
+  assert(blockTimeLt(r.expiresAt), "RFQ has expired");
+
+  const id = quoteId(rfq, disclose(maker));
+  assert(quotes.member(id), "No such quote");
+  const q = quotes.lookup(id);
+  assert(q.terms == quoteCommitment(terms, termsSalt), "Quote opening does not match the sealed quote");
+
+  // Sealed match: the maker's quote clears the taker's private floor. Clearing price = maker's quote.
+  assert(terms.price >= floorPrice, "Quote is below the taker's private floor");
+
+  const notional = terms.price * terms.size;
+  checkMandate(taker, mandate, mandateSalt, terms.price, notional);
+  checkOracleBand(terms.price);
+
+  // Proof of funds + settlement on the taker's own vaults.
+  openBase(taker, baseBalance, baseSalt);
+  assert(baseBalance >= terms.size, "Insufficient BASE funds to fill this quote");
+  baseVaults.insert(taker, disclose(balanceCommitment((baseBalance - terms.size) as Uint<64>, newBaseSalt)));
+  if (quoteVaults.member(taker)) {
+    openQuote(taker, quoteBalance, quoteSalt);
+  } else {
+    assert(quoteBalance == 0, "New vaults start empty");
+  }
+  quoteVaults.insert(taker, disclose(balanceCommitment((quoteBalance + notional) as Uint<64>, newQuoteSalt)));
+
+  // Maker's escrow was locked at quote time; it now owns `size` BASE, claimable via claimFill.
+  quotes.insert(id, Quote { maker: q.maker, rfq: q.rfq, terms: q.terms, expiresAt: q.expiresAt, filled: true });
+  rfqs.remove(rfq);
+
+  receipts.insert(rfq, disclose(receiptCommitment(
+    Receipt { rfq: rfq, maker: q.maker, taker: taker, price: terms.price, size: terms.size },
+    receiptSalt
+  )));
+  addFillSettled(taker);
+  addFillSettled(q.maker);
+  tradesSettled.increment(1);
+}
+
+export circuit closeRfq(rfqId: Bytes<32>, ownerSalt: Bytes<32>): [] {
+  const rfq = disclose(rfqId);
+  assert(rfqs.member(rfq), "RFQ is not open");
+  assert(rfqs.lookup(rfq).owner == ownerCommitment(callerKey(), ownerSalt), "Only the RFQ requester can close it");
+  rfqs.remove(rfq);
+}
+
+// Maker collects the BASE it bought.
+export circuit claimFill(
+  rfqId: Bytes<32>,
+  terms: QuoteTerms,
+  termsSalt: Bytes<32>,
+  vaultBalance: Uint<64>,
+  vaultSalt: Bytes<32>,
+  newVaultSalt: Bytes<32>
+): [] {
+  const maker = callerKey();
+  const id = quoteId(disclose(rfqId), maker);
+  assert(quotes.member(id), "No such quote");
+  const q = quotes.lookup(id);
+  assert(q.filled, "Quote has not been filled");
+  assert(q.terms == quoteCommitment(terms, termsSalt), "Quote opening does not match the sealed quote");
+  if (baseVaults.member(maker)) {
+    openBase(maker, vaultBalance, vaultSalt);
+  } else {
+    assert(vaultBalance == 0, "New vaults start empty");
+  }
+  baseVaults.insert(maker, disclose(balanceCommitment((vaultBalance + terms.size) as Uint<64>, newVaultSalt)));
+  quotes.remove(id);
+}
+
+// Losing (or expired) maker releases its escrow. Quotes are firm while the RFQ is live.
+export circuit cancelQuote(
+  rfqId: Bytes<32>,
+  terms: QuoteTerms,
+  termsSalt: Bytes<32>,
+  vaultBalance: Uint<64>,
+  vaultSalt: Bytes<32>,
+  newVaultSalt: Bytes<32>
+): [] {
+  const maker = callerKey();
+  const rfq = disclose(rfqId);
+  const id = quoteId(rfq, maker);
+  assert(quotes.member(id), "No such quote");
+  const q = quotes.lookup(id);
+  assert(!q.filled, "Filled quotes cannot be cancelled");
+  assert(!rfqs.member(rfq) || blockTimeGte(q.expiresAt), "Quote is firm while the RFQ is open");
+  assert(q.terms == quoteCommitment(terms, termsSalt), "Quote opening does not match the sealed quote");
+  openQuote(maker, vaultBalance, vaultSalt);
+  quoteVaults.insert(maker, disclose(balanceCommitment((vaultBalance + terms.price * terms.size) as Uint<64>, newVaultSalt)));
+  quotes.remove(id);
 }

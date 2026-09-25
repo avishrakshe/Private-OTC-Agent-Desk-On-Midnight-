@@ -7,15 +7,15 @@
 <p align="center">
   <a href="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml"><img src="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml/badge.svg" alt="CI Pipeline" /></a>
   <img src="https://img.shields.io/badge/Midnight-Preprod%20Testnet-00e5ff?style=flat-square&logo=blockchain" alt="Midnight Network" />
-  <img src="https://img.shields.io/badge/Compact%20Compiler-0.5.1-6c5ce7?style=flat-square" alt="Compact Compiler" />
-  <img src="https://img.shields.io/badge/Zero--Knowledge-Halo2%20Proofs-success?style=flat-square" alt="ZK Proofs" />
+  <img src="https://img.shields.io/badge/Compact%20compiler-0.31.1-6c5ce7?style=flat-square" alt="Compact compiler" />
+  <img src="https://img.shields.io/badge/Zero--Knowledge-Compact%20circuits-success?style=flat-square" alt="ZK Proofs" />
   <img src="https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-8.1-646cff?style=flat-square&logo=vite" alt="Vite" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
 </p>
 
-> **Tagline:** A confidential DeFi settlement marketplace where autonomous AI agents perform sealed-bid token swaps with identities, order amounts, and reputation scores hidden via zero-knowledge proofs on Midnight's native private state.
+> **Tagline:** A sealed-RFQ OTC desk on Midnight for DAO treasuries, market makers and AI agents. Quotes are commitments, the taker proves the match in zero knowledge, and agents trade under mandates they can't break. Nothing about an order is visible before it fills.
 
 ---
 
@@ -24,10 +24,11 @@
 - [📜 Verified Deployed Contract Addresses](#-verified-deployed-contract-addresses)
 - [💡 Problem & Solution](#-problem--solution)
 - [📐 Protocol Architecture](#-protocol-architecture)
-  - [System Architecture Diagram](#1-system-architecture)
-  - [Sealed-Bid Matching & Settlement Flow](#2-sealed-bid-matching--settlement-lifecycle)
-  - [Privacy Boundary & State Separation](#3-privacy-boundary--state-separation-matrix)
+  - [Protocol guarantees](#protocol-guarantees-all-in-contractsprivate-otc-deskcompact)
+  - [Sealed RFQ lifecycle](#sealed-rfq-lifecycle)
+  - [What the chain sees](#what-the-chain-sees)
 - [🔒 Privacy Model](#-privacy-model)
+- [🤖 Reference Agents](#-reference-agents)
 - [🚀 Extended Protocol Features](#-extended-protocol-features)
 - [🔁 Feedback Loop & Continuous Improvement](#-feedback-loop--continuous-improvement)
   - [Feedback Engineering Pipeline](#feedback-engineering-pipeline)
@@ -69,157 +70,100 @@ The protocol is actively deployed and verified across Midnight testnet environme
 
 ## 💡 Problem & Solution
 
-### The Problem: Mempool Exposure & MEV Exploitation
-Every large trade on a transparent automated market maker (AMM) or public decentralized exchange (DEX) leaks order size, limit prices, and wallet identities to searcher bots before execution. MEV (Maximal Extractable Value) bots exploit this transparency through **sandwich attacks**, **front-running**, and **predatory arbitrage**, costing institutional and algorithmic participants billions of dollars each year. 
+### The Problem: pre-trade leakage
+On a public AMM or DEX, every large order broadcasts its size, limit price and wallet identity before it executes. Searcher bots read that signal and front-run, sandwich or fade it. MEV is extracted **before** execution, so that is where the leak has to be closed. It hits hardest on block trades: a DAO diversifying its treasury, a fund selling unlocked tokens, a market maker filling size.
 
-Furthermore, autonomous AI agents cannot execute proprietary trading strategies on public chains without instantly broadcasting their alpha to the entire market.
+AI agents make it worse. An agent can't be handed a treasury on a public chain without broadcasting its strategy, and its owner has no way to bound what it does.
 
-```
-[Public DEX Trade Flow]
-User / Agent Order ──▶ Public Mempool (Visible to all) ──▶ MEV Bots Frontrun / Sandwich ──▶ Severe Slippage & Loss
-```
+### The Solution: a sealed RFQ desk on Midnight
+A ZK prover has to know every private input, so no single party can prove `buyerBid >= sellerAsk` over two strangers' prices. The desk therefore uses the model real OTC desks use, **request for quote (RFQ)**:
 
-### The Solution: Zero-Knowledge Private OTC Desk on Midnight
-**Private OTC Agent Desk on Midnight** eliminates mempool information leakage at the foundational protocol layer:
+1. **The maker commits.** It posts `commit(price, size)` on-chain, escrows `price × size` from its vault, and sends the opening to the taker, encrypted to the taker's key.
+2. **The taker proves the match.** It's the one party that legitimately knows both numbers. `acceptQuote` proves that the opening matches the commitment and that `quote ≥ its private floor`. It also checks the taker's mandate, the oracle band and the taker's funds.
+3. **It clears at the maker's quote.** The taker's floor is never revealed, not even to the maker.
+4. **The auditor can verify.** A receipt commitment goes on-chain, and its opening is encrypted to the auditor's registered viewing key.
 
-```
-[Private OTC Desk Flow]
-Autonomous Agents ──▶ Sealed Bids (Private Witnesses) ──▶ Client-Side ZK Proof (Halo2) ──▶ Midnight Shielded State
-                                                                                               │
-                                                                                               ▼
-                                                          Only Cryptographic Settlement Hash Revealed (Zero Alpha Leaked)
-```
-
-1. **Confidential Identities & Reputation**: Trading agents generate local ephemeral keys and cryptographic reputation proofs client-side.
-2. **Sealed-Bid Matching**: Buyer bids and seller asks are held in private witnesses. A Midnight Compact zero-knowledge circuit proves that `buyerBid >= sellerAsk` without disclosing the exact numerical value of either.
-3. **Reputation Baseline Verification**: The circuit proves `agentReputation >= minReputationThreshold` to eliminate counterparty risk without exposing an agent's credit score history.
-4. **MEV-Free Settlement**: Transactions are finalized directly in Midnight's native private state, emitting only a cryptographic receipt hash.
+The counterparty learns the price. The market and the bots don't.
 
 ---
 
 ## 📐 Protocol Architecture
 
-### 1. System Architecture
+### Protocol guarantees (all in [`contracts/private-otc-desk.compact`](contracts/private-otc-desk.compact))
 
-The protocol integrates autonomous AI agents, client-side zero-knowledge proof generation, the Lace wallet extension, and Midnight's private ledger:
+| # | Guarantee | Where it's enforced |
+|---|---|---|
+| 1 | **Pre-trade privacy.** RFQs, quotes and fills go on-chain only as commitments | `openRfq`, `submitQuote`, `acceptQuote` |
+| 2 | **ZK agent mandates.** An owner commits to max notional, price floor and ceiling. Every order proves it stays inside them | `registerMandate`, `checkMandate` |
+| 3 | **Proof of funds and escrow.** Vaults are balance commitments. Quotes lock `price × size` when posted, and takers prove they hold what they sell | `depositBase/Quote`, `submitQuote`, `acceptQuote` |
+| 4 | **Oracle price band.** Price within ±band of the posted TWAP, checked at quote time and again at match time | `checkOracleBand`, `postOraclePrice` |
+| 5 | **Selective disclosure.** Receipt commitment plus a viewing key registered for the auditor | `receipts`, `auditorKey` |
+| 6 | **Reputation from history.** The contract counts every quote and fill itself. No self-reported scores | `quotesPosted`, `fillsSettled` |
 
-```mermaid
-flowchart TB
-    subgraph Agents["🤖 Autonomous AI Trading Agents & Institutional Desks"]
-        AgentA["Buyer Agent<br/>(Private Bid: 1,050 tDUST)"]
-        AgentB["Seller Agent<br/>(Private Ask: 1,000 tDUST)"]
-    end
+Quotes are firm while the RFQ is open. Losing makers release escrow once it closes (`cancelQuote`), and the winner claims its tokens (`claimFill`). Expiry uses block time.
 
-    subgraph ClientSDK["💻 Client-Side Zero-Knowledge Runtime (Browser / Node)"]
-        PrivateWitness["Private Witness Generator<br/>- Secret Salt & Nonces<br/>- Actual Reputation Score<br/>- Exact Trade Amount"]
-        ZKProver["Midnight Halo2 ZK Proof Engine<br/>(@midnight-ntwrk/compact-runtime)<br/>Computes proof in ~8.4s"]
-        TWAP["TWAP Price Oracle Adapter<br/>Validates slippage boundaries"]
-    end
-
-    subgraph Wallet["🔑 Midnight DApp Connector"]
-        Lace["Midnight Lace Beta Wallet<br/>(Preprod Network / Session Manager)"]
-    end
-
-    subgraph Ledger["⛓️ Midnight Preprod Blockchain"]
-        subgraph ShieldedState["🔒 Shielded / Native Private State"]
-            PrivateContract["Compact Smart Contract<br/>private-otc-desk.compact<br/>Address: 02005a305..."]
-            ZKVerification["ZK Verifier Circuit<br/>✓ buyerBid >= sellerAsk<br/>✓ reputation >= minThreshold<br/>✓ salt is valid"]
-        end
-        subgraph PublicState["🌐 Public State Ledger"]
-            Counter1["Total Registered Agents Counter"]
-            Counter2["Total Trades Settled Counter"]
-            Receipts["Settlement Proof Receipt Hash"]
-        end
-    end
-
-    AgentA --> PrivateWitness
-    AgentB --> PrivateWitness
-    PrivateWitness --> ZKProver
-    TWAP -.-> ZKProver
-    ZKProver --> Lace
-    Lace --> ShieldedState
-    ZKVerification --> PublicState
-```
-
----
-
-### 2. Sealed-Bid Matching & Settlement Lifecycle
-
-The diagram below details the sequence of events from agent discovery to on-chain cryptographic settlement:
+### Sealed RFQ lifecycle
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Buyer as 🤖 Buyer Agent
-    actor Seller as 🤖 Seller Agent
-    participant Client as 💻 Local ZK Runtime
-    participant Wallet as 🔑 Lace Wallet
-    participant Chain as ⛓️ Midnight Preprod
+    actor T as 🏦 Treasury Seller agent (taker)
+    actor M as 🤖 Market Maker agent
+    participant C as ⛓️ private-otc-desk
+    actor A as 🔍 Auditor
 
-    Buyer->>Client: Input sealed bid (e.g. 1050 DUST, rep: 95)
-    Seller->>Client: Input sealed ask (e.g. 1000 DUST, rep: 90)
-    Note over Client: Step 1: Generate Ephemeral Salt & Nonce
-    Client->>Client: Construct Private Witness (Bids, Asks, Reputations)
-    Note over Client: Step 2: Client-Side ZK Proof Generation (Halo2)
-    Client->>Client: Prove: (buyerBid >= sellerAsk) && (reputation >= minThreshold)
-    Note over Client: Private values discarded from memory
-    Client->>Wallet: Submit Proof + Public Parameters + Receipt Commitment
-    Wallet->>Chain: Broadcast transaction to Preprod Contract
-    Note over Chain: Step 3: Contract verifies ZK proof against circuit rules
-    Chain->>Chain: Increment settledTrades counter & record receipt hash
-    Chain-->>Buyer: Settlement Confirmation Receipt Hash
-    Chain-->>Seller: Settlement Confirmation Receipt Hash
+    T->>C: openRfq(id, commit(takerKey), expiry)
+    T-->>M: IOI (size), point-to-point
+    M->>C: submitQuote: commit(price,size), proves mandate + band + funds, escrows price×size
+    M-->>T: quote opening, encrypted to T
+    Note over T: decrypts all quotes, picks the best ≥ private floor
+    T->>C: acceptQuote: proves opening, quote ≥ floor, mandate, band, funds
+    C->>C: rotate vault commitments, store receipt commitment, bump counters
+    T-->>A: receipt opening, encrypted to the viewing key
+    M->>C: claimFill (winner) / cancelQuote (losers release escrow)
+    A->>C: recompute receiptCommitment and check it matches
 ```
 
----
+### What the chain sees
 
-### 3. Privacy Boundary & State Separation Matrix
+| Data | Public DEX | This desk |
+|---|---|---|
+| Order size / quote price | Broadcast before execution | Commitment; opened only by the counterparty (and the auditor) |
+| Taker's limit | Readable by any searcher | Proven ≤ quote, revealed to nobody |
+| Agent mandate | n/a | Commitment; proven on every order |
+| Balances | Public | Commitments. **Deposit amounts are public** |
+| Who traded | Linked before execution | Pseudonymous keys, visible **at settlement** |
+| Oracle TWAP, band, trade count | n/a | Public by design |
 
-Midnight's dual-state architecture cleanly separates confidential local information from verifiable public data:
-
-```mermaid
-graph LR
-    subgraph PrivateBoundary["🔒 PRIVATE DOMAIN (Never leaves local machine)"]
-        P1["Agent Private Keys & Seed"]
-        P2["Exact Bid Price (e.g., 1,050 tDUST)"]
-        P3["Exact Ask Price (e.g., 1,000 tDUST)"]
-        P4["Exact Agent Reputation Score (e.g., 94/100)"]
-        P5["Cryptographic Salt & Trade Nonces"]
-    end
-
-    subgraph ZKGate["🛡️ ZERO-KNOWLEDGE PROOF BARRIER"]
-        ZKGateNode["Midnight Compact ZK Verifier<br/>Mathematical Proof Validation"]
-    end
-
-    subgraph PublicBoundary["🌐 PUBLIC DOMAIN (Visible On-Chain)"]
-        U1["Total Agents Registered Counter"]
-        U2["Total Trades Settled Counter"]
-        U3["Protocol Minimum Reputation Parameter"]
-        U4["Cryptographic Settlement Proof Receipt Hash"]
-        U5["Network & Block Timestamp"]
-    end
-
-    PrivateBoundary -->|Private Witness| ZKGate
-    ZKGate -->|Valid Proof Only| PublicBoundary
-```
+The honest scope: **pre-trade privacy is the product.** Settlement links a trade to the parties' pseudonymous keys, but never to a price or size.
 
 ---
 
 ## 🔒 Privacy Model
 
-The table below defines what information is public, private, or mathematically proven without disclosure:
+Tests check privacy directly against the compiled circuits. [`tests/otc-desk.test.ts`](tests/otc-desk.test.ts) (c) records every public transcript and every ledger value for a quote and a match. It asserts that the price, size, notional, floor, balances and mandate limits appear nowhere, not even as raw bytes. A positive control proves the check does catch a value that really is public (the oracle TWAP).
 
-| Category | Data Field | Visibility | Storage Location | Cryptographic Guarantee |
-|---|---|:---:|---|---|
-| **Private Witness** | Buyer Bid Price | 🔒 **Private** | Client Memory Only | Never broadcast to mempool or ledger |
-| **Private Witness** | Seller Ask Price | 🔒 **Private** | Client Memory Only | Never broadcast to mempool or ledger |
-| **Private Witness** | Agent Reputation Score | 🔒 **Private** | Local Storage | Private state proof; exact score hidden |
-| **Private Witness** | Agent Secret Seed & Nonces | 🔒 **Private** | Secure Enclave / Session | Single-use salt prevents replay attacks |
-| **Zero-Knowledge Proof** | Price Matching Condition | 🛡️ **ZK Proved** | On-Chain Verification | Proves `buyerBid >= sellerAsk` with zero knowledge of prices |
-| **Zero-Knowledge Proof** | Reputation Threshold | 🛡️ **ZK Proved** | On-Chain Verification | Proves `agentReputation >= minThreshold` |
-| **Public State** | Registered Agents Counter | 🌐 **Public** | Midnight Contract State | Globally verifiable monotonically increasing counter |
-| **Public State** | Total Settled Trades Counter | 🌐 **Public** | Midnight Contract State | Globally verifiable settlement count |
-| **Public State** | Settlement Receipt Hash | 🌐 **Public** | Transaction Output | SHA-256 / Poseidon hash of trade confirmation |
+---
+
+## 🤖 Reference Agents
+
+[`src/protocol/agents.ts`](src/protocol/agents.ts) implements three agents on top of the contract:
+
+- **Treasury Seller.** A DAO sells a block in TWAP slices via sealed RFQ, under a mandate from the multisig, with a private floor.
+- **Market Maker.** Answers RFQs with sealed, escrowed quotes priced off the oracle TWAP.
+- **Auditor.** Holds the viewing key and verifies every receipt against the ledger.
+
+`npm run agents` runs the demo story against the compiled contract: a DAO sells 1.8M DAO (~$1.5M) to three market makers in three slices. On the way, the circuits block a fat-finger quote (oracle band), an over-ceiling bid (mandate) and an unfunded quote (proof of funds). Then the auditor verifies all three fills. The same run plays in the browser on the Desk page, showing each agent's private view next to the chain's view.
+
+Any agent that can hold a key and call circuits gets the same guarantees. The roadmap packages this client as an SDK and an MCP server.
+
+### Roadmap
+- SDK and MCP server for outside agents; x402-style fees on quote requests
+- Real shielded token escrow; cross-chain settlement (Midnight as the matching layer, HTLCs on the origin chain)
+- Maker bonds with slashing; nullifier-based identity via NightPass / AttestPass
+- Sealed batch auctions with a bonded solver; MPC/TEE matching
+- Iceberg orders, size-bucket IOIs, delayed aggregate volume reporting
+- Buy-side RFQs (the mirror of `acceptQuote`); oracle with multiple signers
 
 ---
 
@@ -362,7 +306,7 @@ Private-OTC-Agent-Desk-On-Midnight-/
 ## 🛠️ Tech Stack
 
 - **Smart Contract Language:** [Midnight Compact `v0.5.1`](https://midnight.network)
-- **Zero-Knowledge Runtime:** `@midnight-ntwrk/compact-runtime` (Halo2 Proof System)
+- **Zero-Knowledge Runtime:** `@midnight-ntwrk/compact-runtime` 0.16 (Compact compiler 0.31.1)
 - **Frontend Framework:** React 19 + TypeScript + Vite 8
 - **Wallet Connector:** Midnight Lace Wallet (`@midnight-ntwrk/dapp-connector-api`)
 - **Testing & Tooling:** Node.js native test runner (`tsx --test`) + GitHub Actions CI

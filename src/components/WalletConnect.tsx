@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { IconCopy, IconLock, IconEye } from './ui/icons';
 
 interface WalletConnectProps {
   isConnected: boolean;
@@ -11,6 +12,51 @@ interface WalletConnectProps {
   disconnect: () => void;
 }
 
+const NETWORKS = [
+  { id: 'preview', label: 'Preview' },
+  { id: 'preprod', label: 'Preprod' },
+  { id: 'undeployed', label: 'Local' },
+];
+
+export const networkLabel = (id?: string) =>
+  id === 'preprod' ? 'Preprod' : id === 'undeployed' ? 'Local devnet' : id === 'mainnet' ? 'Mainnet' : 'Preview';
+
+const shortAddr = (addr: string | null, head = 10, tail = 8) =>
+  addr ? `${addr.slice(0, head)}…${addr.slice(-tail)}` : '';
+
+/** Deterministic gradient identicon so users can recognise their wallet at a glance. */
+const avatarStyle = (seed: string | null): React.CSSProperties => {
+  let h = 0;
+  for (const ch of seed ?? '') h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const a = h % 360;
+  const b = (a + 70 + ((h >> 8) % 90)) % 360;
+  return { background: `conic-gradient(from ${h % 180}deg, hsl(${a} 85% 62%), hsl(${b} 80% 55%), hsl(${a} 85% 62%))` };
+};
+
+const CopyButton: React.FC<{ value: string | null; label: string }> = ({ value, label }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="btn btn-sm btn-ghost"
+      onClick={async () => {
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1800);
+        } catch {
+          // clipboard blocked (e.g. insecure context) – nothing else to do
+        }
+      }}
+      aria-label={`Copy ${label}`}
+    >
+      <IconCopy width={14} height={14} />
+      <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
+    </button>
+  );
+};
+
 export const WalletConnect: React.FC<WalletConnectProps> = ({
   isConnected,
   isConnecting,
@@ -22,253 +68,128 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   disconnect,
 }) => {
   const [selectedNetwork, setSelectedNetwork] = useState('preview');
-  const [copiedUnshielded, setCopiedUnshielded] = useState(false);
-  const [copiedShielded, setCopiedShielded] = useState(false);
 
-  const formatAddress = (addr: string | null) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 8)}...${addr.slice(-8)}`;
-  };
-
-  const copyToClipboard = (text: string | null, type: 'unshielded' | 'shielded') => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    if (type === 'unshielded') {
-      setCopiedUnshielded(true);
-      setTimeout(() => setCopiedUnshielded(false), 2000);
-    } else {
-      setCopiedShielded(true);
-      setTimeout(() => setCopiedShielded(false), 2000);
-    }
-  };
-
-  const isLaceAvailable = typeof window !== 'undefined' && !!(window.midnight?.mnLace || (window.midnight && Object.keys(window.midnight).length > 0));
+  const isLaceAvailable =
+    typeof window !== 'undefined' && !!window.midnight && Object.keys(window.midnight).length > 0;
 
   return (
-    <div
-      style={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '20px',
-        padding: '24px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.05)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+    <div className="panel" style={{ height: '100%' }}>
+      <div className="panel-head">
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Lace Wallet Authorization</h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-            Connect your Lace Beta wallet to interact with Midnight zero-knowledge contracts.
-          </p>
+          <span className="eyebrow">Step 1</span>
+          <h3 className="h3" style={{ marginTop: 6 }}>
+            Wallet
+          </h3>
+          <p>Authorize Lace to prove, balance and relay transactions.</p>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            backgroundColor: isConnected ? 'rgba(34, 197, 94, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-            padding: '6px 12px',
-            borderRadius: '9999px',
-            border: `1px solid ${isConnected ? 'rgba(34, 197, 94, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-          }}
-        >
-          <span
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: isConnected ? '#22c55e' : '#f59e0b',
-              boxShadow: isConnected ? '0 0 8px #22c55e' : '0 0 8px #f59e0b',
-            }}
-          />
-          <span style={{ fontSize: '12px', fontWeight: 600, color: isConnected ? '#15803d' : '#b45309' }}>
-            {isConnected ? `Connected (${networkId === 'preprod' ? 'Preprod' : networkId === 'undeployed' ? 'Local' : 'Preview'})` : 'Disconnected'}
-          </span>
-        </div>
+        <span className={`chip ${isConnected ? 'chip-lime' : ''}`}>
+          <span className={`status-dot ${isConnected ? 'on' : ''}`} />
+          {isConnected ? networkLabel(networkId) : 'Not connected'}
+        </span>
       </div>
 
       {error && (
-        <div
-          style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            color: '#b91c1c',
-            fontSize: '13px',
-            marginBottom: '20px',
-            lineHeight: 1.4,
-          }}
-        >
-          <strong>Connection Error: </strong> {error}
+        <div className="callout callout-error" role="alert" style={{ marginBottom: 20 }}>
+          <div>
+            <strong>Couldn’t connect.</strong> {error}
+          </div>
         </div>
       )}
 
       {!isConnected ? (
-        <div>
-          <div style={{ marginBottom: '18px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '8px' }}>
-              Target Midnight Network
-            </label>
-            <select
-              value={selectedNetwork}
-              onChange={(e) => setSelectedNetwork(e.target.value)}
-              disabled={isConnecting}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                backgroundColor: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                borderRadius: '12px',
-                color: '#0f172a',
-                fontSize: '14px',
-                fontWeight: 500,
-                outline: 'none',
-                cursor: 'pointer',
-              }}
+        <>
+          <div className="field">
+            <span className="label" id="network-label">
+              Network
+            </span>
+            <div
+              className="segmented"
+              role="radiogroup"
+              aria-labelledby="network-label"
+              style={{ ['--count' as any]: NETWORKS.length }}
             >
-              <option value="preview">Preview Testnet (Recommended)</option>
-              <option value="preprod">Preprod Testnet</option>
-              <option value="undeployed">Undeployed (Local Devnet)</option>
-              <option value="mainnet">Mainnet</option>
-            </select>
+              {NETWORKS.map((n) => (
+                <button
+                  key={n.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={selectedNetwork === n.id}
+                  onClick={() => setSelectedNetwork(n.id)}
+                  disabled={isConnecting}
+                >
+                  {n.label}
+                </button>
+              ))}
+            </div>
+            <span className="hint">The demo contract lives on Preview. Lace must be set to the same network.</span>
           </div>
 
           <button
-            className="lime-btn"
+            type="button"
+            className="btn btn-primary btn-block"
             onClick={() => connect(selectedNetwork)}
             disabled={isConnecting}
-            style={{ width: '100%', padding: '14px 20px', fontSize: '15px' }}
           >
-            {isConnecting ? 'Connecting to Lace...' : 'Connect Lace Beta Wallet'}
+            {isConnecting ? (
+              <>
+                <span className="spinner" /> Waiting for Lace…
+              </>
+            ) : (
+              <>
+                Connect Lace wallet <span className="arrow">→</span>
+              </>
+            )}
           </button>
 
           {!isLaceAvailable && (
-            <div
-              style={{
-                marginTop: '16px',
-                padding: '14px 16px',
-                backgroundColor: '#f0fdf4',
-                border: '1px solid #bbf7d0',
-                borderRadius: '12px',
-                fontSize: '13px',
-                color: '#166534',
-                lineHeight: 1.5,
-              }}
-            >
-              <strong>⚡ How to Connect Lace Wallet:</strong>
-              <ol style={{ margin: '8px 0 0 0', paddingLeft: '18px' }}>
-                <li>Ensure <strong>Lace Beta Wallet</strong> extension is installed in Chrome.</li>
-                <li>In Lace extension settings, set Network to <strong>Midnight Preview</strong> (or Preprod).</li>
-                <li>Refresh this tab (F5) and click <strong>Connect Lace Beta Wallet</strong>.</li>
-              </ol>
+            <div className="callout" style={{ marginTop: 16 }}>
+              <div>
+                <strong>Lace not detected.</strong>
+                <ol>
+                  <li>Install the Lace (Midnight) extension in Chrome.</li>
+                  <li>In Lace settings, pick the Midnight Preview network.</li>
+                  <li>Reload this page and connect.</li>
+                </ol>
+              </div>
             </div>
           )}
-        </div>
+        </>
       ) : (
-        <div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-            {/* Unshielded Address */}
-            <div
-              style={{
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '14px',
-                padding: '14px',
-              }}
-            >
-              <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                Unshielded Address (Public)
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                <code
-                  style={{
-                    fontSize: '13px',
-                    color: '#0f172a',
-                    fontWeight: 600,
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {formatAddress(walletAddress)}
-                </code>
-                <button
-                  onClick={() => copyToClipboard(walletAddress, 'unshielded')}
-                  style={{
-                    padding: '4px 10px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '8px',
-                    color: '#475569',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {copiedUnshielded ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-            </div>
-
-            {/* Shielded Address */}
-            <div
-              style={{
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '14px',
-                padding: '14px',
-              }}
-            >
-              <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                Shielded Address (Private ZK)
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                <code
-                  style={{
-                    fontSize: '13px',
-                    color: '#0f172a',
-                    fontWeight: 600,
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {formatAddress(shieldedAddress)}
-                </code>
-                <button
-                  onClick={() => copyToClipboard(shieldedAddress, 'shielded')}
-                  style={{
-                    padding: '4px 10px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '8px',
-                    color: '#475569',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {copiedShielded ? 'Copied!' : 'Copy'}
-                </button>
+        <>
+          <div className="identity">
+            <div className="avatar" style={avatarStyle(shieldedAddress)} aria-hidden="true" />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600 }}>Lace wallet</div>
+              <div className="subtle mono" style={{ fontSize: 12.5 }}>
+                {shortAddr(shieldedAddress, 14, 6)}
               </div>
             </div>
           </div>
 
-          <button
-            onClick={disconnect}
-            style={{
-              width: '100%',
-              padding: '12px 20px',
-              backgroundColor: 'transparent',
-              color: '#64748b',
-              border: '1px solid #cbd5e1',
-              borderRadius: '9999px',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            Disconnect Wallet
+          <div className="addr-row">
+            <div style={{ minWidth: 0 }}>
+              <div className="k">
+                <IconLock width={12} height={12} style={{ color: 'var(--violet)' }} /> Shielded
+              </div>
+              <code>{shortAddr(shieldedAddress)}</code>
+            </div>
+            <CopyButton value={shieldedAddress} label="shielded address" />
+          </div>
+
+          <div className="addr-row">
+            <div style={{ minWidth: 0 }}>
+              <div className="k">
+                <IconEye width={12} height={12} style={{ color: 'var(--coral)' }} /> Unshielded
+              </div>
+              <code>{walletAddress ? shortAddr(walletAddress) : '—'}</code>
+            </div>
+            <CopyButton value={walletAddress} label="unshielded address" />
+          </div>
+
+          <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={disconnect}>
+            Disconnect
           </button>
-        </div>
+        </>
       )}
     </div>
   );
