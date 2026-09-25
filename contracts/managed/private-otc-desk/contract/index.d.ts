@@ -37,9 +37,13 @@ export type ImpureCircuits<PS> = {
                oldBalance_0: bigint,
                oldSalt_0: Uint8Array,
                newSalt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  registerMandate(context: __compactRuntime.CircuitContext<PS>,
-                  agent_0: Uint8Array,
-                  commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  proposeMandate(context: __compactRuntime.CircuitContext<PS>,
+                 agent_0: Uint8Array,
+                 commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  acceptMandate(context: __compactRuntime.CircuitContext<PS>,
+                owner_0: Uint8Array,
+                m_0: Mandate,
+                salt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   revokeMandate(context: __compactRuntime.CircuitContext<PS>,
                 agent_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   openRfq(context: __compactRuntime.CircuitContext<PS>,
@@ -102,9 +106,13 @@ export type ProvableCircuits<PS> = {
                oldBalance_0: bigint,
                oldSalt_0: Uint8Array,
                newSalt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  registerMandate(context: __compactRuntime.CircuitContext<PS>,
-                  agent_0: Uint8Array,
-                  commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  proposeMandate(context: __compactRuntime.CircuitContext<PS>,
+                 agent_0: Uint8Array,
+                 commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  acceptMandate(context: __compactRuntime.CircuitContext<PS>,
+                owner_0: Uint8Array,
+                m_0: Mandate,
+                salt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   revokeMandate(context: __compactRuntime.CircuitContext<PS>,
                 agent_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   openRfq(context: __compactRuntime.CircuitContext<PS>,
@@ -163,6 +171,7 @@ export type PureCircuits = {
   ownerCommitment(pk_0: Uint8Array, salt_0: Uint8Array): Uint8Array;
   receiptCommitment(r_0: Receipt, salt_0: Uint8Array): Uint8Array;
   quoteId(rfq_0: Uint8Array, maker_0: Uint8Array): Uint8Array;
+  pendingMandateKey(agent_0: Uint8Array, owner_0: Uint8Array): Uint8Array;
 }
 
 export type Circuits<PS> = {
@@ -185,6 +194,9 @@ export type Circuits<PS> = {
   quoteId(context: __compactRuntime.CircuitContext<PS>,
           rfq_0: Uint8Array,
           maker_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  pendingMandateKey(context: __compactRuntime.CircuitContext<PS>,
+                    agent_0: Uint8Array,
+                    owner_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   postOraclePrice(context: __compactRuntime.CircuitContext<PS>, twap_0: bigint): __compactRuntime.CircuitResults<PS, []>;
   depositBase(context: __compactRuntime.CircuitContext<PS>,
               amount_0: bigint,
@@ -196,9 +208,13 @@ export type Circuits<PS> = {
                oldBalance_0: bigint,
                oldSalt_0: Uint8Array,
                newSalt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
-  registerMandate(context: __compactRuntime.CircuitContext<PS>,
-                  agent_0: Uint8Array,
-                  commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  proposeMandate(context: __compactRuntime.CircuitContext<PS>,
+                 agent_0: Uint8Array,
+                 commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  acceptMandate(context: __compactRuntime.CircuitContext<PS>,
+                owner_0: Uint8Array,
+                m_0: Mandate,
+                salt_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   revokeMandate(context: __compactRuntime.CircuitContext<PS>,
                 agent_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   openRfq(context: __compactRuntime.CircuitContext<PS>,
@@ -268,6 +284,13 @@ export type Ledger = {
     lookup(key_0: Uint8Array): Uint8Array;
     [Symbol.iterator](): Iterator<[Uint8Array, Uint8Array]>
   };
+  pendingMandates: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): Uint8Array;
+    [Symbol.iterator](): Iterator<[Uint8Array, Uint8Array]>
+  };
   mandates: {
     isEmpty(): boolean;
     size(): bigint;
@@ -288,6 +311,12 @@ export type Ledger = {
     member(key_0: Uint8Array): boolean;
     lookup(key_0: Uint8Array): Rfq;
     [Symbol.iterator](): Iterator<[Uint8Array, Rfq]>
+  };
+  usedRfqIds: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(elem_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<Uint8Array>
   };
   quotes: {
     isEmpty(): boolean;

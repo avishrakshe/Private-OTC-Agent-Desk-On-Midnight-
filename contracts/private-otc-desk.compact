@@ -3,8 +3,9 @@
 // Flow (one pair, BASE/QUOTE; the RFQ requester sells BASE, makers bid in QUOTE):
 //   1. Parties deposit into vaults. A vault is a commitment to a balance, so after the
 //      (public) deposit nobody can see how much is left or locked.
-//   2. An owner registers a mandate commitment for each agent it runs. Every order
-//      the agent makes proves it stays inside the mandate without revealing it.
+//   2. An owner proposes a mandate commitment for each agent it runs, and the agent
+//      accepts it. Every order the agent makes proves it stays inside the mandate
+//      without revealing it.
 //   3. The taker opens an RFQ off-chain (size and pair go only to the makers it picks)
 //      and registers a commitment to its identity on-chain.
 //   4. Each maker posts a sealed quote: commit(price, size). It sends the opening to
@@ -56,15 +57,22 @@ export struct Receipt {
 // ─── Public ledger ──────────────────────────────────────────────────────────
 
 export ledger admin: Bytes<32>;
-export ledger auditorKey: Bytes<32>;         // auditor's viewing (encryption) public key
+export ledger auditorKey: Bytes<32>;         // SHA-256 fingerprint of the auditor's viewing public key
 export ledger oraclePrice: Uint<64>;         // TWAP posted by the oracle key
 export ledger oracleBandBps: Uint<64>;
 
 export ledger baseVaults: Map<Bytes<32>, Bytes<32>>;
 export ledger quoteVaults: Map<Bytes<32>, Bytes<32>>;
+// Mandates are two-step: the owner proposes, the agent accepts (proving it knows the
+// opening). Proposals are keyed by (agent, owner), so nobody can overwrite someone
+// else's. Once an owner is bound to an agent, only that owner can replace or revoke it.
+export ledger pendingMandates: Map<Bytes<32>, Bytes<32>>;
 export ledger mandates: Map<Bytes<32>, Bytes<32>>;
 export ledger mandateOwners: Map<Bytes<32>, Bytes<32>>;
 export ledger rfqs: Map<Bytes<32>, Rfq>;
+// Every RFQ id ever opened. Ids are single-use so a closed RFQ can't be reopened to
+// overwrite its receipt or re-freeze losing makers' escrow.
+export ledger usedRfqIds: Set<Bytes<32>>;
 export ledger quotes: Map<Bytes<32>, Quote>;
 export ledger receipts: Map<Bytes<32>, Bytes<32>>;
 
@@ -111,6 +119,10 @@ export pure circuit receiptCommitment(r: Receipt, salt: Bytes<32>): Bytes<32> {
 
 export pure circuit quoteId(rfq: Bytes<32>, maker: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<3, Bytes<32>>>([pad(32, "otc-desk:quote:v1"), rfq, maker]);
+}
+
+export pure circuit pendingMandateKey(agent: Bytes<32>, owner: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "otc-desk:mandate:v1"), agent, owner]);
 }
 
 circuit callerKey(): Bytes<32> {
@@ -188,20 +200,38 @@ export circuit depositQuote(amount: Uint<64>, oldBalance: Uint<64>, oldSalt: Byt
 
 // ─── Mandates ───────────────────────────────────────────────────────────────
 
-export circuit registerMandate(agent: Bytes<32>, commitment: Bytes<32>): [] {
+// Step 1 (owner): propose a mandate for an agent.
+export circuit proposeMandate(agent: Bytes<32>, commitment: Bytes<32>): [] {
   const owner = callerKey();
   const a = disclose(agent);
   if (mandateOwners.member(a)) {
     assert(mandateOwners.lookup(a) == owner, "Only the mandate owner can replace it");
   }
-  mandateOwners.insert(a, owner);
-  mandates.insert(a, disclose(commitment));
+  pendingMandates.insert(pendingMandateKey(a, owner), disclose(commitment));
 }
 
+// Step 2 (agent): accept it by proving it holds the opening. Binds the owner on first use.
+export circuit acceptMandate(owner: Bytes<32>, m: Mandate, salt: Bytes<32>): [] {
+  const agent = callerKey();
+  const o = disclose(owner);
+  const key = pendingMandateKey(agent, o);
+  assert(pendingMandates.member(key), "No mandate proposed by this owner");
+  const c = pendingMandates.lookup(key);
+  assert(c == mandateCommitment(m, salt), "Mandate opening does not match the proposal");
+  if (mandateOwners.member(agent)) {
+    assert(mandateOwners.lookup(agent) == o, "Agent is bound to a different owner");
+  }
+  mandateOwners.insert(agent, o);
+  mandates.insert(agent, c);
+  pendingMandates.remove(key);
+}
+
+// Owner-only, immediate. The owner stays bound, so nobody else can install a new mandate.
 export circuit revokeMandate(agent: Bytes<32>): [] {
   const a = disclose(agent);
   assert(mandateOwners.member(a), "Agent has no mandate");
   assert(mandateOwners.lookup(a) == callerKey(), "Only the mandate owner can revoke it");
+  assert(mandates.member(a), "Mandate already revoked");
   mandates.remove(a);
 }
 
@@ -209,7 +239,9 @@ export circuit revokeMandate(agent: Bytes<32>): [] {
 
 export circuit openRfq(rfqId: Bytes<32>, ownerSalt: Bytes<32>, expiresAt: Uint<64>): [] {
   const id = disclose(rfqId);
-  assert(!rfqs.member(id), "RFQ id already used");
+  assert(!usedRfqIds.member(id), "RFQ id already used");
+  assert(blockTimeLt(disclose(expiresAt)), "RFQ expiry must be in the future");
+  usedRfqIds.insert(id);
   rfqs.insert(id, Rfq { owner: disclose(ownerCommitment(callerKey(), ownerSalt)), expiresAt: disclose(expiresAt) });
 }
 

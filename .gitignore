@@ -26,6 +26,7 @@ deployment.json
 # Wallet seed (sensitive)
 # RFQ desk oracle key + auditor viewing key (written by `npm run deploy:otc`)
 .otc-desk-keys.json
+.otc-desk-keys.json.*.bak
 
 # OS generated files
 .DS_Store

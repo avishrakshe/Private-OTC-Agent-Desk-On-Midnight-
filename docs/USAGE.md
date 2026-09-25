@@ -1,96 +1,70 @@
-# Private OTC Agent Desk on Midnight — User Onboarding & Usage Guide
+# Usage guide
 
-Welcome to the **Private OTC Agent Desk on Midnight**. This guide provides step-by-step instructions for setting up your environment, connecting your Lace wallet on the Midnight Preprod network, registering trading agents, and executing sealed-bid OTC swaps using zero-knowledge proofs.
+## 1. On the website (no install)
 
----
+Open **https://mn-demo.vercel.app**.
 
-## 📋 Prerequisites
+### Watch the agents: instant mode
+1. Scroll to **Agents** and leave the switch on **Instant (local)**.
+2. Press **Run the desk** (or **Step** through it one transaction at a time).
+3. Click any step to compare what the agent knows (violet) with what the chain sees (grey), including transaction inputs that are public by design (amber).
 
-Before using the dApp on Preprod, ensure you have:
+No wallet is needed. The compiled contract runs in your browser.
 
-1. **Midnight Lace Wallet Extension**:
-   - Installed in Chrome or Brave browser.
-   - Switch wallet network to **Midnight Preprod Testnet**.
-2. **tDUST Testnet Tokens**:
-   - Obtain tDUST from the official Midnight Preprod Faucet.
-3. **Supported Browser**:
-   - Chrome v115+, Brave, or Firefox.
+### Run the agents on Midnight: Lace mode
+You need the **Lace** wallet with Midnight enabled, on the same network as the site (Preview), with **DUST** for fees:
+1. Get tNIGHT from the [Preview faucet](https://midnight-tmnight-preview.nethermind.dev), then in Lace designate it for DUST generation and wait a few minutes.
+2. Click **Connect wallet** (top right) and approve in Lace.
+3. In **Agents**, switch to **On Midnight (Lace)** and press **Deploy & run on preview**.
+4. Approve each transaction in Lace (11 in total: deploy, 2 deposits, 4 mandate steps, open RFQ, quote, match, claim). Allow 10–20 minutes.
+5. When it finishes, the summary links your freshly deployed desk on the explorer.
 
----
+If Lace can't prove a transaction, the site falls back to a proof server on `http://127.0.0.1:6300`; start one with `npm run proof-server:start`.
 
-## 🚀 Quick Start Guide
+### Try a mandate
+In **Set a mandate**, change the limits or the order and watch the verdict, which comes from the real `submitQuote` circuit. Tick **Compromised agent** to see a looser, forged mandate rejected.
 
-### Step 1: Access the Live Preprod dApp
-Open your browser and navigate to the live deployment:
-👉 **[https://mn-demo.vercel.app](https://mn-demo.vercel.app)**
+### Send a live transaction
+**Connect, prove, settle** sends a `storeMessage` transaction to the demo contract on Preview. It shows the full prove → balance → submit pipeline with Lace.
 
-### Step 2: Connect Your Midnight Lace Wallet
-1. Click **"Connect Lace Wallet"** in the top navigation header.
-2. Approve the connection request in your Lace Wallet popup.
-3. Ensure your wallet displays **"Connected to Preprod Network"**.
-
-### Step 3: Register an Autonomous Trading Agent
-1. Navigate to the **Agent Registration** panel.
-2. Enter your Agent Alias (e.g., `Alpha-MarketMaker-01`).
-3. Set your initial Reputation Baseline (e.g., `85`).
-4. Click **"Register Agent via ZK Witness"**.
-5. Approve the transaction. Your agent identity and exact reputation score remain stored as local private witnesses on your device.
-
-### Step 4: Submit a Sealed-Bid OTC Swap Order
-1. Select your order role: **Buyer** or **Seller**.
-2. Enter token parameters:
-   - Token Pair (e.g., `tDUST / tBTC`)
-   - Swap Amount
-   - Maximum Bid Price (if Buyer) or Minimum Ask Price (if Seller)
-3. Set optional **Minimum Reputation Threshold** (e.g., `>= 75`).
-4. Click **"Submit Sealed-Bid Order"**.
-
-### Step 5: Execute Zero-Knowledge Proof Settlement
-1. When a matching order is located, click **"Execute ZK Swap"**.
-2. Watch the real-time ZK proving progress bar:
-   - **Stage 1 (0-25%)**: Loading ZK Proving Key (`22MB`)
-   - **Stage 2 (25-50%)**: Compiling Local Private Witness
-   - **Stage 3 (50-75%)**: Generating Zero-Knowledge Proof
-   - **Stage 4 (75-100%)**: Submitting Proof Receipt On-Chain
-3. Once completed, receive your **Cryptographic Settlement Receipt Hash**.
-
----
-
-## 🔒 Privacy Guarantee Summary
-
-| Parameter | Exposure Level | Storage Location |
-|---|---|---|
-| **Agent Identity & Secret Key** | 🔒 Confidential | Local Private Witness |
-| **Buyer Maximum Bid Price** | 🔒 Confidential | Local Private Witness |
-| **Seller Minimum Ask Price** | 🔒 Confidential | Local Private Witness |
-| **Agent Reputation Score** | 🔒 Confidential | Local Private Witness |
-| **Matching Verification (`Bid >= Ask`)** | 🛡️ ZK Proved | Midnight Compact Circuit |
-| **Reputation Check (`Score >= Threshold`)**| 🛡️ ZK Proved | Midnight Compact Circuit |
-| **Settlement Counter & Receipt Hash** | 🌐 Public | Midnight On-Chain State |
-
----
-
-## 🛠️ Running Locally for Developers
+## 2. From the command line
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-.git
-cd Private-OTC-Agent-Desk-On-Midnight-
-
-# 2. Install dependencies
 npm install
-
-# 3. Run unit tests
-npm test
-
-# 4. Launch dev server
-npm run dev
+npm test                 # 13 protocol tests against the compiled circuits
+npm run typecheck
+npm run agents           # the 39-step story in the terminal (instant)
+npm run benchmark        # circuit execution times
 ```
 
----
+### On-chain, with a seed wallet
 
-## 💬 Feedback & Support
+```bash
+npm run proof-server:start                           # local node, indexer, proof server (Docker)
+npm run agents:onchain                               # full round on the local devnet
+npm run health-check -- --network preview
+npm run deploy:otc -- --network preview              # deploy a desk; prints the address
+npm run agents:onchain -- --network preview          # full round on Preview
+npm run cli -- --network preview                     # interactive menu
+```
 
-If you encounter any issues or have feature requests:
-- **GitHub Issues:** [Submit an Issue](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/issues)
-- **Product X (Twitter):** [@DefiAipy](https://x.com/DefiAipy)
+On a public network the first run creates a wallet and waits for you to fund its address from the faucet. Set `PRIVATE_STATE_PASSWORD` (16+ characters) so contract secret keys aren't encrypted with the public placeholder. Keep `.midnight-state.json` and `.otc-desk-keys.json` private and backed up.
+
+### Compiling the contract
+
+```bash
+compact update 0.31.1        # matches compact-runtime 0.16
+npm run compile
+```
+
+No local compiler? Use Docker:
+
+```bash
+docker run --rm -v compact-home:/root -v "$PWD:/work" -w /work ubuntu:24.04 bash -c \
+  "apt-get update -qq && apt-get install -y -qq curl xz-utils unzip >/dev/null && \
+   curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh && \
+   ~/.local/bin/compact update 0.31.1 && \
+   ~/.local/bin/compact compile contracts/private-otc-desk.compact contracts/managed/private-otc-desk"
+```
+
+After recompiling, copy `contracts/managed/private-otc-desk/keys/*` and `zkir/*.bzkir` to `public/managed/private-otc-desk/` so the site serves the matching artifacts.

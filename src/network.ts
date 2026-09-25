@@ -88,7 +88,7 @@ export function loadState(opts: FsOptions = {}): NetworkState | null {
   try {
     parsed = JSON.parse(raw);
   } catch (e) {
-    throw new Error(`Failed to parse ${p}: ${(e as Error).message}. Run \`npm run clean\` to reset.`);
+    throw new Error(`Failed to parse ${p}: ${(e as Error).message}. Back it up (it holds your wallet seeds), then move it aside to reset.`);
   }
   if (
     !parsed ||
@@ -96,12 +96,12 @@ export function loadState(opts: FsOptions = {}): NetworkState | null {
     (parsed as { version?: unknown }).version !== STATE_VERSION
   ) {
     throw new Error(
-      `Unsupported state-file version in ${p} (expected ${STATE_VERSION}). Run \`npm run clean\` to reset.`,
+      `Unsupported state-file version in ${p} (expected ${STATE_VERSION}). Back it up (it holds your wallet seeds), then move it aside to reset.`,
     );
   }
   if (!isNetworkId((parsed as { activeNetwork?: unknown }).activeNetwork)) {
     throw new Error(
-      `Invalid activeNetwork in ${p}. Run \`npm run clean\` to reset.`,
+      `Invalid activeNetwork in ${p}. Back it up (it holds your wallet seeds), then move it aside to reset.`,
     );
   }
   return parsed as NetworkState;

@@ -170,6 +170,11 @@ export interface UseMidnightResult {
     message: string,
     onProgress?: (step: string, percent: number) => void
   ) => Promise<string>;
+  /** Midnight.js providers backed by Lace, for any contract whose ZK artifacts are served under zkPath. */
+  buildProviders: (
+    zkPath: string,
+    onProgress?: (step: string, percent: number) => void
+  ) => Promise<MidnightProviders<any, any, any>>;
 }
 
 export function useMidnight(): UseMidnightResult {
@@ -269,22 +274,15 @@ export function useMidnight(): UseMidnightResult {
     setError(null);
   }, []);
 
-  const runStoreMessage = useCallback(
-    async (
-      contractAddress: string,
-      message: string,
-      onProgress?: (step: string, percent: number) => void
-    ): Promise<string> => {
+  /**
+   * Midnight.js providers backed by the connected Lace wallet: Lace proves (falling back to a
+   * proof server), balances fees in DUST, and submits. `zkPath` is where the contract's ZK
+   * artifacts are served from (under /public/managed/<contract>).
+   */
+  const buildProviders = useCallback(
+    async (zkPath: string, onProgress?: (step: string, percent: number) => void): Promise<MidnightProviders<any, any, any>> => {
       if (!connectedApi || !shieldedAddress) {
         throw new Error('Wallet is not connected.');
-      }
-
-      const normalizedAddress = contractAddress.trim().replace(/^0x/i, '');
-      if (!/^[0-9a-fA-F]{64}$/.test(normalizedAddress)) {
-        throw new Error('Contract address must be a 32-byte hex string (64 hex characters).');
-      }
-      if (!message.trim()) {
-        throw new Error('Message must not be empty.');
       }
 
       // Make sure the wallet session is still alive and on the expected network.
@@ -303,9 +301,6 @@ export function useMidnight(): UseMidnightResult {
         // getConnectionStatus not supported by this wallet build - continue.
       }
 
-      onProgress?.('Initializing network configuration & ZK artifacts...', 10);
-
-      // Configure global Midnight Network ID for SDK operations
       setMidnightNetworkId(networkId as any);
 
       // 1. Resolve service endpoints, preferring the ones the user configured in Lace.
@@ -315,11 +310,8 @@ export function useMidnight(): UseMidnightResult {
       const indexerWsUri = config.indexerWsUri || defaults.indexerWs;
       const proofServerUri = config.proverServerUri || defaults.proofServer;
 
-      // 2. ZK artifacts (prover/verifier keys + zkir) served from /public/managed/hello-world
-      const zkConfigProvider = new FetchZkConfigProvider<any>(
-        `${window.location.origin}/managed/hello-world`,
-        fetch.bind(window)
-      );
+      // 2. ZK artifacts (prover/verifier keys + zkir) served from this origin.
+      const zkConfigProvider = new FetchZkConfigProvider<any>(`${window.location.origin}/${zkPath}`, fetch.bind(window));
 
       // 3. Wallet keys. The connector returns bech32m; the SDK needs raw hex.
       const decodedShieldedAddr = ShieldedAddress.codec.decode(networkId, MidnightBech32m.parse(shieldedAddress));
@@ -331,9 +323,7 @@ export function useMidnight(): UseMidnightResult {
       let walletProofProvider: ProofProvider | null = null;
       if (typeof connectedApi.getProvingProvider === 'function') {
         try {
-          walletProofProvider = createProofProvider(
-            (await connectedApi.getProvingProvider(zkConfigProvider)) as any
-          );
+          walletProofProvider = createProofProvider((await connectedApi.getProvingProvider(zkConfigProvider)) as any);
         } catch (err) {
           console.warn('Wallet proving provider unavailable, using proof server instead:', err);
         }
@@ -387,8 +377,8 @@ export function useMidnight(): UseMidnightResult {
             if (isUserRejection(unsealedErr)) {
               throw new Error('Transaction was rejected in Lace.', { cause: unsealedErr });
             }
-            // Some Lace builds fail on unsealed balancing; bind the tx and let Lace balance it
-            // in a separate intent instead (valid here: storeMessage has no fallible section).
+            // Some Lace builds fail on unsealed balancing; bind the tx and let Lace balance it in a
+            // separate intent instead (valid here: these contracts' circuits have no fallible section).
             try {
               onProgress?.('Retrying balancing with a sealed transaction...', 72);
               balanced = await connectedApi.balanceSealedTransaction(bytesToHex(tx.bind().serialize()));
@@ -424,7 +414,7 @@ export function useMidnight(): UseMidnightResult {
         }
       };
 
-      const providers: MidnightProviders<any, any, any> = {
+      return {
         privateStateProvider: new InMemoryPrivateStateProvider(),
         publicDataProvider: indexerPublicDataProvider(indexerUri, indexerWsUri, window.WebSocket as any),
         zkConfigProvider,
@@ -432,8 +422,28 @@ export function useMidnight(): UseMidnightResult {
         walletProvider,
         midnightProvider
       };
+    },
+    [connectedApi, shieldedAddress, networkId]
+  );
 
-      // 7. Load the deployed contract instance
+  const runStoreMessage = useCallback(
+    async (
+      contractAddress: string,
+      message: string,
+      onProgress?: (step: string, percent: number) => void
+    ): Promise<string> => {
+      const normalizedAddress = contractAddress.trim().replace(/^0x/i, '');
+      if (!/^[0-9a-fA-F]{64}$/.test(normalizedAddress)) {
+        throw new Error('Contract address must be a 32-byte hex string (64 hex characters).');
+      }
+      if (!message.trim()) {
+        throw new Error('Message must not be empty.');
+      }
+
+      onProgress?.('Initializing network configuration & ZK artifacts...', 10);
+      const providers = await buildProviders('managed/hello-world', onProgress);
+
+      // Load the deployed contract instance
       onProgress?.('Connecting to contract on-chain & verifying state...', 25);
       const compiledContract = CompiledContract.make('hello-world', helloWorld.Contract).pipe(
         CompiledContract.withVacantWitnesses
@@ -445,7 +455,7 @@ export function useMidnight(): UseMidnightResult {
           () =>
             reject(
               new Error(
-                `Contract ${normalizedAddress.slice(0, 16)}... was not found on ${networkId} (indexer: ${indexerUri}). Check the address and that Lace is on the network the contract was deployed to.`
+                `Contract ${normalizedAddress.slice(0, 16)}... was not found on ${networkId}. Check the address and that Lace is on the network the contract was deployed to.`
               )
             ),
           60000
@@ -469,7 +479,7 @@ export function useMidnight(): UseMidnightResult {
         clearTimeout(timeoutHandle);
       }
 
-      // 8. Invoke circuit: prove -> balance (Lace) -> submit (Lace) -> watch indexer for finalization
+      // Invoke circuit: prove -> balance (Lace) -> submit (Lace) -> watch indexer for finalization
       const startTime = Date.now();
       let result: any;
       try {
@@ -483,7 +493,7 @@ export function useMidnight(): UseMidnightResult {
       onProgress?.('Transaction finalized on-chain!', 100);
       return result?.public?.txHash || result?.public?.txId || 'Transaction Success';
     },
-    [connectedApi, shieldedAddress, networkId]
+    [buildProviders, networkId]
   );
 
   return {
@@ -496,6 +506,7 @@ export function useMidnight(): UseMidnightResult {
     lastProofDurationMs,
     connect,
     disconnect,
-    runStoreMessage
+    runStoreMessage,
+    buildProviders
   };
 }

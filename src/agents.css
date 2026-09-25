@@ -289,6 +289,16 @@
   color: var(--amber);
 }
 
+.ad-txids {
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.ad-txids li {
+  color: var(--cyan) !important;
+}
+
 .ad-summary {
   margin-top: 18px;
   display: grid;

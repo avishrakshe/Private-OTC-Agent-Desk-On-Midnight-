@@ -450,11 +450,12 @@ export const AboutPage: React.FC = () => (
               items: [
                 'Sealed RFQ: commit, encrypted quote, taker’s match proof',
                 'Proof of funds with escrow at quote time',
-                'ZK agent mandates (notional, price floor and ceiling)',
+                'ZK agent mandates, two-step (owner proposes, agent accepts)',
                 'Oracle TWAP price band, checked at quote and at match',
                 'Receipt commitments plus auditor viewing key',
                 'History-derived reputation counters',
                 'Treasury Seller and Market Maker reference agents',
+                'Agents deploy and trade on Midnight through Lace',
               ],
             },
             {
@@ -464,7 +465,8 @@ export const AboutPage: React.FC = () => (
                 'One Midnight-native pair per contract; vault balances are accounted in-contract',
                 'Sell-side RFQs (the treasury flow); buy-side is the mirror circuit',
                 'Deposit amounts are public; balances after that are not',
-                'Oracle is a single posting key; RFQ contract is deployed on Preview, but the site’s agents still run it locally',
+                'Oracle is a single posting key',
+                'The on-chain agent round runs one RFQ with one maker; the full three-maker story runs locally',
               ],
             },
             {

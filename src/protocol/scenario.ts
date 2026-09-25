@@ -2,9 +2,10 @@
  * The demo story, run against the compiled contract:
  *
  *   A DAO treasury agent sells 1.8M DAO in three TWAP slices to three market-maker agents
- *   via sealed RFQ. Every agent runs under a mandate its owner registered. Along the way
- *   the circuits reject a fat-finger quote (oracle band), an over-mandate quote, and a
- *   quote the maker can't fund. Finally the auditor verifies every trade with its viewing key.
+ *   via sealed RFQ. Every agent runs under a mandate its owner proposed and it accepted.
+ *   Along the way the circuits reject a fat-finger quote (oracle band), an over-mandate
+ *   quote, and a quote the maker can't fund. Finally the auditor verifies every trade with
+ *   its viewing key.
  *
  * Each step yields a DeskEvent with the actor's private view and the ledger diff: exactly
  * what an observer of the chain would see.
@@ -18,9 +19,8 @@ import {
   fmtQty,
   fmtUsd,
   type Fill,
-  type QuoteOpening,
 } from './agents';
-import { CircuitRejected, DeskLedger, diff, snapshot } from './desk';
+import { CircuitRejected, DeskLedger, diff, snapshot, type Desk, type Snapshot } from './desk';
 import { randomBytes32, toHex, type SealedEnvelope } from './sealed-box';
 
 export type Role = 'treasury' | 'maker' | 'owner' | 'oracle' | 'auditor';
@@ -37,12 +37,47 @@ export interface DeskEvent {
   privateView: string[];
   /** Values the transaction discloses on purpose, plus the ledger lines that changed: everything the market can see. */
   publicView: string[];
+  /** On-chain transaction ids, when running against a deployed contract. */
+  txIds?: string[];
 }
 
-type EventInput = Omit<DeskEvent, 'step' | 'publicView'> & {
+export type EventInput = Omit<DeskEvent, 'step' | 'publicView'> & {
   /** Transaction inputs that are public by design (e.g. deposit amounts). */
   disclosed?: string[];
 };
+
+/** Turns steps into DeskEvents, diffing the public ledger before and after each one. */
+export class EventRecorder {
+  private step = 0;
+  private before: Snapshot = {};
+
+  constructor(
+    private readonly desk: Desk,
+    private readonly afterEach?: () => void,
+  ) {}
+
+  async start() {
+    this.before = snapshot(await this.desk.readLedger());
+  }
+
+  async event({ disclosed = [], ...e }: EventInput): Promise<DeskEvent> {
+    const after = snapshot(await this.desk.readLedger());
+    const publicView = e.status === 'ok' ? [...disclosed.map((d) => `tx ${d}`), ...diff(this.before, after)] : [];
+    this.before = after;
+    this.afterEach?.();
+    return { ...e, step: ++this.step, publicView };
+  }
+}
+
+/** Runs `fn`; a CircuitRejected is returned instead of thrown. */
+export const attempt = (fn: () => unknown): Promise<CircuitRejected | null> =>
+  Promise.resolve()
+    .then(fn)
+    .then(() => null)
+    .catch((err) => {
+      if (err instanceof CircuitRejected) return err;
+      throw err;
+    });
 
 export interface ScenarioResult {
   fills: Fill[];
@@ -50,19 +85,20 @@ export interface ScenarioResult {
   reputation: { name: string; quotes: bigint; fills: bigint }[];
 }
 
-const p = (usd: number) => BigInt(Math.round(usd * 1_000_000));
+export const usd = (dollars: number) => BigInt(Math.round(dollars * 1_000_000));
 
 export const SCENARIO = {
   pair: 'DAO/USDC',
   totalSize: 1_800_000n,
   slices: 3,
-  floor: p(0.83),
-  twap: [p(0.842), p(0.846), p(0.846)],
+  floor: usd(0.83),
+  twap: [usd(0.842), usd(0.846), usd(0.846)],
   bandBps: 300n,
+  treasuryMandate: { maxNotional: usd(560_000), minPrice: usd(0.8), maxPrice: usd(0.95) },
+  makerMandate: { maxNotional: usd(600_000), minPrice: usd(0.78), maxPrice: usd(0.9) },
 };
 
 export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> {
-  let step = 0;
   const auditor = await new Auditor('Auditor').init();
   const oracleSecret = randomBytes32();
   const desk = new DeskLedger({
@@ -72,25 +108,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     auditorKey: auditor.fingerprint,
     time: 1_760_000_000,
   });
-
-  let before = snapshot(desk.ledger);
-  const event = ({ disclosed = [], ...e }: EventInput): DeskEvent => {
-    const after = snapshot(desk.ledger);
-    const publicView = e.status === 'ok' ? [...disclosed.map((d) => `tx ${d}`), ...diff(before, after)] : [];
-    before = after;
-    desk.advance(4);
-    return { ...e, step: ++step, publicView };
-  };
-
-  /** Runs `fn`; a CircuitRejected becomes a 'rejected' event instead of an exception. */
-  const attempt = (fn: () => void | Promise<unknown>) =>
-    Promise.resolve()
-      .then(fn)
-      .then(() => null)
-      .catch((err) => {
-        if (err instanceof CircuitRejected) return err;
-        throw err;
-      });
+  const rec = new EventRecorder(desk, () => desk.advance(4));
+  await rec.start();
 
   // ── Cast ──
   const dao = new MandateOwner('DAO multisig', desk);
@@ -104,7 +123,7 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
   const nameOf = (pk: Uint8Array) => makers.find((m) => m.id === toHex(pk))?.name ?? 'maker';
   const mmDesks = makers.map((m) => new MandateOwner(`${m.name} desk head`, desk));
 
-  yield event({
+  yield await rec.event({
     phase: 'Setup',
     actor: 'Desk',
     role: 'oracle',
@@ -122,8 +141,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
   });
 
   // ── Deposits: public amounts, private balances from here on ──
-  treasury.depositBase(SCENARIO.totalSize);
-  yield event({
+  await treasury.depositBase(SCENARIO.totalSize);
+  yield await rec.event({
     phase: 'Setup',
     actor: treasury.name,
     role: 'treasury',
@@ -137,10 +156,10 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     disclosed: [`amount = ${SCENARIO.totalSize} (deposit amounts are public)`],
   });
 
-  const funding = [p(1_100_000), p(1_500_000), p(900_000)];
+  const funding = [usd(1_100_000), usd(1_500_000), usd(900_000)];
   for (const [i, m] of makers.entries()) {
-    m.depositQuote(funding[i]);
-    yield event({
+    await m.depositQuote(funding[i]);
+    yield await rec.event({
       phase: 'Setup',
       actor: m.name,
       role: 'maker',
@@ -152,29 +171,30 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     });
   }
 
-  // ── Mandates ──
-  dao.grant(treasury, { maxNotional: p(560_000), minPrice: p(0.8), maxPrice: p(0.95) });
-  yield event({
+  // ── Mandates: owner proposes, agent accepts ──
+  await dao.grant(treasury, SCENARIO.treasuryMandate);
+  yield await rec.event({
     phase: 'Mandates',
     actor: dao.name,
     role: 'owner',
-    title: 'DAO multisig registers the Treasury agent’s mandate',
-    circuit: 'registerMandate',
+    title: 'DAO multisig sets the Treasury agent’s mandate',
+    circuit: 'proposeMandate → acceptMandate',
     status: 'ok',
     privateView: [
       'Max notional per order $560,000',
       'Price band $0.80 – $0.95',
+      'The owner proposes, the agent accepts by proving it holds the opening',
       'Only the commitment is published; the agent proves every order against it',
     ],
   });
   for (const [i, m] of makers.entries()) {
-    mmDesks[i].grant(m, { maxNotional: p(600_000), minPrice: p(0.78), maxPrice: p(0.9) });
-    yield event({
+    await mmDesks[i].grant(m, SCENARIO.makerMandate);
+    yield await rec.event({
       phase: 'Mandates',
       actor: mmDesks[i].name,
       role: 'owner',
-      title: `Mandate registered for ${m.name}`,
-      circuit: 'registerMandate',
+      title: `Mandate set for ${m.name}`,
+      circuit: 'proposeMandate → acceptMandate',
       status: 'ok',
       privateView: ['Max notional per order $600,000', 'Price band $0.78 – $0.90'],
     });
@@ -188,8 +208,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     const phase = `Slice ${s + 1} of ${SCENARIO.slices}`;
 
     if (s > 0 && SCENARIO.twap[s] !== desk.ledger.oraclePrice) {
-      desk.call(oracleSecret, 'postOraclePrice', SCENARIO.twap[s]);
-      yield event({
+      await desk.call(oracleSecret, 'postOraclePrice', SCENARIO.twap[s]);
+      yield await rec.event({
         phase,
         actor: 'Oracle',
         role: 'oracle',
@@ -200,8 +220,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
       });
     }
 
-    const rfq = treasury.openRfq(sliceSize);
-    yield event({
+    const rfq = await treasury.openRfq(sliceSize);
+    yield await rec.event({
       phase,
       actor: treasury.name,
       role: 'treasury',
@@ -217,8 +237,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
 
     // Guarantees, each shown once.
     if (s === 0) {
-      const err = await attempt(() => arcadia.quote(rfq.request, { price: p(0.8842) }));
-      yield event({
+      const err = await attempt(() => arcadia.quote(rfq.request, { price: usd(0.8842) }));
+      yield await rec.event({
         phase,
         actor: arcadia.name,
         role: 'maker',
@@ -233,8 +253,8 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
       });
     }
     if (s === 1) {
-      const err = await attempt(() => arcadia.quote(rfq.request, { price: p(0.905) }));
-      yield event({
+      const err = await attempt(() => arcadia.quote(rfq.request, { price: usd(0.905) }));
+      yield await rec.event({
         phase,
         actor: arcadia.name,
         role: 'maker',
@@ -250,12 +270,13 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
 
     const envelopes: SealedEnvelope[] = [];
     for (const m of makers) {
+      const bid = await m.bidPrice();
       let env: SealedEnvelope | undefined;
       const err = await attempt(async () => {
         env = await m.quote(rfq.request);
       });
       if (env) envelopes.push(env);
-      yield event({
+      yield await rec.event({
         phase,
         actor: m.name,
         role: 'maker',
@@ -264,25 +285,25 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
         status: err ? 'rejected' : 'ok',
         privateView: err
           ? [
-              `Wanted ${fmtPrice(m.bidPrice())} × ${fmtQty(sliceSize)} = ${fmtUsd(m.bidPrice() * sliceSize)}`,
+              `Wanted ${fmtPrice(bid)} × ${fmtQty(sliceSize)} = ${fmtUsd(bid * sliceSize)}`,
               `Vault holds ${fmtUsd(m.quoteVault.balance)}`,
               `Circuit: ${err.reason}`,
             ]
           : [
-              `Bid ${fmtPrice(m.bidPrice())} × ${fmtQty(sliceSize)} DAO`,
-              `Escrowed ${fmtUsd(m.bidPrice() * sliceSize)}; vault now ${fmtUsd(m.quoteVault.balance)}`,
+              `Bid ${fmtPrice(bid)} × ${fmtQty(sliceSize)} DAO`,
+              `Escrowed ${fmtUsd(bid * sliceSize)}; vault now ${fmtUsd(m.quoteVault.balance)}`,
               'Quote opening encrypted to the Treasury agent',
             ],
       });
     }
 
-    const opened: QuoteOpening[] = await treasury.readQuotes(envelopes);
+    const opened = await treasury.readQuotes(rfq, envelopes);
     const best = treasury.choose(opened);
-    yield event({
+    yield await rec.event({
       phase,
       actor: treasury.name,
       role: 'treasury',
-      title: 'Treasury decrypts quotes and picks the best',
+      title: 'Treasury decrypts quotes, checks them against the chain, picks the best',
       status: 'offchain',
       privateView: opened.map(
         (q) =>
@@ -293,12 +314,20 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     });
 
     if (!best) {
-      treasury.closeRfq(rfq);
-      yield event({ phase, actor: treasury.name, role: 'treasury', title: 'No quote clears the floor; RFQ closed', circuit: 'closeRfq', status: 'ok', privateView: [] });
+      await treasury.closeRfq(rfq);
+      yield await rec.event({
+        phase,
+        actor: treasury.name,
+        role: 'treasury',
+        title: 'No quote clears the floor; RFQ closed',
+        circuit: 'closeRfq',
+        status: 'ok',
+        privateView: [],
+      });
     } else {
       const fill = await treasury.accept(rfq, best, auditor.box.publicKey);
       fills.push(fill);
-      yield event({
+      yield await rec.event({
         phase,
         actor: treasury.name,
         role: 'treasury',
@@ -314,9 +343,9 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     }
 
     for (const m of makers) {
-      const outcome = m.settle(rfq.rfqId);
+      const outcome = await m.settle(rfq.rfqId);
       if (outcome === 'none') continue;
-      yield event({
+      yield await rec.event({
         phase,
         actor: m.name,
         role: 'maker',
@@ -337,20 +366,7 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     const r = await auditor.verify(desk, f.receiptEnvelope);
     audits.push({ price: r.receipt.price, size: r.receipt.size, maker: nameOf(r.receipt.maker), ok: r.matchesLedger });
   }
-  const sold = audits.reduce((a, x) => a + x.size, 0n);
-  const proceeds = audits.reduce((a, x) => a + x.size * x.price, 0n);
-  yield event({
-    phase: 'Audit',
-    actor: auditor.name,
-    role: 'auditor',
-    title: 'Auditor verifies every receipt with its viewing key',
-    status: 'offchain',
-    privateView: [
-      ...audits.map((a) => `${a.ok ? '✓' : '✕'} ${fmtQty(a.size)} DAO → ${a.maker} at ${fmtPrice(a.price)}`),
-      `Sold ${fmtQty(sold)} DAO for ${fmtUsd(proceeds)} (VWAP ${fmtPrice(sold ? proceeds / sold : 0n)})`,
-      'The auditor sees the trades, not the strategy: floors and mandates stay private',
-    ],
-  });
+  yield await rec.event(auditEvent(auditor.name, audits));
 
   const l = desk.ledger;
   const reputation = makers.map((m) => ({
@@ -359,4 +375,21 @@ export async function* runScenario(): AsyncGenerator<DeskEvent, ScenarioResult> 
     fills: l.fillsSettled.member(m.publicKey) ? l.fillsSettled.lookup(m.publicKey) : 0n,
   }));
   return { fills, audits, reputation };
+}
+
+export function auditEvent(actor: string, audits: ScenarioResult['audits']): EventInput {
+  const sold = audits.reduce((a, x) => a + x.size, 0n);
+  const proceeds = audits.reduce((a, x) => a + x.size * x.price, 0n);
+  return {
+    phase: 'Audit',
+    actor,
+    role: 'auditor',
+    title: 'Auditor verifies every receipt with its viewing key',
+    status: 'offchain',
+    privateView: [
+      ...audits.map((a) => `${a.ok ? '✓' : '✕'} ${fmtQty(a.size)} DAO → ${a.maker} at ${fmtPrice(a.price)}`),
+      `Sold ${fmtQty(sold)} DAO for ${fmtUsd(proceeds)} (VWAP ${fmtPrice(sold ? proceeds / sold : 0n)})`,
+      'The auditor sees the trades, not the strategy: floors and mandates stay private',
+    ],
+  };
 }

@@ -154,7 +154,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
             lead="A Treasury Seller slicing a DAO’s block sale, three Market Makers answering with sealed, escrowed quotes, and an auditor checking the result."
           />
           <Reveal>
-            <AgentDesk />
+            <AgentDesk wallet={midnight} />
           </Reveal>
           <Reveal style={{ marginTop: 20 }}>
             <div className="plug-in">
@@ -216,7 +216,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
             }
             lead={
               <>
-                All in <code>contracts/private-otc-desk.compact</code>: 11 circuits, compiled with Compact 0.31 and
+                All in <code>contracts/private-otc-desk.compact</code>: 12 circuits, compiled with Compact 0.31 and
                 covered by tests that run the compiled output.
               </>
             }
@@ -234,7 +234,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
             id="desk-title"
             eyebrow="Live on Midnight Preview"
             title="Connect, prove, settle."
-            lead="This part goes on-chain: your wallet, a deployed Compact contract, a real proof and a real transaction. It calls the storeMessage demo contract. The RFQ contract is deployed on Preview too (see the footer link), and the agents above run its circuits locally."
+            lead="This part goes on-chain: your wallet, a deployed Compact contract, a real proof and a real transaction. This panel calls the simple storeMessage contract. To put the RFQ desk itself on-chain, switch the Agents section above to “On Midnight (Lace)”."
           />
           <div className="desk-grid">
             <Reveal>

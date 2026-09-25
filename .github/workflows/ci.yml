@@ -6,9 +6,12 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
 jobs:
   test-and-build:
-    name: Build & Run Unit Tests
+    name: Typecheck, test & build
     runs-on: ubuntu-latest
 
     steps:
@@ -23,13 +26,16 @@ jobs:
           cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Verify managed ZK contract assets present
-        run: ls -la contracts/managed/private-otc-desk
+      - name: Verify compiled contract is present
+        run: test -f contracts/managed/private-otc-desk/contract/index.js
 
-      - name: Run Private OTC Agent Desk Unit Tests (Circuit Logic, State Transitions, Privacy)
+      - name: Typecheck (site, protocol, scripts, tests)
+        run: npm run typecheck
+
+      - name: Protocol tests against the compiled Compact circuits
         run: npm test
 
-      - name: Build Web Application
+      - name: Build web application
         run: npm run build

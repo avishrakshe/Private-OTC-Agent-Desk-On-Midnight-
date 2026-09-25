@@ -6,13 +6,17 @@
  *    under a mandate, with a private floor price.
  *  - MarketMakerAgent: answers RFQs with sealed, escrowed quotes priced off the oracle.
  *  - Auditor: holds the viewing key; verifies receipts against the ledger after the fact.
+ *
+ * Agents program against the `Desk` interface, so the same code runs against the local
+ * simulator (`DeskLedger`) and a contract deployed on Midnight (`OnChainDesk`).
  */
-import { DeskLedger, pureCircuits, type Mandate, type QuoteTerms, type Receipt } from './desk';
+import { pureCircuits, type Desk, type Mandate, type QuoteTerms, type Receipt } from './desk';
 import { generateBoxKeyPair, keyFingerprint, open, randomBytes32, seal, toHex, type BoxKeyPair, type SealedEnvelope } from './sealed-box';
 
 /** Prices are QUOTE micro-units (6 decimals) per whole BASE token. */
 export const PRICE_SCALE = 1_000_000n;
 export const BPS = 10_000n;
+const U64_MAX = (1n << 64n) - 1n;
 
 export const fmtPrice = (p: bigint) => `$${(Number(p) / Number(PRICE_SCALE)).toFixed(4)}`;
 export const fmtUsd = (micro: bigint) =>
@@ -20,6 +24,9 @@ export const fmtUsd = (micro: bigint) =>
 export const fmtQty = (n: bigint) => Number(n).toLocaleString('en-US');
 
 const ZERO = new Uint8Array(32);
+const sameBytes = (a: Uint8Array, b: Uint8Array) => toHex(a) === toHex(b);
+const isU64 = (v: unknown): v is bigint => typeof v === 'bigint' && v >= 0n && v <= U64_MAX;
+const isBytes32 = (v: unknown): v is Uint8Array => v instanceof Uint8Array && v.length === 32;
 
 interface Opening {
   balance: bigint;
@@ -35,43 +42,50 @@ export class Party {
 
   constructor(
     readonly name: string,
-    protected readonly desk: DeskLedger,
+    protected readonly desk: Desk,
   ) {}
 
   get id() {
     return toHex(this.publicKey);
   }
 
-  depositBase(amount: bigint) {
+  async depositBase(amount: bigint) {
     const salt = randomBytes32();
-    this.desk.call(this.secretKey, 'depositBase', amount, this.baseVault.balance, this.baseVault.salt, salt);
+    await this.desk.call(this.secretKey, 'depositBase', amount, this.baseVault.balance, this.baseVault.salt, salt);
     this.baseVault = { balance: this.baseVault.balance + amount, salt };
   }
 
-  depositQuote(amount: bigint) {
+  async depositQuote(amount: bigint) {
     const salt = randomBytes32();
-    this.desk.call(this.secretKey, 'depositQuote', amount, this.quoteVault.balance, this.quoteVault.salt, salt);
+    await this.desk.call(this.secretKey, 'depositQuote', amount, this.quoteVault.balance, this.quoteVault.salt, salt);
     this.quoteVault = { balance: this.quoteVault.balance + amount, salt };
   }
 }
 
 export interface MandateGrant {
+  owner: Uint8Array;
   mandate: Mandate;
   salt: Uint8Array;
 }
 
 /** Whoever controls an agent's funds (DAO multisig, MM desk head). */
 export class MandateOwner extends Party {
-  grant(agent: Agent, mandate: Mandate): MandateGrant {
+  /** Step 1: propose. Returns the opening, which is handed to the agent privately. */
+  async propose(agent: Agent, mandate: Mandate): Promise<MandateGrant> {
     const salt = randomBytes32();
-    this.desk.call(this.secretKey, 'registerMandate', agent.publicKey, pureCircuits.mandateCommitment(mandate, salt));
-    const g = { mandate, salt };
-    agent.mandate = g; // delivered to the agent privately
+    await this.desk.call(this.secretKey, 'proposeMandate', agent.publicKey, pureCircuits.mandateCommitment(mandate, salt));
+    return { owner: this.publicKey, mandate, salt };
+  }
+
+  /** Propose and have the agent accept: the usual two-transaction setup. */
+  async grant(agent: Agent, mandate: Mandate): Promise<MandateGrant> {
+    const g = await this.propose(agent, mandate);
+    await agent.acceptMandate(g);
     return g;
   }
 
-  revoke(agent: Agent) {
-    this.desk.call(this.secretKey, 'revokeMandate', agent.publicKey);
+  async revoke(agent: Agent) {
+    await this.desk.call(this.secretKey, 'revokeMandate', agent.publicKey);
   }
 }
 
@@ -82,6 +96,12 @@ export class Agent extends Party {
   async init() {
     this.box = await generateBoxKeyPair();
     return this;
+  }
+
+  /** Step 2: accept a mandate the owner proposed, proving this agent holds its opening. */
+  async acceptMandate(g: MandateGrant) {
+    await this.desk.call(this.secretKey, 'acceptMandate', g.owner, g.mandate, g.salt);
+    this.mandate = g;
   }
 
   protected requireMandate(): MandateGrant {
@@ -117,7 +137,7 @@ export class MarketMakerAgent extends Agent {
 
   constructor(
     name: string,
-    desk: DeskLedger,
+    desk: Desk,
     /** How far under the oracle TWAP this maker bids. */
     readonly spreadBps: bigint,
   ) {
@@ -125,17 +145,18 @@ export class MarketMakerAgent extends Agent {
   }
 
   /** Price this maker would bid right now. */
-  bidPrice(): bigint {
-    return (this.desk.ledger.oraclePrice * (BPS - this.spreadBps)) / BPS;
+  async bidPrice(): Promise<bigint> {
+    const { oraclePrice } = await this.desk.readLedger();
+    return (oraclePrice * (BPS - this.spreadBps)) / BPS;
   }
 
   /** Posts an escrowed, sealed quote and returns its opening encrypted to the taker. */
   async quote(req: RfqRequest, override?: Partial<QuoteTerms>): Promise<SealedEnvelope> {
     const m = this.requireMandate();
-    const terms: QuoteTerms = { price: override?.price ?? this.bidPrice(), size: override?.size ?? req.size };
+    const terms: QuoteTerms = { price: override?.price ?? (await this.bidPrice()), size: override?.size ?? req.size };
     const termsSalt = randomBytes32();
     const vaultSalt = randomBytes32();
-    this.desk.call(
+    await this.desk.call(
       this.secretKey,
       'submitQuote',
       req.rfqId,
@@ -154,16 +175,16 @@ export class MarketMakerAgent extends Agent {
   }
 
   /** After the RFQ closes: claim the BASE if we won, otherwise release the escrow. */
-  settle(rfqId: Uint8Array): 'claimed' | 'cancelled' | 'none' {
+  async settle(rfqId: Uint8Array): Promise<'claimed' | 'cancelled' | 'none'> {
     const o = this.openQuotes.get(toHex(rfqId));
     if (!o) return 'none';
-    const q = this.desk.ledger.quotes.lookup(pureCircuits.quoteId(rfqId, this.publicKey));
+    const q = (await this.desk.readLedger()).quotes.lookup(pureCircuits.quoteId(rfqId, this.publicKey));
     const salt = randomBytes32();
     if (q.filled) {
-      this.desk.call(this.secretKey, 'claimFill', rfqId, o.terms, o.termsSalt, this.baseVault.balance, this.baseVault.salt, salt);
+      await this.desk.call(this.secretKey, 'claimFill', rfqId, o.terms, o.termsSalt, this.baseVault.balance, this.baseVault.salt, salt);
       this.baseVault = { balance: this.baseVault.balance + o.terms.size, salt };
     } else {
-      this.desk.call(this.secretKey, 'cancelQuote', rfqId, o.terms, o.termsSalt, this.quoteVault.balance, this.quoteVault.salt, salt);
+      await this.desk.call(this.secretKey, 'cancelQuote', rfqId, o.terms, o.termsSalt, this.quoteVault.balance, this.quoteVault.salt, salt);
       this.quoteVault = { balance: this.quoteVault.balance + o.terms.price * o.terms.size, salt };
     }
     this.openQuotes.delete(toHex(rfqId));
@@ -187,44 +208,67 @@ export interface Fill {
 export class TreasurySellerAgent extends Agent {
   constructor(
     name: string,
-    desk: DeskLedger,
+    desk: Desk,
     /** Private: never leaves the agent, only proven against. */
     readonly floorPrice: bigint,
   ) {
     super(name, desk);
   }
 
-  openRfq(size: bigint, ttlSeconds = 300): OpenRfq {
+  async openRfq(size: bigint, ttlSeconds = 300): Promise<OpenRfq> {
     const rfqId = randomBytes32();
     const ownerSalt = randomBytes32();
-    const expiresAt = BigInt(this.desk.time + ttlSeconds);
-    this.desk.call(this.secretKey, 'openRfq', rfqId, ownerSalt, expiresAt);
+    const expiresAt = BigInt(this.desk.now() + ttlSeconds);
+    await this.desk.call(this.secretKey, 'openRfq', rfqId, ownerSalt, expiresAt);
     return { rfqId, ownerSalt, request: { rfqId, size, expiresAt, replyTo: this.box.publicKey } };
   }
 
-  /** Decrypts sealed quotes. Only this agent ever sees the prices. */
-  async readQuotes(envelopes: SealedEnvelope[]): Promise<QuoteOpening[]> {
-    return Promise.all(envelopes.map((e) => open<QuoteOpening>(this.box, e)));
+  /**
+   * Decrypts sealed quotes for `rfq` and keeps only those whose opening matches the
+   * commitment the maker posted on-chain. Envelopes are untrusted input: a maker could
+   * send a flattering price it never committed to, which would only fail at accept time.
+   */
+  async readQuotes(rfq: OpenRfq, envelopes: SealedEnvelope[]): Promise<QuoteOpening[]> {
+    const { quotes } = await this.desk.readLedger();
+    const out: QuoteOpening[] = [];
+    for (const env of envelopes) {
+      let o: QuoteOpening;
+      try {
+        o = await open<QuoteOpening>(this.box, env);
+      } catch {
+        continue; // not addressed to us or tampered with
+      }
+      if (!o || !isBytes32(o.rfqId) || !isBytes32(o.maker) || !isBytes32(o.termsSalt)) continue;
+      if (!o.terms || !isU64(o.terms.price) || !isU64(o.terms.size) || o.terms.size === 0n) continue;
+      if (!sameBytes(o.rfqId, rfq.rfqId)) continue;
+      const id = pureCircuits.quoteId(o.rfqId, o.maker);
+      if (!quotes.member(id)) continue;
+      const posted = quotes.lookup(id);
+      if (!sameBytes(posted.terms, pureCircuits.quoteCommitment(o.terms, o.termsSalt))) continue;
+      out.push({ rfqId: o.rfqId, maker: o.maker, terms: { price: o.terms.price, size: o.terms.size }, termsSalt: o.termsSalt });
+    }
+    return out;
   }
 
-  /** Best price that clears the private floor, or undefined. */
+  /** Best price that clears the private floor and that this agent can fill, or undefined. */
   choose(quotes: QuoteOpening[]): QuoteOpening | undefined {
     return quotes
-      .filter((q) => q.terms.price >= this.floorPrice)
+      .filter((q) => q.terms.price >= this.floorPrice && q.terms.size <= this.baseVault.balance)
       .sort((a, b) => (b.terms.price > a.terms.price ? 1 : b.terms.price < a.terms.price ? -1 : 0))[0];
   }
 
   /** The match proof: runs `acceptQuote` and seals the receipt opening to the auditor. */
   async accept(rfq: OpenRfq, q: QuoteOpening, auditorKey: Uint8Array): Promise<Fill> {
     const m = this.requireMandate();
-    if (toHex(await keyFingerprint(auditorKey)) !== toHex(this.desk.ledger.auditorKey)) {
+    const ledger = await this.desk.readLedger();
+    if (toHex(await keyFingerprint(auditorKey)) !== toHex(ledger.auditorKey)) {
       throw new Error('Viewing key does not match the auditor registered on the desk');
     }
     const baseSalt = randomBytes32();
     const quoteSalt = randomBytes32();
     const receiptSalt = randomBytes32();
     const notional = q.terms.price * q.terms.size;
-    this.desk.call(
+    await this.desk.call(
       this.secretKey,
       'acceptQuote',
       rfq.rfqId,
@@ -250,8 +294,8 @@ export class TreasurySellerAgent extends Agent {
     return { rfqId: rfq.rfqId, maker: q.maker, terms: q.terms, receiptEnvelope };
   }
 
-  closeRfq(rfq: OpenRfq) {
-    this.desk.call(this.secretKey, 'closeRfq', rfq.rfqId, rfq.ownerSalt);
+  async closeRfq(rfq: OpenRfq) {
+    await this.desk.call(this.secretKey, 'closeRfq', rfq.rfqId, rfq.ownerSalt);
   }
 }
 
@@ -274,11 +318,11 @@ export class Auditor {
   }
 
   /** Opens a receipt with the viewing key and checks it against the on-chain commitment. */
-  async verify(desk: DeskLedger, envelope: SealedEnvelope): Promise<AuditResult> {
+  async verify(desk: Desk, envelope: SealedEnvelope): Promise<AuditResult> {
     const { receipt, salt } = await open<ReceiptOpening>(this.box, envelope);
-    const receipts = desk.ledger.receipts;
+    const { receipts } = await desk.readLedger();
     const onChain = receipts.member(receipt.rfq) ? receipts.lookup(receipt.rfq) : undefined;
     const recomputed = pureCircuits.receiptCommitment(receipt, salt);
-    return { rfqId: receipt.rfq, receipt, matchesLedger: !!onChain && toHex(onChain) === toHex(recomputed) };
+    return { rfqId: receipt.rfq, receipt, matchesLedger: !!onChain && sameBytes(onChain, recomputed) };
   }
 }

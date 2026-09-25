@@ -44,12 +44,21 @@ export async function keyFingerprint(publicKey: Uint8Array): Promise<Uint8Array>
   return new Uint8Array(await subtle().digest('SHA-256', bs(publicKey)));
 }
 
-async function aesKey(privateKey: CryptoKey, peerPublic: Uint8Array, usage: KeyUsage): Promise<CryptoKey> {
+/** HKDF info binds the key to this protocol and to both public keys, so a key can't be reused across contexts. */
+const kdfInfo = (ephemeralKey: Uint8Array, recipientKey: Uint8Array) => {
+  const out = new Uint8Array(INFO.length + ephemeralKey.length + recipientKey.length);
+  out.set(INFO, 0);
+  out.set(ephemeralKey, INFO.length);
+  out.set(recipientKey, INFO.length + ephemeralKey.length);
+  return out;
+};
+
+async function aesKey(privateKey: CryptoKey, peerPublic: Uint8Array, info: Uint8Array, usage: KeyUsage): Promise<CryptoKey> {
   const peer = await subtle().importKey('raw', bs(peerPublic), ECDH, false, []);
   const bits = await subtle().deriveBits({ name: 'ECDH', public: peer }, privateKey, 256);
   const shared = await subtle().importKey('raw', bits, 'HKDF', false, ['deriveKey']);
   return subtle().deriveKey(
-    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: INFO },
+    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: bs(info) },
     shared,
     { name: 'AES-GCM', length: 256 },
     false,
@@ -57,26 +66,42 @@ async function aesKey(privateKey: CryptoKey, peerPublic: Uint8Array, usage: KeyU
   );
 }
 
+const HEX = /^(?:[0-9a-f]{2})*$/;
+
 const replacer = (_: string, v: unknown) =>
   typeof v === 'bigint' ? { $b: v.toString() } : v instanceof Uint8Array ? { $u: toHex(v) } : v;
 
+// Only revives the two tagged shapes `replacer` produces; anything else is left as plain JSON.
 const reviver = (_: string, v: any) => {
-  if (v && typeof v === 'object' && '$b' in v) return BigInt(v.$b);
-  if (v && typeof v === 'object' && '$u' in v) return Uint8Array.from(v.$u.match(/../g) ?? [], (h: string) => parseInt(h, 16));
+  if (v && typeof v === 'object' && !Array.isArray(v)) {
+    const keys = Object.keys(v);
+    if (keys.length === 1 && keys[0] === '$b' && typeof v.$b === 'string' && /^-?\d{1,40}$/.test(v.$b)) return BigInt(v.$b);
+    if (keys.length === 1 && keys[0] === '$u' && typeof v.$u === 'string' && v.$u.length <= 4096 && HEX.test(v.$u)) {
+      return Uint8Array.from(v.$u.match(/../g) ?? [], (h: string) => parseInt(h, 16));
+    }
+  }
   return v;
 };
 
+const MAX_CIPHERTEXT = 16 * 1024;
+
 export async function seal<T>(recipientPublicKey: Uint8Array, payload: T): Promise<SealedEnvelope> {
   const eph = (await subtle().generateKey(ECDH, true, ['deriveBits'])) as CryptoKeyPair;
-  const key = await aesKey(eph.privateKey, recipientPublicKey, 'encrypt');
+  const ephemeralKey = new Uint8Array(await subtle().exportKey('raw', eph.publicKey));
+  const key = await aesKey(eph.privateKey, recipientPublicKey, kdfInfo(ephemeralKey, recipientPublicKey), 'encrypt');
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
   const plaintext = new TextEncoder().encode(JSON.stringify(payload, replacer));
   const ciphertext = new Uint8Array(await subtle().encrypt({ name: 'AES-GCM', iv }, key, plaintext));
-  return { ephemeralKey: new Uint8Array(await subtle().exportKey('raw', eph.publicKey)), iv, ciphertext };
+  return { ephemeralKey, iv, ciphertext };
 }
 
+/** Decrypts an envelope. Throws on anything malformed or tampered with; the payload is still untrusted input. */
 export async function open<T>(recipient: BoxKeyPair, envelope: SealedEnvelope): Promise<T> {
-  const key = await aesKey(recipient.privateKey, envelope.ephemeralKey, 'decrypt');
-  const plaintext = await subtle().decrypt({ name: 'AES-GCM', iv: bs(envelope.iv) }, key, bs(envelope.ciphertext));
+  const { ephemeralKey, iv, ciphertext } = envelope ?? ({} as SealedEnvelope);
+  if (!(ephemeralKey instanceof Uint8Array) || ephemeralKey.length !== 65) throw new Error('Malformed envelope: ephemeral key');
+  if (!(iv instanceof Uint8Array) || iv.length !== 12) throw new Error('Malformed envelope: iv');
+  if (!(ciphertext instanceof Uint8Array) || ciphertext.length > MAX_CIPHERTEXT) throw new Error('Malformed envelope: ciphertext');
+  const key = await aesKey(recipient.privateKey, ephemeralKey, kdfInfo(ephemeralKey, recipient.publicKey), 'decrypt');
+  const plaintext = await subtle().decrypt({ name: 'AES-GCM', iv: bs(iv) }, key, bs(ciphertext));
   return JSON.parse(new TextDecoder().decode(plaintext), reviver) as T;
 }

@@ -3,7 +3,7 @@
  * desk, so results come from the compiled circuits, not from a re-implementation.
  */
 import { MandateOwner, MarketMakerAgent } from './agents';
-import { CircuitRejected, DeskLedger, pureCircuits, type Mandate, type QuoteTerms } from './desk';
+import { CircuitRejected, DeskLedger, type Mandate, type QuoteTerms } from './desk';
 import { randomBytes32, toHex } from './sealed-box';
 
 export interface MandateTrial {
@@ -13,7 +13,7 @@ export interface MandateTrial {
 }
 
 /**
- * Registers `registered` for an agent, then has the agent quote `order` while claiming
+ * Sets `registered` as an agent's mandate, then has the agent quote `order` while claiming
  * `claimed` as its mandate. The oracle is centred on the order price with a ±100% band and
  * the vault is funded, so the only asserts that can fail are the mandate's.
  */
@@ -26,14 +26,14 @@ export async function tryMandate(registered: Mandate, claimed: Mandate, order: Q
   });
   const owner = new MandateOwner('owner', desk);
   const agent = await new MarketMakerAgent('agent', desk, 0n).init();
-  agent.depositQuote(order.price * order.size + 1n);
-  owner.grant(agent, registered);
+  await agent.depositQuote(order.price * order.size + 1n);
+  await owner.grant(agent, registered);
   const commitment = toHex(desk.ledger.mandates.lookup(agent.publicKey));
   agent.mandate = { ...agent.mandate!, mandate: claimed };
 
   const taker = new MandateOwner('taker', desk); // any key can open an RFQ
   const rfqId = randomBytes32();
-  desk.call(taker.secretKey, 'openRfq', rfqId, randomBytes32(), BigInt(desk.time + 300));
+  await desk.call(taker.secretKey, 'openRfq', rfqId, randomBytes32(), BigInt(desk.now() + 300));
   try {
     await agent.quote({ rfqId, size: order.size, expiresAt: 0n, replyTo: agent.box.publicKey }, order);
     return { commitment, ok: true };
@@ -42,5 +42,3 @@ export async function tryMandate(registered: Mandate, claimed: Mandate, order: Q
     throw err;
   }
 }
-
-export const mandateCommitmentHex = (m: Mandate, salt: Uint8Array) => toHex(pureCircuits.mandateCommitment(m, salt));

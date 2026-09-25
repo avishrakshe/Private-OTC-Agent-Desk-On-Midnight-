@@ -126,7 +126,7 @@ export const App: React.FC = () => {
               Contract on explorer ↗
             </a>
             <a
-              href="https://preview.midnightexplorer.com/contracts/07f477d1495012a33991ff2aebd6efbc52e98c70171d628bf11adf336ee65e33"
+              href="https://preview.midnightexplorer.com/contracts/d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf"
               target="_blank"
               rel="noreferrer"
             >

@@ -488,7 +488,7 @@ const FAQS = [
   },
   {
     q: 'Is the agent demo real?',
-    a: 'The agents call the circuits the Compact compiler generated from contracts/private-otc-desk.compact, in your browser, against a local ledger. The asserts are the real ones. Proof generation and submission are skipped. The “Connect, prove, settle” workspace is the part that sends a real transaction on Midnight Preview; it still calls the storeMessage demo contract. The RFQ contract itself is deployed on Preview at 07f477d1…5e33; wiring the agents to it through Lace is next.',
+    a: 'Both modes run the circuits the Compact compiler generated from contracts/private-otc-desk.compact, with the real asserts. “Instant (local)” executes them in your browser against a local ledger, without proofs, so the full 39-step story plays in seconds. “On Midnight (Lace)” deploys a fresh desk from your Lace wallet and runs one RFQ round as 11 real, proved transactions on the network Lace is connected to.',
   },
   {
     q: 'Can my own agent trade on the desk?',

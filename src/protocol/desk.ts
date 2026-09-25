@@ -1,10 +1,12 @@
 /**
- * Local execution of the compiled `private-otc-desk.compact` contract.
+ * The desk as seen by agents, plus a local implementation of it.
  *
- * Every call runs the real circuit (the JS the Compact compiler emitted, including every
- * `assert`) against a real ledger state, exactly as the prover would before proving.
- * No proofs are generated and nothing is submitted: this is the protocol's executable
- * reference, used by the tests and by the in-browser agent demo.
+ * `Desk` is what agents program against. Two implementations exist:
+ *  - `DeskLedger` (here): runs the compiled circuits (the JS the Compact compiler emitted,
+ *    including every `assert`) against an in-memory ledger. No proofs, no network. Used by
+ *    the tests and the instant in-browser demo.
+ *  - `OnChainDesk` (./chain.ts): proves and submits the same circuits to a deployed
+ *    contract on Midnight through Midnight.js (Lace in the browser, a seed wallet in Node).
  */
 import {
   createCircuitContext,
@@ -29,7 +31,23 @@ export interface PrivateState {
 
 type Circuits = ImpureCircuits<PrivateState>;
 export type CircuitName = keyof Circuits;
-type CircuitArgs<K extends CircuitName> = Parameters<Circuits[K]> extends [any, ...infer R] ? R : never;
+export type CircuitArgs<K extends CircuitName> = Parameters<Circuits[K]> extends [any, ...infer R] ? R : never;
+
+/** What a caller learns from a successful circuit call. */
+export interface CallReceipt {
+  circuit: CircuitName;
+  /** Present for on-chain calls. */
+  txId?: string;
+}
+
+export interface Desk {
+  /** Runs `circuit` as the holder of `secretKey`. Rejects with CircuitRejected if an assert fails. */
+  call<K extends CircuitName>(secretKey: Uint8Array, circuit: K, ...args: CircuitArgs<K>): Promise<CallReceipt>;
+  /** The contract's current public state. */
+  readLedger(): Promise<Ledger>;
+  /** Block time in seconds since epoch (used for RFQ expiry). */
+  now(): number;
+}
 
 /** A circuit assertion failed: no proof can exist, so no transaction is ever created. */
 export class CircuitRejected extends Error {
@@ -44,9 +62,13 @@ export class CircuitRejected extends Error {
 
 const COIN_PUBLIC_KEY = '00'.repeat(32);
 
-const cleanReason = (err: unknown) => {
-  const msg = err instanceof Error ? err.message : String(err);
-  return msg.replace(/^failed assert:\s*/i, '').trim();
+/** Extracts the assert message from a runtime error, or undefined if it wasn't an assert. */
+export const assertReason = (err: unknown): string | undefined => {
+  for (let cur: any = err, depth = 0; cur && depth < 6; cur = cur.cause, depth++) {
+    const m = /failed assert:\s*(.+)$/im.exec(String(cur?.message ?? cur));
+    if (m) return m[1].trim();
+  }
+  return undefined;
 };
 
 export interface DeskConfig {
@@ -58,7 +80,7 @@ export interface DeskConfig {
   time?: number;
 }
 
-export class DeskLedger {
+export class DeskLedger implements Desk {
   readonly address = sampleContractAddress();
   private readonly contract = new Contract<PrivateState>({
     secretKey: ({ privateState }) => [privateState, privateState.secretKey],
@@ -78,8 +100,16 @@ export class DeskLedger {
     this.state = init.currentContractState.data;
   }
 
-  /** Runs a circuit as the holder of `secretKey`. Throws CircuitRejected and leaves the ledger untouched on failure. */
-  call<K extends CircuitName>(secretKey: Uint8Array, circuit: K, ...args: CircuitArgs<K>) {
+  async call<K extends CircuitName>(secretKey: Uint8Array, circuit: K, ...args: CircuitArgs<K>): Promise<CallReceipt> {
+    this.run(secretKey, circuit, ...args);
+    return { circuit };
+  }
+
+  /**
+   * Synchronous form of `call` that also returns the circuit results (including the public
+   * transcript). Throws CircuitRejected and leaves the ledger untouched on failure.
+   */
+  run<K extends CircuitName>(secretKey: Uint8Array, circuit: K, ...args: CircuitArgs<K>) {
     const ctx = createCircuitContext<PrivateState>(
       this.address,
       COIN_PUBLIC_KEY,
@@ -93,7 +123,7 @@ export class DeskLedger {
     try {
       res = (this.contract.impureCircuits[circuit] as any)(ctx, ...args);
     } catch (err) {
-      throw new CircuitRejected(circuit, cleanReason(err));
+      throw new CircuitRejected(circuit, assertReason(err) ?? (err instanceof Error ? err.message : String(err)));
     }
     this.state = res.context.currentQueryContext.state;
     return res as ReturnType<Circuits[K]>;
@@ -101,6 +131,14 @@ export class DeskLedger {
 
   get ledger(): Ledger {
     return readLedger(this.state);
+  }
+
+  async readLedger(): Promise<Ledger> {
+    return this.ledger;
+  }
+
+  now(): number {
+    return this.time;
   }
 
   advance(seconds: number) {
@@ -129,6 +167,7 @@ const fmt = (v: unknown): string => {
 const MAPS = [
   'baseVaults',
   'quoteVaults',
+  'pendingMandates',
   'mandates',
   'mandateOwners',
   'rfqs',
@@ -149,6 +188,7 @@ export function snapshot(l: Ledger): Snapshot {
   for (const name of MAPS) {
     for (const [k, v] of l[name] as Iterable<[Uint8Array, unknown]>) out[`${name}[${short(k)}]`] = fmt(v);
   }
+  for (const id of l.usedRfqIds as Iterable<Uint8Array>) out[`usedRfqIds{${short(id)}}`] = 'used';
   return out;
 }
 
