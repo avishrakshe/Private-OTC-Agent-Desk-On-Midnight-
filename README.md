@@ -54,8 +54,7 @@ Selling a large block of tokens on a public exchange tells the whole market what
 11. [Testing](#-testing)
 12. [Repository structure](#-repository-structure)
 13. [Scope and roadmap](#-scope-and-roadmap)
-14. [Hackathon deliverables](#-hackathon-deliverables)
-15. [Documentation and community](#-documentation-and-community)
+14. [Documentation and community](#-documentation-and-community)
 
 ---
 
@@ -532,8 +531,6 @@ Security review, threat model and known limitations: [docs/SECURITY.md](docs/SEC
 | Agents deploy and trade on Midnight through Lace · deployed on Preview | | |
 
 ---
-
-## 🏆 Hackathon deliverables
 
 | Deliverable | Link |
 |---|---|
