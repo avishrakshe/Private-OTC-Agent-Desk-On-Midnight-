@@ -1486,9 +1486,14 @@ h4 {
 
 .grid-code {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 32px;
   align-items: start;
+}
+
+/* Let grid children shrink below their content (the code panel scrolls inside itself). */
+.grid-code > * {
+  min-width: 0;
 }
 
 .card {
@@ -1790,7 +1795,7 @@ h4 {
   .grid-2,
   .grid-3,
   .cta-band {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .orb-stage {
     max-width: 420px;
@@ -1864,6 +1869,22 @@ h4 {
 @media (max-width: 480px) {
   .nav-links a {
     padding: 8px 10px;
+  }
+  /* The rotated 3D stack projects wider than its box; keep it inside small phones. */
+  /* The top layer is raised ~190px in 3D; pad the stage so it isn't clipped or over the CTAs. */
+  .stack-stage {
+    height: 400px;
+    padding-top: 110px;
+  }
+  .stack {
+    width: 190px;
+    height: 190px;
+  }
+  .layer {
+    padding: 16px;
+  }
+  .code-panel pre {
+    font-size: 12px;
   }
 }
 
