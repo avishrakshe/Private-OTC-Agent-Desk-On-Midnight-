@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="https://mn-demo.vercel.app"><b>🌐 Live app</b></a> ·
-  <a href="https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm"><b>🎬 Demo video</b></a> ·
+  <a href="https://youtu.be/vIem1ycVtyE"><b>🎬 Product demo video</b></a> ·
   <a href="https://preview.midnightexplorer.com/contracts/d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf"><b>📜 RFQ contract on Preview</b></a> ·
   <a href="https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing"><b>📊 Feedback sheet</b></a> ·
   <a href="https://x.com/DefiAipy"><b>🐦 @DefiAipy</b></a>
@@ -31,7 +31,7 @@
 |---|:---:|---|
 | Public GitHub repository with documentation | ✅ | This repo; [docs/](docs/) |
 | Live demo | ✅ | [mn-demo.vercel.app](https://mn-demo.vercel.app) |
-| Demo video | ✅ | [YouTube walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) |
+| Demo video | ✅ | [Product demo on YouTube](https://youtu.be/vIem1ycVtyE) (3-min narrated walkthrough) |
 | Contracts on Midnight Preview | ✅ | [Deployments](#-deployments) |
 | Contracts on Midnight Preprod | ⏳ Pending | `npm run deploy -- --network preprod` and `npm run deploy:otc -- --network preprod` |
 | Verified Preprod user wallets | ✅ 67 active | [USERS.md](USERS.md). Every address is checked on-chain by `npm run verify-users` |
@@ -563,7 +563,7 @@ Security review, threat model and known limitations: [docs/SECURITY.md](docs/SEC
 | Deliverable | Link |
 |---|---|
 | **Live web app** | [mn-demo.vercel.app](https://mn-demo.vercel.app) |
-| **Demo video** | [YouTube walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) |
+| **Product demo video** | [YouTube](https://youtu.be/vIem1ycVtyE) |
 | **Source code** | [GitHub](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-) |
 | **Feedback form** | [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor) |
 | **Feedback responses** | [Public Google Sheet](https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing) |
