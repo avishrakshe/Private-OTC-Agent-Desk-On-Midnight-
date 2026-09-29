@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { IconCopy, IconLock, IconEye } from './ui/icons';
+import { APP_NETWORK, networkLabel } from '../deployments';
+
+export { networkLabel };
 
 interface WalletConnectProps {
   isConnected: boolean;
@@ -13,13 +16,10 @@ interface WalletConnectProps {
 }
 
 const NETWORKS = [
-  { id: 'preview', label: 'Preview' },
   { id: 'preprod', label: 'Preprod' },
+  { id: 'preview', label: 'Preview' },
   { id: 'undeployed', label: 'Local' },
 ];
-
-export const networkLabel = (id?: string) =>
-  id === 'preprod' ? 'Preprod' : id === 'undeployed' ? 'Local devnet' : id === 'mainnet' ? 'Mainnet' : 'Preview';
 
 const shortAddr = (addr: string | null, head = 10, tail = 8) =>
   addr ? `${addr.slice(0, head)}…${addr.slice(-tail)}` : '';
@@ -67,7 +67,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   connect,
   disconnect,
 }) => {
-  const [selectedNetwork, setSelectedNetwork] = useState('preview');
+  const [selectedNetwork, setSelectedNetwork] = useState<string>(APP_NETWORK);
 
   const isLaceAvailable =
     typeof window !== 'undefined' && !!window.midnight && Object.keys(window.midnight).length > 0;
@@ -121,7 +121,9 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
                 </button>
               ))}
             </div>
-            <span className="hint">The demo contract lives on Preview. Lace must be set to the same network.</span>
+            <span className="hint">
+              The demo contracts live on {networkLabel(APP_NETWORK)}. Lace must be set to the same network.
+            </span>
           </div>
 
           <button
@@ -147,7 +149,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
                 <strong>Lace not detected.</strong>
                 <ol>
                   <li>Install the Lace (Midnight) extension in Chrome.</li>
-                  <li>In Lace settings, pick the Midnight Preview network.</li>
+                  <li>In Lace settings, pick the Midnight {networkLabel(APP_NETWORK)} network.</li>
                   <li>Reload this page and connect.</li>
                 </ol>
               </div>

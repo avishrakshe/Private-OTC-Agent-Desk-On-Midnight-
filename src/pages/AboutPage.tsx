@@ -1,5 +1,6 @@
 import React from 'react';
 import { Reveal, TiltCard } from '../components/ui/motion';
+import { APP_NETWORK, networkLabel } from '../deployments';
 import {
   IconAgent,
   IconBlock,
@@ -535,7 +536,8 @@ export const AboutPage: React.FC = () => (
             <span className="eyebrow">Try it</span>
             <h2 className="h2">Settle a real proof on Midnight.</h2>
             <p className="lead" style={{ margin: 0 }}>
-              Run the agents, set a mandate and break it, then connect Lace to send a real proof to Midnight Preview.
+              Run the agents, set a mandate and break it, then connect Lace to send a real proof to Midnight{' '}
+              {networkLabel(APP_NETWORK)}.
             </p>
           </div>
           <a className="btn btn-primary" href="#/">

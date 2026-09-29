@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import type { UseMidnightResult } from '../hooks';
 import type { OrbMode } from '../components/three/ZkOrb';
-import { WalletConnect, networkLabel } from '../components/WalletConnect';
+import { WalletConnect } from '../components/WalletConnect';
+import { APP_NETWORK, networkLabel } from '../deployments';
 import { CircuitCall, type CallStatus } from '../components/CircuitCall';
 import { SealedBidSimulator } from '../components/SealedBidSimulator';
 import { AgentDesk } from '../components/agents/AgentDesk';
@@ -78,7 +79,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
                   type="button"
                   className="btn"
                   onClick={async () => {
-                    await connect('preview');
+                    await connect(APP_NETWORK);
                     scrollToId('desk');
                   }}
                   disabled={isConnecting}
@@ -232,7 +233,7 @@ export const DeskPage: React.FC<DeskPageProps> = ({ midnight, orbMode, onCallSta
         <div className="container">
           <CenterHead
             id="desk-title"
-            eyebrow="Live on Midnight Preview"
+            eyebrow={`Live on Midnight ${networkLabel(APP_NETWORK)}`}
             title="Connect, prove, settle."
             lead="This part goes on-chain: your wallet, a deployed Compact contract, a real proof and a real transaction. This panel calls the simple storeMessage contract. To put the RFQ desk itself on-chain, switch the Agents section above to “On Midnight (Lace)”."
           />

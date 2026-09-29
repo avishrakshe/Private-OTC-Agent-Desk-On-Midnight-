@@ -18,6 +18,7 @@ import * as helloWorld from '../../contracts/managed/hello-world/contract';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
 import { MidnightBech32m, ShieldedAddress } from '@midnight-ntwrk/wallet-sdk-address-format';
 import { setNetworkId as setMidnightNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { APP_NETWORK } from '../deployments';
 
 // Browser-safe hex helpers (midnight-js-utils' fromHex relies on Node's Buffer).
 const bytesToHex = (bytes: Uint8Array): string =>
@@ -184,7 +185,7 @@ export function useMidnight(): UseMidnightResult {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [shieldedAddress, setShieldedAddress] = useState<string | null>(null);
   const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
-  const [networkId, setNetworkId] = useState<string>('preview');
+  const [networkId, setNetworkId] = useState<string>(APP_NETWORK);
   const [error, setError] = useState<string | null>(null);
 
   const connect = useCallback(async (selectedNetwork: string) => {
@@ -305,7 +306,7 @@ export function useMidnight(): UseMidnightResult {
 
       // 1. Resolve service endpoints, preferring the ones the user configured in Lace.
       const config = await connectedApi.getConfiguration();
-      const defaults = DEFAULT_ENDPOINTS[networkId] ?? DEFAULT_ENDPOINTS.preview;
+      const defaults = DEFAULT_ENDPOINTS[networkId] ?? DEFAULT_ENDPOINTS[APP_NETWORK];
       const indexerUri = config.indexerUri || defaults.indexer;
       const indexerWsUri = config.indexerWsUri || defaults.indexerWs;
       const proofServerUri = config.proverServerUri || defaults.proofServer;

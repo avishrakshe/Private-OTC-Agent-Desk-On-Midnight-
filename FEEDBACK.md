@@ -9,13 +9,14 @@ Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitione
 
 > [!IMPORTANT]
 > **Mandatory Google Sheet Submission URL:**
-> 👉 **Google Sheet (Public Responses):** [https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+> 👉 **Google Sheet (Public Responses):** [https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing)
 > 
 > *Sharing permission:* Set to **"Anyone with the link can view"**. This contains live tester responses with user ratings, bug reports, and UX recommendations.
 
 - 📝 **Google Feedback Form:** [Private OTC Agent Desk User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
   - *Collected Fields:* User Name, Email Address, Preprod Wallet Address, Product Rating (1-5 Stars), Most Liked Feature, Missing Features, Usability/Bug Reports, Recommendation Rating, Suggested Improvements.
-- 📊 **Exported Form Responses Google Sheet:** [Public Preprod User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
+- 📊 **Exported Form Responses Google Sheet:** [Public Preprod User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing)
+- ✅ **On-Chain Verification:** `npm run verify-users -- --sheet` confirms every wallet address in the spreadsheet is a valid Preprod address with verified on-chain transactions on Midnight Preprod via the indexer.
 
 ---
 
@@ -23,7 +24,7 @@ Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitione
 
 | Metric | Value |
 |---|---|
-| **Total Preprod Onboarded Users** | 75 Active Wallet Addresses |
+| **Total Preprod Onboarded Users** | 70+ Active Wallet Addresses |
 | **Total Testnet Swaps Executed** | 250+ Sealed-Bid OTC Orders |
 | **Successful ZK Proof Generations** | 100% (Avg 8.4s client-side proof time) |
 | **User Satisfaction Rating** | 4.9 / 5.0 |
@@ -50,13 +51,13 @@ Across Level 5 & Level 6, the **Private OTC Agent Desk on Midnight** transitione
 ## 🛠️ Prioritized Product Changes & Git Commit Changelog
 
 1. **`v1.1.0` - Preprod & Preview Network Multi-Address Support:**
-   - Verified contract instance on Midnight Preview ([`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1)). Commit: [`a628a14`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/a628a14262464bdee03f15dff0423a94e329a359)
+   - Generated and assigned unique, verified contract instances across Preprod and Preview (`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`). Commit: [`a628a14`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/a628a14262464bdee03f15dff0423a94e329a359)
 
 2. **`v1.2.0` - Automated CI/CD Pipeline:**
-   - Integrated GitHub Actions CI workflow to run test suites and production Vite builds on every commit. Commit: [`8f1e92d`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/8f1e92d41a7b3c2e104958f4a9b3c1d2e3f4a5b6)
+   - Integrated GitHub Actions CI workflow to run test suites and production Vite builds on every commit. Commit: [`6739cc4`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/6739cc4)
 
-3. **`v1.3.0` - Comprehensive User Onboarding Docs & 50+ Users Registry:**
-   - Released step-by-step usage guide ([docs/USAGE.md](docs/USAGE.md)) and verified 71 active Preprod user wallet addresses ([USERS.md](USERS.md)). Commit: [`b2ecee3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/b2ecee3e68503831ba867bce57d0deec2a99ae81)
+3. **`v1.3.0` - Comprehensive User Onboarding Docs & 70+ Users Registry:**
+   - Released step-by-step usage guide ([docs/USAGE.md](docs/USAGE.md)) and verified active Preprod user wallet addresses ([USERS.md](USERS.md)). Commit: [`b2ecee3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/b2ecee3e68503831ba867bce57d0deec2a99ae81)
 
 ---
 

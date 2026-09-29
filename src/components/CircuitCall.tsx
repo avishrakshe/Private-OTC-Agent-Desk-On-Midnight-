@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IconExternal } from './ui/icons';
+import { APP_NETWORK, DEPLOYMENTS, contractExplorerUrl, networkLabel } from '../deployments';
 
 export type CallStatus = 'idle' | 'executing' | 'success' | 'error';
 
@@ -14,7 +15,8 @@ interface CircuitCallProps {
   onStatusChange?: (status: CallStatus) => void;
 }
 
-export const DEFAULT_CONTRACT = '7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1';
+export const DEFAULT_CONTRACT = DEPLOYMENTS[APP_NETWORK].storeMessage ?? '';
+const APP_NETWORK_LABEL = networkLabel(APP_NETWORK);
 
 // Thresholds match the progress percentages emitted by useMidnight().runStoreMessage.
 const STEPS = [
@@ -76,8 +78,10 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
     }
   };
 
-  const wrongNetwork = isConnected && networkId && networkId !== 'preview' && contractAddress.trim() === DEFAULT_CONTRACT;
+  const wrongNetwork =
+    isConnected && networkId && networkId !== APP_NETWORK && DEFAULT_CONTRACT && contractAddress.trim() === DEFAULT_CONTRACT;
   const busy = status === 'executing';
+  const explorerUrl = contractExplorerUrl(contractAddress.trim(), networkId);
 
   return (
     <div className="panel" style={{ opacity: isConnected ? 1 : 0.72, transition: 'opacity .3s' }}>
@@ -119,10 +123,16 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
             {wrongNetwork && (
               <div className="callout callout-warn" role="alert">
                 <div>
-                  You’re on <strong>{networkId}</strong>, but this contract is deployed on <strong>Preview</strong>.
-                  Switch Lace to Preview and reconnect.
+                  You’re on <strong>{networkId}</strong>, but this contract is deployed on{' '}
+                  <strong>{APP_NETWORK_LABEL}</strong>. Switch Lace to {APP_NETWORK_LABEL} and reconnect.
                 </div>
               </div>
+            )}
+            {!DEFAULT_CONTRACT && (
+              <span className="hint">
+                The demo contract isn’t deployed on {APP_NETWORK_LABEL} yet. Paste the address of a deployed{' '}
+                <code>storeMessage</code> contract.
+              </span>
             )}
           </div>
 
@@ -144,7 +154,11 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={busy || !customMessage.trim()}>
+          <button
+            type="submit"
+            className="btn btn-primary btn-block"
+            disabled={busy || !customMessage.trim() || !contractAddress.trim()}
+          >
             {busy ? (
               <>
                 <span className="spinner" /> Proving & settling…
@@ -193,15 +207,11 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
                 <div className="hash-box">
                   <code>{txHash}</code>
                 </div>
-                <a
-                  className="btn btn-sm btn-ghost"
-                  style={{ marginTop: 12 }}
-                  href={`https://preview.midnightexplorer.com/contracts/${contractAddress.trim()}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View contract in explorer <IconExternal width={14} height={14} />
-                </a>
+                {explorerUrl && (
+                  <a className="btn btn-sm btn-ghost" style={{ marginTop: 12 }} href={explorerUrl} target="_blank" rel="noreferrer">
+                    View contract in explorer <IconExternal width={14} height={14} />
+                  </a>
+                )}
               </div>
             )}
 

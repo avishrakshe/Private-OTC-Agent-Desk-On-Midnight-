@@ -24,6 +24,7 @@
     "typecheck": "tsc -p .",
     "benchmark": "npx tsx scripts/benchmark-circuits.ts",
     "health-check": "npx tsx scripts/health-check.ts",
+    "verify-users": "npx tsx scripts/verify-users.ts",
     "test:e2e": "tsx scripts/e2e-check.ts"
   },
   "dependencies": {

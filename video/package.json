@@ -1,0 +1,31 @@
+{
+  "name": "otc-desk-intro-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "30-second motion-graphics intro for Private OTC Agent Desk (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit",
+    "render:mp4": "remotion render Intro out/intro.mp4 --codec=h264 --crf=23",
+    "render:webm": "remotion render Intro out/intro.webm --codec=vp9 --crf=38",
+    "render:square": "remotion render IntroSquare out/intro-square.mp4 --codec=h264 --crf=23",
+    "render:poster": "remotion still Intro out/poster.png --frame=899",
+    "render": "npm run render:mp4 && npm run render:webm && npm run render:square && npm run render:poster",
+    "frames": "remotion render Intro out/frames/landscape --sequence --image-format=jpeg --jpeg-quality=95 && remotion render IntroSquare out/frames/square --sequence --image-format=jpeg --jpeg-quality=95",
+    "encode": "node scripts/encode.mjs out/frames/landscape out/intro.mp4 23 && node scripts/encode.mjs out/frames/landscape out/intro.webm 38 && node scripts/encode.mjs out/frames/square out/intro-square.mp4 23",
+    "render:safe": "npm run frames && npm run encode && npm run render:poster",
+    "stills": "node scripts/stills.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.529",
+    "@remotion/google-fonts": "4.0.529",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

@@ -3,6 +3,7 @@ import type { MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 import type { DeskEvent, Role, ScenarioResult } from '../../protocol/scenario';
 import type { OnChainRoundResult } from '../../protocol/onchain-round';
 import { IconExternal, IconLock } from '../ui/icons';
+import { APP_NETWORK, explorerFor } from '../../deployments';
 
 type Status = 'idle' | 'running' | 'paused' | 'done' | 'error';
 type Mode = 'local' | 'chain';
@@ -37,8 +38,6 @@ const ROLE_TONE: Record<Role, string> = {
   oracle: 'var(--amber)',
   auditor: 'var(--cyan)',
 };
-
-const EXPLORER: Record<string, string> = { preview: 'https://preview.midnightexplorer.com' };
 
 const initials = (name: string) =>
   name
@@ -225,8 +224,8 @@ export const AgentDesk: React.FC<{ wallet?: AgentDeskWallet }> = ({ wallet }) =>
   const rejectedCount = events.filter((e) => e.status === 'rejected').length;
   const chainLines = events.reduce((n, e) => n + e.publicView.length, 0);
   const txCount = events.reduce((n, e) => n + (e.txIds?.length ?? 0), 0);
-  const network = wallet?.networkId ?? 'preview';
-  const explorer = EXPLORER[network];
+  const network = wallet?.networkId ?? APP_NETWORK;
+  const explorer = explorerFor(network);
   const cast = mode === 'chain' ? CAST.filter((c) => c.onChain) : CAST;
 
   return (

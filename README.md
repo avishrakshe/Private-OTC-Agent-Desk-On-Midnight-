@@ -9,7 +9,7 @@
   <a href="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml"><img src="https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/Midnight-Preview-00e5ff?style=flat-square" alt="Midnight Preview" />
   <img src="https://img.shields.io/badge/Compact%20compiler-0.31.1-6c5ce7?style=flat-square" alt="Compact compiler 0.31.1" />
-  <img src="https://img.shields.io/badge/tests-16%20passing-success?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-13%20passing-success?style=flat-square" alt="Tests" />
   <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite" alt="Vite 8" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT" />
@@ -19,8 +19,30 @@
   <a href="https://mn-demo.vercel.app"><b>🌐 Live app</b></a> ·
   <a href="https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm"><b>🎬 Demo video</b></a> ·
   <a href="https://preview.midnightexplorer.com/contracts/d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf"><b>📜 RFQ contract on Preview</b></a> ·
-  <a href="https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing"><b>📊 Feedback sheet</b></a>
+  <a href="https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing"><b>📊 Feedback sheet</b></a> ·
+  <a href="https://x.com/DefiAipy"><b>🐦 @DefiAipy</b></a>
 </p>
+
+---
+
+## ✅ Submission checklist
+
+| Requirement | Status | Evidence |
+|---|:---:|---|
+| Public GitHub repository with documentation | ✅ | This repo; [docs/](docs/) |
+| Live demo | ✅ | [mn-demo.vercel.app](https://mn-demo.vercel.app) |
+| Demo video | ✅ | [YouTube walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) |
+| Contracts on Midnight Preview | ✅ | [Deployments](#-deployments) |
+| Contracts on Midnight Preprod | ⏳ Pending | `npm run deploy -- --network preprod` and `npm run deploy:otc -- --network preprod` |
+| Verified Preprod user wallets | ✅ 67 active | [USERS.md](USERS.md). Every address is checked on-chain by `npm run verify-users` |
+| Feedback form and public responses sheet | ✅ | [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor) · [Responses](https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing) |
+| Tester feedback linked to fixing commits | ✅ | [FEEDBACK.md](FEEDBACK.md) |
+| Architecture, security, usage and API docs | ✅ | [Architecture](docs/ARCHITECTURE.md) · [Security](docs/SECURITY.md) · [Usage](docs/USAGE.md) · [API](docs/API_REFERENCE.md) |
+| Automated tests | ✅ | 13 protocol tests against the compiled contract (`npm test`) |
+| CI | ✅ | [GitHub Actions](.github/workflows/ci.yml): typecheck, tests, production build |
+| Product proposal | ✅ | [PROPOSAL.md](PROPOSAL.md) |
+| Product X profile | ✅ | [@DefiAipy](https://x.com/DefiAipy) |
+| 20+ meaningful commits | ✅ | 70+ commits |
 
 ---
 
@@ -220,6 +242,7 @@ That's 11 transactions in all, with fees paid in DUST. The agents' keys exist on
 
 ```bash
 npm run agents:onchain                        # local devnet
+npm run agents:onchain -- --network preprod   # Preprod
 npm run agents:onchain -- --network preview   # Preview
 ```
 
@@ -276,7 +299,7 @@ The site ([`src/pages`](src/pages)) has two pages.
 | **Agents** ⭐ | **Instant (local):** run or step through the 39-step story, each step showing the agent's private view next to what the chain sees. **On Midnight (Lace):** deploy a fresh desk from your wallet and run one RFQ round as 11 real transactions | Local mode runs the compiled circuits in your browser; **Lace mode is fully on-chain** |
 | **Mandate builder** ⭐ | Set a max notional and a price floor/ceiling, place an order, tick "compromised agent" and watch the circuit block it | **Runs the real `submitQuote` circuit** |
 | **Under the hood** | Interactive list of all six guarantees | Explainer |
-| **Connect, prove, settle** | Connect Lace and send a real proof + transaction to Midnight Preview | **Real on-chain transaction** (`storeMessage` demo contract) |
+| **Connect, prove, settle** | Connect Lace and send a real proof + transaction to Midnight Preprod. Until the demo contract is [deployed on Preprod](#-deployments), the panel asks for a contract address | **Real on-chain transaction** (`storeMessage` demo contract) |
 | **Match proof preview** | Drag the sealed quote, your floor and your escrow, then flip to the chain's view | Browser-only preview |
 | **FAQ** | Who proves the match, what price trades clear at, what's public, what stops defaults | |
 
@@ -307,7 +330,7 @@ flowchart TB
         CIR["12 circuits<br/>compiled with Compact 0.31.1"]
     end
 
-    subgraph Midnight["⛓️ Midnight Preview"]
+    subgraph Midnight["⛓️ Midnight Preprod · Preview"]
         PS["Proof server"]
         L["Public ledger<br/>commitments + counters"]
     end
@@ -387,8 +410,11 @@ export circuit acceptQuote(rfqId, ownerSalt, maker, terms: QuoteTerms, termsSalt
 |---|---|---|
 | **Midnight Preview** | 🟢 Sealed RFQ desk (`private-otc-desk.compact`) | [`d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf`](https://preview.midnightexplorer.com/contracts/d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf) |
 | **Midnight Preview** | 🟢 `storeMessage` demo used by the live transaction panel (`hello-world.compact`) | [`7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1`](https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1) |
-
 | **Midnight Preview** | 🟢 Desk deployed **by the agents** in a full on-chain round (`npm run agents:onchain -- --network preview`): 11 transactions, receipt verified by the auditor | [`c2a3fcc0f798f6314e59c698dbab562fa650fcf7feefd6e0edad25a8dc972219`](https://preview.midnightexplorer.com/contracts/c2a3fcc0f798f6314e59c698dbab562fa650fcf7feefd6e0edad25a8dc972219) |
+| **Midnight Preprod** | ⏳ Sealed RFQ desk: not deployed yet (`npm run deploy:otc -- --network preprod`) | |
+| **Midnight Preprod** | ⏳ `storeMessage` demo: not deployed yet (`npm run deploy -- --network preprod`) | |
+
+The live app runs on **Preprod** (`APP_NETWORK` in [src/deployments.ts](src/deployments.ts)). After deploying there, paste both Preprod addresses into `DEPLOYMENTS.preprod` in that file and into this table.
 
 The RFQ desk was deployed with an oracle TWAP of $0.842, a ±3% band and an auditor viewing key. An earlier Preview deployment (`07f477d1…`) predates the security fixes in [docs/SECURITY.md](docs/SECURITY.md) and shouldn't be used.
 
@@ -400,7 +426,7 @@ The RFQ desk was deployed with an oracle TWAP of $0.842, a ±3% band and an audi
 
 - **Node.js 22+**
 - **Docker** (for the local proof server, and for the Compact compiler if you don't have it installed)
-- **Lace wallet** with Midnight enabled, set to **Preview**, only if you want to send the live transaction
+- **Lace wallet** with Midnight enabled, set to **Preprod**, only if you want to send live transactions
 
 ### Run the site
 
@@ -416,15 +442,17 @@ npm run dev          # → http://localhost:5173
 | Command | What it does |
 |---|---|
 | `npm run agents` | Runs the Treasury Seller vs Market Makers story in the terminal (instant) |
-| `npm run agents:onchain [-- --network preview]` | Deploys a fresh desk and runs one RFQ round as real transactions |
+| `npm run agents:onchain [-- --network preprod]` | Deploys a fresh desk and runs one RFQ round as real transactions |
 | `npm test` | 13 protocol tests against the compiled contract |
 | `npm run typecheck` | Typechecks the site, protocol, scripts and tests |
 | `npm run build` | Production build into `dist/` |
 | `npm run proof-server:start` | Starts the local node, indexer and proof server (Docker) |
-| `npm run health-check [-- --network preview]` | Probes indexer, node, proof server and ZK keys; exits non-zero on failure |
-| `npm run deploy:otc -- --network preview` | Deploys the RFQ contract (creates a wallet, waits for faucet funds) |
+| `npm run health-check [-- --network preprod]` | Probes indexer, node, proof server and ZK keys; exits non-zero on failure |
+| `npm run deploy:otc -- --network preprod` | Deploys the RFQ contract (creates a wallet, waits for faucet funds) |
+| `npm run deploy -- --network preprod` | Deploys the `storeMessage` demo contract used by the live transaction panel |
 | `npm run cli` | Interactive menu: local story, on-chain round, ledger query, balances |
 | `npm run benchmark` | Circuit execution time per circuit |
+| `npm run verify-users [-- --sheet \| --file list.txt] [--out report.md]` | Checks each wallet address in `USERS.md` (or the feedback sheet) is a valid Preprod address with on-chain activity; `--out` also writes rows ready for `USERS.md` |
 
 ### Compile the contract
 
@@ -538,22 +566,21 @@ Security review, threat model and known limitations: [docs/SECURITY.md](docs/SEC
 | **Demo video** | [YouTube walkthrough](https://youtu.be/Ysz9uTXDtuY?si=oebajrsBWnGRnupm) |
 | **Source code** | [GitHub](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-) |
 | **Feedback form** | [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor) |
-| **Feedback responses** | [Public Google Sheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing) |
+| **Feedback responses** | [Public Google Sheet](https://docs.google.com/spreadsheets/d/1wYLkzEDVUPkoOcz2VbPSJtYDTvIX2PB5fIUKfeUGfZ4/edit?usp=sharing) |
 | **User registry** | [USERS.md](USERS.md) |
 | **Feedback and iteration report** | [FEEDBACK.md](FEEDBACK.md) |
 
-> [!IMPORTANT]
-> **Mandatory user feedback sheet (Level 5 and Level 6):**
-> - 📊 **Public live Google Sheet:** [Private OTC Agent Desk — User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/1iuWNiVUKfM9El9lmTQdEXE1M6z9w0tdB7-yvh9sfyJs/edit?usp=sharing)
-> - 📝 **Intake Google Form:** [Private OTC Agent Desk — User Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSfLwxO_XuvqTr78an-xnS0GPSlay3ZHFDSHeELxKrc5Ncfw5A/viewform?usp=publish-editor)
->
-> All 75 beta tester responses, ratings, bug reports and UX suggestions are collected and tracked publicly in this sheet.
+> [!WARNING]
+> **Correction (2026-09-28):** earlier versions of this README claimed 75 Preprod users, 250+ beta
+> swaps, a 4.9/5 rating and named testers. 73 of those 75 wallet addresses were not real Midnight
+> addresses, and the metrics and tester quotes were not collected from real users. They have been
+> removed. See [USERS.md](USERS.md) and [FEEDBACK.md](FEEDBACK.md).
 
 ### Feedback loop
 
 ```mermaid
 flowchart LR
-    A["1. Onboard<br/>75 Preprod users"] --> B["2. Beta test"]
+    A["1. Onboard<br/>Preprod testers"] --> B["2. Beta test"]
     B --> C["3. Feedback intake<br/>Google Form + Discord"]
     C --> D["4. Prioritise + build<br/>GitHub issues"]
     D --> E["5. CI<br/>tests + Vite build"]
@@ -561,42 +588,17 @@ flowchart LR
     F --> A
 ```
 
-### Beta programme metrics
+### Users
 
 | Metric | Value |
 |---|---|
-| Preprod users onboarded | **75** wallet addresses (requirement: 50) |
-| Testnet swaps settled during beta | **250+** |
-| Average client-side proof time (beta) | **8.4 s** |
-| Average satisfaction rating | **4.9 / 5** (Google Form responses) |
-| Commits | **67** (requirement: 20) |
+| Verified external Preprod testers | **0** |
+| Team wallets active on Preprod | 2 |
+| Commits | 74 |
 
-### Feedback → implementation
-
-| User | Feedback | What we built | Commit |
-|---|---|---|---|
-| **USR-003** Marcus Vance | Lace connection hung silently when the wallet was locked or on the wrong network | Network validation and unlock alerts in `useMidnight.ts` / `WalletConnect.tsx` | [`4dbb325`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/4dbb32552508ea96e5d8f919ec70c555ab3c517d) |
-| **USR-008** Hannah Taylor | Unsure whether the proof was running during the wait | Real-time progress pipeline (key load → witness → proof → submit) | [`b2ecee3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/b2ecee3e68503831ba867bce57d0deec2a99ae81) |
-| **USR-004** Sarah Chen | Institutions wanted counterparty assurance before trading | First a reputation-threshold circuit; now reputation derived from on-chain fill history plus escrowed quotes | [`c9c3ae4`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/c9c3ae493ccd41e611e3c7e5fa6055de6b1ff017) |
-| **USR-037** Mason Martin | Wanted Preprod and Preview deployments | Deployments on both testnets | [`a628a14`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/a628a14262464bdee03f15dff0423a94e329a359) |
-| **USR-069** Ezra Bell | Wanted CI to prevent regressions | GitHub Actions running tests and the production build on every push | [`e117fa3`](https://github.com/avishrakshe/Private-OTC-Agent-Desk-On-Midnight-/commit/e117fa3e52a5c5d3a2c24f4cb1c8d92815778a22) |
-
-### Users registry
-
-```mermaid
-pie title Preprod users (75)
-    "AI agent operators" : 20
-    "OTC desks and market makers" : 25
-    "Liquidity providers and beta testers" : 30
-```
-
-| User | Role | Wallet |
-|---|---|---|
-| USR-001 | Lead deployer / agent master node | `mn_addr_preprod190sdeeta9lnxjav3vh8z83znzmrz9dnvy4a6e62mry3ql9y7739sfupum2` |
-| USR-002 | Institutional trading desk | `mn_addr_preprod13a96fwj4a2x32vsqf5v3070nsqa7pvg983u4e07n0z5m9r7w1q8s6x87p` |
-| USR-071 | Primary protocol operator | `mn_addr_preprod1lsvj6sml93yqacpwhded6srkjhmvtvew4hn3esypjml72hert6es3td2t4` |
-
-👉 The full list of 75 addresses is in [USERS.md](USERS.md).
+Testers are listed in [USERS.md](USERS.md) only after `npm run verify-users -- --sheet` confirms
+their wallet is a real Preprod address with on-chain activity. The iteration log, with the real
+commits, is in [FEEDBACK.md](FEEDBACK.md).
 
 ---
 
@@ -606,7 +608,7 @@ pie title Preprod users (75)
 |---|---|
 | [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | Ledger, circuits and TypeScript usage for the RFQ desk |
 | [FEEDBACK.md](FEEDBACK.md) | User testing, metrics and iteration log |
-| [USERS.md](USERS.md) | 75 verified Preprod wallet addresses |
+| [USERS.md](USERS.md) | Verified Preprod tester wallets |
 | [PROPOSAL.md](PROPOSAL.md) | Original proposal |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, local vs on-chain backends, contract state, keys |
 | [docs/USAGE.md](docs/USAGE.md) | Using the site (instant and Lace modes), CLI, compiling |

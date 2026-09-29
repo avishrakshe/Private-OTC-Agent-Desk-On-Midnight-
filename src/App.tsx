@@ -3,7 +3,7 @@ import { useMidnight } from './hooks';
 import { useHashRoute } from './hooks/useHashRoute';
 import { DeskPage } from './pages/DeskPage';
 import { AboutPage } from './pages/AboutPage';
-import { networkLabel } from './components/WalletConnect';
+import { APP_NETWORK, DEPLOYMENTS, contractExplorerUrl, networkLabel } from './deployments';
 import type { CallStatus } from './components/CircuitCall';
 import type { OrbMode } from './components/three/ZkOrb';
 import { BrandMark } from './components/ui/icons';
@@ -12,6 +12,8 @@ import './premium.css';
 import './agents.css';
 
 const shortAddr = (addr: string | null) => (addr ? `${addr.slice(0, 8)}…${addr.slice(-4)}` : '');
+
+const { storeMessage, desk } = DEPLOYMENTS[APP_NETWORK];
 
 export const App: React.FC = () => {
   const midnight = useMidnight();
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={`btn btn-sm wallet-btn ${isConnected ? '' : 'btn-primary'}`}
-              onClick={() => (isConnected ? disconnect() : connect('preview'))}
+              onClick={() => (isConnected ? disconnect() : connect(APP_NETWORK))}
               disabled={isConnecting}
               title={isConnected ? 'Disconnect wallet' : 'Connect Lace wallet'}
             >
@@ -118,19 +120,18 @@ export const App: React.FC = () => {
           <div className="footer-links">
             <a href="#/">Desk</a>
             <a href="#/about">About</a>
-            <a
-              href="https://preview.midnightexplorer.com/contracts/7f0643b12f38f45c7fef2e125543466ee7b8ea8a615800cd7ec0b0bd71127ae1"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Contract on explorer ↗
-            </a>
-            <a
-              href="https://preview.midnightexplorer.com/contracts/d4ae65cdc6f13c56501334ad07c700be7bdbf5c85baee4b35f380b5a2fbce7cf"
-              target="_blank"
-              rel="noreferrer"
-            >
-              RFQ contract on explorer ↗
+            {storeMessage && (
+              <a href={contractExplorerUrl(storeMessage)} target="_blank" rel="noreferrer">
+                Contract on explorer ↗
+              </a>
+            )}
+            {desk && (
+              <a href={contractExplorerUrl(desk)} target="_blank" rel="noreferrer">
+                RFQ contract on explorer ↗
+              </a>
+            )}
+            <a href="https://x.com/DefiAipy" target="_blank" rel="noreferrer">
+              X / Twitter ↗
             </a>
             <a href="https://docs.midnight.network" target="_blank" rel="noreferrer">
               Midnight docs ↗
