@@ -1,0 +1,2411 @@
+{
+ "voice": "en-US-AndrewMultilingualNeural",
+ "scenes": {
+  "hook": {
+   "file": "voice/hook.mp3",
+   "text": "Every time a big order hits a public blockchain, it is announced before it fills. Its size. Its price. The wallet behind it. And bots are watching.",
+   "duration": 10.008,
+   "words": [
+    {
+     "text": "Every",
+     "start": 0.096166,
+     "end": 0.30049899999999996
+    },
+    {
+     "text": "time",
+     "start": 0.3005,
+     "end": 0.613
+    },
+    {
+     "text": "a",
+     "start": 0.625,
+     "end": 0.757208
+    },
+    {
+     "text": "big",
+     "start": 0.865375,
+     "end": 1.358166
+    },
+    {
+     "text": "order",
+     "start": 1.466333,
+     "end": 1.742791
+    },
+    {
+     "text": "hits",
+     "start": 1.754791,
+     "end": 1.935082
+    },
+    {
+     "text": "a",
+     "start": 1.947125,
+     "end": 1.995208
+    },
+    {
+     "text": "public",
+     "start": 2.007208,
+     "end": 2.343749
+    },
+    {
+     "text": "blockchain",
+     "start": 2.35575,
+     "end": 2.96875
+    },
+    {
+     "text": "it",
+     "start": 3.365375,
+     "end": 3.425458
+    },
+    {
+     "text": "is",
+     "start": 3.4255,
+     "end": 3.521625
+    },
+    {
+     "text": "announced",
+     "start": 3.521625,
+     "end": 3.942291
+    },
+    {
+     "text": "before",
+     "start": 3.942291,
+     "end": 4.290832
+    },
+    {
+     "text": "it",
+     "start": 4.290875,
+     "end": 4.338958
+    },
+    {
+     "text": "fills",
+     "start": 4.350958,
+     "end": 4.987958000000001
+    },
+    {
+     "text": "Its",
+     "start": 5.360583,
+     "end": 5.456749
+    },
+    {
+     "text": "size",
+     "start": 5.46875,
+     "end": 6.009625
+    },
+    {
+     "text": "Its",
+     "start": 6.40625,
+     "end": 6.490375
+    },
+    {
+     "text": "price",
+     "start": 6.502416,
+     "end": 7.1033740000000005
+    },
+    {
+     "text": "The",
+     "start": 7.5,
+     "end": 7.560083
+    },
+    {
+     "text": "wallet",
+     "start": 7.560083,
+     "end": 7.860583
+    },
+    {
+     "text": "behind",
+     "start": 7.872583,
+     "end": 8.221124
+    },
+    {
+     "text": "it",
+     "start": 8.233166,
+     "end": 8.401416000000001
+    },
+    {
+     "text": "And",
+     "start": 8.786041,
+     "end": 8.846124000000001
+    },
+    {
+     "text": "bots",
+     "start": 8.846166,
+     "end": 9.146624000000001
+    },
+    {
+     "text": "are",
+     "start": 9.146625,
+     "end": 9.23075
+    },
+    {
+     "text": "watching",
+     "start": 9.242791,
+     "end": 9.639416
+    }
+   ]
+  },
+  "problem": {
+   "file": "voice/problem.mp3",
+   "text": "They trade ahead of you, sandwich your order, and walk away with the spread. For a DAO selling its treasury, or an AI agent trading on its own, the leak happens before execution. So that is exactly where it has to be closed.",
+   "duration": 13.536,
+   "words": [
+    {
+     "text": "They",
+     "start": 0.084125,
+     "end": 0.144208
+    },
+    {
+     "text": "trade",
+     "start": 0.14425,
+     "end": 0.384625
+    },
+    {
+     "text": "ahead",
+     "start": 0.384625,
+     "end": 0.588958
+    },
+    {
+     "text": "of",
+     "start": 0.588958,
+     "end": 0.649041
+    },
+    {
+     "text": "you",
+     "start": 0.649041,
+     "end": 0.841332
+    },
+    {
+     "text": "sandwich",
+     "start": 1.225958,
+     "end": 1.562499
+    },
+    {
+     "text": "your",
+     "start": 1.5625,
+     "end": 1.70675
+    },
+    {
+     "text": "order",
+     "start": 1.70675,
+     "end": 2.079333
+    },
+    {
+     "text": "and",
+     "start": 2.572125,
+     "end": 2.6442500000000004
+    },
+    {
+     "text": "walk",
+     "start": 2.65625,
+     "end": 2.9206659999999998
+    },
+    {
+     "text": "away",
+     "start": 2.920666,
+     "end": 3.173082
+    },
+    {
+     "text": "with",
+     "start": 3.173083,
+     "end": 3.2812490000000003
+    },
+    {
+     "text": "the",
+     "start": 3.28125,
+     "end": 3.341333
+    },
+    {
+     "text": "spread",
+     "start": 3.353375,
+     "end": 3.786083
+    },
+    {
+     "text": "For",
+     "start": 4.21875,
+     "end": 4.326916
+    },
+    {
+     "text": "a",
+     "start": 4.338958,
+     "end": 4.423083
+    },
+    {
+     "text": "DAO",
+     "start": 4.435083,
+     "end": 4.795666
+    },
+    {
+     "text": "selling",
+     "start": 4.807708,
+     "end": 5.192291
+    },
+    {
+     "text": "its",
+     "start": 5.192291,
+     "end": 5.288457
+    },
+    {
+     "text": "treasury",
+     "start": 5.288458,
+     "end": 5.973541
+    },
+    {
+     "text": "or",
+     "start": 6.370208,
+     "end": 6.478374
+    },
+    {
+     "text": "an",
+     "start": 6.490375,
+     "end": 6.6225830000000006
+    },
+    {
+     "text": "AI",
+     "start": 6.634625,
+     "end": 7.163457999999999
+    },
+    {
+     "text": "agent",
+     "start": 7.259625,
+     "end": 7.620208
+    },
+    {
+     "text": "trading",
+     "start": 7.620208,
+     "end": 7.956749
+    },
+    {
+     "text": "on",
+     "start": 7.95675,
+     "end": 8.052875
+    },
+    {
+     "text": "its",
+     "start": 8.052875,
+     "end": 8.173083
+    },
+    {
+     "text": "own",
+     "start": 8.173083,
+     "end": 8.461541
+    },
+    {
+     "text": "the",
+     "start": 8.91825,
+     "end": 9.026416000000001
+    },
+    {
+     "text": "leak",
+     "start": 9.026458,
+     "end": 9.278874
+    },
+    {
+     "text": "happens",
+     "start": 9.290875,
+     "end": 9.795666
+    },
+    {
+     "text": "before",
+     "start": 9.795666,
+     "end": 10.144207000000002
+    },
+    {
+     "text": "execution",
+     "start": 10.14425,
+     "end": 10.78125
+    },
+    {
+     "text": "So",
+     "start": 11.165875,
+     "end": 11.262041
+    },
+    {
+     "text": "that",
+     "start": 11.274041,
+     "end": 11.406249
+    },
+    {
+     "text": "is",
+     "start": 11.40625,
+     "end": 11.490375
+    },
+    {
+     "text": "exactly",
+     "start": 11.490375,
+     "end": 12.04325
+    },
+    {
+     "text": "where",
+     "start": 12.04325,
+     "end": 12.1875
+    },
+    {
+     "text": "it",
+     "start": 12.1875,
+     "end": 12.2235409
+    },
+    {
+     "text": "has",
+     "start": 12.223541,
+     "end": 12.427874000000001
+    },
+    {
+     "text": "to",
+     "start": 12.439916,
+     "end": 12.499999
+    },
+    {
+     "text": "be",
+     "start": 12.5,
+     "end": 12.596166
+    },
+    {
+     "text": "closed",
+     "start": 12.596166,
+     "end": 13.185124
+    }
+   ]
+  },
+  "brand": {
+   "file": "voice/brand.mp3",
+   "text": "Meet Private OTC Agent Desk. A sealed request-for-quote desk on Midnight, built for DAO treasuries, market makers and AI agents. Nobody sees the order, until it is filled.",
+   "duration": 13.056,
+   "words": [
+    {
+     "text": "Meet",
+     "start": 0.096166,
+     "end": 0.336541
+    },
+    {
+     "text": "Private",
+     "start": 0.336541,
+     "end": 0.805291
+    },
+    {
+     "text": "OTC",
+     "start": 0.961541,
+     "end": 1.574541
+    },
+    {
+     "text": "Agent",
+     "start": 1.586541,
+     "end": 1.8749989999999999
+    },
+    {
+     "text": "Desk",
+     "start": 1.875,
+     "end": 2.319708
+    },
+    {
+     "text": "A",
+     "start": 2.692291,
+     "end": 2.740374
+    },
+    {
+     "text": "sealed",
+     "start": 2.752416,
+     "end": 3.076916
+    },
+    {
+     "text": "request-for-quote",
+     "start": 3.088958,
+     "end": 3.930291
+    },
+    {
+     "text": "desk",
+     "start": 3.942291,
+     "end": 4.338916
+    },
+    {
+     "text": "on",
+     "start": 4.459125,
+     "end": 4.5913330000000006
+    },
+    {
+     "text": "Midnight",
+     "start": 4.591333,
+     "end": 5.060083
+    },
+    {
+     "text": "built",
+     "start": 5.444708,
+     "end": 5.709124
+    },
+    {
+     "text": "for",
+     "start": 5.721166,
+     "end": 5.877416
+    },
+    {
+     "text": "DAO",
+     "start": 5.877416,
+     "end": 6.141832
+    },
+    {
+     "text": "treasuries",
+     "start": 6.141833,
+     "end": 6.9350830000000006
+    },
+    {
+     "text": "market",
+     "start": 7.295666,
+     "end": 7.608166
+    },
+    {
+     "text": "makers",
+     "start": 7.608166,
+     "end": 8.136999
+    },
+    {
+     "text": "and",
+     "start": 8.257208,
+     "end": 8.569708
+    },
+    {
+     "text": "AI",
+     "start": 8.713958,
+     "end": 9.074541
+    },
+    {
+     "text": "agents",
+     "start": 9.086541,
+     "end": 9.639416
+    },
+    {
+     "text": "Nobody",
+     "start": 10.024041,
+     "end": 10.444707000000001
+    },
+    {
+     "text": "sees",
+     "start": 10.552875,
+     "end": 10.901416000000001
+    },
+    {
+     "text": "the",
+     "start": 10.901458,
+     "end": 10.997624
+    },
+    {
+     "text": "order",
+     "start": 11.009625,
+     "end": 11.466375
+    },
+    {
+     "text": "until",
+     "start": 11.887,
+     "end": 12.139416
+    },
+    {
+     "text": "it",
+     "start": 12.139416,
+     "end": 12.187499
+    },
+    {
+     "text": "is",
+     "start": 12.1875,
+     "end": 12.283666
+    },
+    {
+     "text": "filled",
+     "start": 12.283666,
+     "end": 12.704332
+    }
+   ]
+  },
+  "how": {
+   "file": "voice/how.mp3",
+   "text": "Here is how it works. The seller opens an RFQ, and the chain records only an ID. Market makers answer with sealed quotes: a hash on-chain, with the real price encrypted to the seller. The seller then proves, in zero knowledge, that the best quote beats its private floor. The trade settles at the maker’s price, and an auditor can verify it later with a viewing key.",
+   "duration": 23.256,
+   "words": [
+    {
+     "text": "Here",
+     "start": 0.108166,
+     "end": 0.204332
+    },
+    {
+     "text": "is",
+     "start": 0.216333,
+     "end": 0.300458
+    },
+    {
+     "text": "how",
+     "start": 0.3005,
+     "end": 0.444708
+    },
+    {
+     "text": "it",
+     "start": 0.444708,
+     "end": 0.504791
+    },
+    {
+     "text": "works",
+     "start": 0.504791,
+     "end": 0.985541
+    },
+    {
+     "text": "The",
+     "start": 1.382208,
+     "end": 1.442291
+    },
+    {
+     "text": "seller",
+     "start": 1.442291,
+     "end": 1.911041
+    },
+    {
+     "text": "opens",
+     "start": 1.923083,
+     "end": 2.187499
+    },
+    {
+     "text": "an",
+     "start": 2.1995,
+     "end": 2.2716250000000002
+    },
+    {
+     "text": "RFQ",
+     "start": 2.271625,
+     "end": 2.96875
+    },
+    {
+     "text": "and",
+     "start": 3.389416,
+     "end": 3.473541
+    },
+    {
+     "text": "the",
+     "start": 3.485583,
+     "end": 3.557708
+    },
+    {
+     "text": "chain",
+     "start": 3.557708,
+     "end": 3.894249
+    },
+    {
+     "text": "records",
+     "start": 3.89425,
+     "end": 4.471166
+    },
+    {
+     "text": "only",
+     "start": 4.555291,
+     "end": 4.807707000000001
+    },
+    {
+     "text": "an",
+     "start": 4.807708,
+     "end": 4.879833
+    },
+    {
+     "text": "ID",
+     "start": 4.891833,
+     "end": 5.3725830000000006
+    },
+    {
+     "text": "Market",
+     "start": 5.757208,
+     "end": 6.021624
+    },
+    {
+     "text": "makers",
+     "start": 6.021625,
+     "end": 6.382208
+    },
+    {
+     "text": "answer",
+     "start": 6.39425,
+     "end": 6.754791000000001
+    },
+    {
+     "text": "with",
+     "start": 6.754791,
+     "end": 6.874999
+    },
+    {
+     "text": "sealed",
+     "start": 6.875,
+     "end": 7.1995000000000005
+    },
+    {
+     "text": "quotes",
+     "start": 7.1995,
+     "end": 7.728332999999999
+    },
+    {
+     "text": "a",
+     "start": 8.161041,
+     "end": 8.1970819
+    },
+    {
+     "text": "hash",
+     "start": 8.197125,
+     "end": 8.605791
+    },
+    {
+     "text": "on-chain",
+     "start": 8.617791,
+     "end": 9.206749
+    },
+    {
+     "text": "with",
+     "start": 9.603375,
+     "end": 9.6995
+    },
+    {
+     "text": "the",
+     "start": 9.6995,
+     "end": 9.795666
+    },
+    {
+     "text": "real",
+     "start": 9.795666,
+     "end": 10.060082000000001
+    },
+    {
+     "text": "price",
+     "start": 10.060083,
+     "end": 10.468749
+    },
+    {
+     "text": "encrypted",
+     "start": 10.528833,
+     "end": 11.057666000000001
+    },
+    {
+     "text": "to",
+     "start": 11.057708,
+     "end": 11.141833
+    },
+    {
+     "text": "the",
+     "start": 11.153833,
+     "end": 11.225958
+    },
+    {
+     "text": "seller",
+     "start": 11.238,
+     "end": 11.694749999999999
+    },
+    {
+     "text": "The",
+     "start": 12.091333,
+     "end": 12.151416000000001
+    },
+    {
+     "text": "seller",
+     "start": 12.151458,
+     "end": 12.548083
+    },
+    {
+     "text": "then",
+     "start": 12.560083,
+     "end": 12.788458
+    },
+    {
+     "text": "proves",
+     "start": 12.8005,
+     "end": 13.59375
+    },
+    {
+     "text": "in",
+     "start": 13.75,
+     "end": 13.882208
+    },
+    {
+     "text": "zero",
+     "start": 13.89425,
+     "end": 14.290875
+    },
+    {
+     "text": "knowledge",
+     "start": 14.290875,
+     "end": 14.879833
+    },
+    {
+     "text": "that",
+     "start": 15.216333,
+     "end": 15.324499000000001
+    },
+    {
+     "text": "the",
+     "start": 15.3245,
+     "end": 15.408625
+    },
+    {
+     "text": "best",
+     "start": 15.420666,
+     "end": 15.721166
+    },
+    {
+     "text": "quote",
+     "start": 15.721166,
+     "end": 16.033666
+    },
+    {
+     "text": "beats",
+     "start": 16.045666,
+     "end": 16.466332
+    },
+    {
+     "text": "its",
+     "start": 16.622583,
+     "end": 16.742791
+    },
+    {
+     "text": "private",
+     "start": 16.754791,
+     "end": 17.163457
+    },
+    {
+     "text": "floor",
+     "start": 17.163458,
+     "end": 17.620207999999998
+    },
+    {
+     "text": "The",
+     "start": 18.004791,
+     "end": 18.064874
+    },
+    {
+     "text": "trade",
+     "start": 18.076916,
+     "end": 18.353374000000002
+    },
+    {
+     "text": "settles",
+     "start": 18.365375,
+     "end": 18.774041
+    },
+    {
+     "text": "at",
+     "start": 18.786041,
+     "end": 18.846124
+    },
+    {
+     "text": "the",
+     "start": 18.858166,
+     "end": 18.906249
+    },
+    {
+     "text": "maker’s",
+     "start": 18.90625,
+     "end": 19.326916
+    },
+    {
+     "text": "price",
+     "start": 19.338958,
+     "end": 19.939916
+    },
+    {
+     "text": "and",
+     "start": 20.3245,
+     "end": 20.420666
+    },
+    {
+     "text": "an",
+     "start": 20.420666,
+     "end": 20.516832
+    },
+    {
+     "text": "auditor",
+     "start": 20.516833,
+     "end": 20.973582999999998
+    },
+    {
+     "text": "can",
+     "start": 20.985583,
+     "end": 21.105791
+    },
+    {
+     "text": "verify",
+     "start": 21.117791,
+     "end": 21.670666
+    },
+    {
+     "text": "it",
+     "start": 21.670666,
+     "end": 21.766832
+    },
+    {
+     "text": "later",
+     "start": 21.766833,
+     "end": 22.043291
+    },
+    {
+     "text": "with",
+     "start": 22.055291,
+     "end": 22.163457
+    },
+    {
+     "text": "a",
+     "start": 22.163458,
+     "end": 22.1994989
+    },
+    {
+     "text": "viewing",
+     "start": 22.211541,
+     "end": 22.536041
+    },
+    {
+     "text": "key",
+     "start": 22.536041,
+     "end": 22.908624
+    }
+   ]
+  },
+  "layers": {
+   "file": "voice/layers.mp3",
+   "text": "Prices, floors, mandates and balances never leave your device. The proof says the rules hold, and nothing more. The ledger stores only commitments.",
+   "duration": 10.296,
+   "words": [
+    {
+     "text": "Prices",
+     "start": 0.096166,
+     "end": 0.745207
+    },
+    {
+     "text": "floors",
+     "start": 0.9495,
+     "end": 1.658625
+    },
+    {
+     "text": "mandates",
+     "start": 1.863,
+     "end": 2.4279159999999997
+    },
+    {
+     "text": "and",
+     "start": 2.439916,
+     "end": 2.512041
+    },
+    {
+     "text": "balances",
+     "start": 2.524041,
+     "end": 3.197124
+    },
+    {
+     "text": "never",
+     "start": 3.209125,
+     "end": 3.629791
+    },
+    {
+     "text": "leave",
+     "start": 3.629791,
+     "end": 3.822082
+    },
+    {
+     "text": "your",
+     "start": 3.822125,
+     "end": 3.90625
+    },
+    {
+     "text": "device",
+     "start": 3.91825,
+     "end": 4.507208
+    },
+    {
+     "text": "The",
+     "start": 4.891833,
+     "end": 4.975958
+    },
+    {
+     "text": "proof",
+     "start": 4.975958,
+     "end": 5.312499000000001
+    },
+    {
+     "text": "says",
+     "start": 5.3125,
+     "end": 5.552875
+    },
+    {
+     "text": "the",
+     "start": 5.552875,
+     "end": 5.6370000000000005
+    },
+    {
+     "text": "rules",
+     "start": 5.637,
+     "end": 6.009582999999999
+    },
+    {
+     "text": "hold",
+     "start": 6.021625,
+     "end": 6.394208
+    },
+    {
+     "text": "and",
+     "start": 6.826916,
+     "end": 6.923082
+    },
+    {
+     "text": "nothing",
+     "start": 6.935083,
+     "end": 7.223541
+    },
+    {
+     "text": "more",
+     "start": 7.235583,
+     "end": 7.5600830000000006
+    },
+    {
+     "text": "The",
+     "start": 7.944708,
+     "end": 8.004791
+    },
+    {
+     "text": "ledger",
+     "start": 8.016833,
+     "end": 8.317291
+    },
+    {
+     "text": "stores",
+     "start": 8.317291,
+     "end": 8.882207000000001
+    },
+    {
+     "text": "only",
+     "start": 8.990375,
+     "end": 9.21875
+    },
+    {
+     "text": "commitments",
+     "start": 9.21875,
+     "end": 9.951916
+    }
+   ]
+  },
+  "features": {
+   "file": "voice/features.mp3",
+   "text": "This is the desk. Every trade is proven against the same protocol guarantees. Pre-trade privacy. Zero-knowledge agent mandates. Proof of funds, with escrow locked at quote time. And an oracle price band of plus or minus three percent. Break any rule, and no proof exists, so no transaction exists.",
+   "duration": 20.448,
+   "words": [
+    {
+     "text": "This",
+     "start": 0.096166,
+     "end": 0.216332
+    },
+    {
+     "text": "is",
+     "start": 0.216333,
+     "end": 0.300458
+    },
+    {
+     "text": "the",
+     "start": 0.3125,
+     "end": 0.396625
+    },
+    {
+     "text": "desk",
+     "start": 0.396625,
+     "end": 0.889416
+    },
+    {
+     "text": "Every",
+     "start": 1.262,
+     "end": 1.514416
+    },
+    {
+     "text": "trade",
+     "start": 1.514416,
+     "end": 1.995166
+    },
+    {
+     "text": "is",
+     "start": 2.127416,
+     "end": 2.271666
+    },
+    {
+     "text": "proven",
+     "start": 2.283666,
+     "end": 2.704332
+    },
+    {
+     "text": "against",
+     "start": 2.704333,
+     "end": 2.9807490000000003
+    },
+    {
+     "text": "the",
+     "start": 2.98075,
+     "end": 3.0528750000000002
+    },
+    {
+     "text": "same",
+     "start": 3.052875,
+     "end": 3.4615409999999995
+    },
+    {
+     "text": "protocol",
+     "start": 3.473541,
+     "end": 3.978332
+    },
+    {
+     "text": "guarantees",
+     "start": 3.978375,
+     "end": 4.735583
+    },
+    {
+     "text": "Pre-trade",
+     "start": 5.132208,
+     "end": 5.576916000000001
+    },
+    {
+     "text": "privacy",
+     "start": 5.576916,
+     "end": 6.189916
+    },
+    {
+     "text": "Zero-knowledge",
+     "start": 6.5745,
+     "end": 7.295666
+    },
+    {
+     "text": "agent",
+     "start": 7.427875,
+     "end": 7.740375
+    },
+    {
+     "text": "mandates",
+     "start": 7.752416,
+     "end": 8.437499
+    },
+    {
+     "text": "Proof",
+     "start": 8.834125,
+     "end": 9.038458
+    },
+    {
+     "text": "of",
+     "start": 9.038458,
+     "end": 9.122583
+    },
+    {
+     "text": "funds",
+     "start": 9.122583,
+     "end": 9.711541
+    },
+    {
+     "text": "with",
+     "start": 9.891833,
+     "end": 10.036083
+    },
+    {
+     "text": "escrow",
+     "start": 10.048083,
+     "end": 10.396624
+    },
+    {
+     "text": "locked",
+     "start": 10.396625,
+     "end": 10.769208
+    },
+    {
+     "text": "at",
+     "start": 10.76925,
+     "end": 10.8172909
+    },
+    {
+     "text": "quote",
+     "start": 10.817291,
+     "end": 11.117791
+    },
+    {
+     "text": "time",
+     "start": 11.117791,
+     "end": 11.454332
+    },
+    {
+     "text": "And",
+     "start": 11.838958,
+     "end": 11.899041
+    },
+    {
+     "text": "an",
+     "start": 11.899041,
+     "end": 11.983166
+    },
+    {
+     "text": "oracle",
+     "start": 11.995208,
+     "end": 12.331749
+    },
+    {
+     "text": "price",
+     "start": 12.34375,
+     "end": 12.64425
+    },
+    {
+     "text": "band",
+     "start": 12.64425,
+     "end": 12.932708
+    },
+    {
+     "text": "of",
+     "start": 12.944708,
+     "end": 13.028833
+    },
+    {
+     "text": "plus",
+     "start": 13.028833,
+     "end": 13.653833
+    },
+    {
+     "text": "or",
+     "start": 13.798083,
+     "end": 13.906249
+    },
+    {
+     "text": "minus",
+     "start": 13.90625,
+     "end": 14.350958
+    },
+    {
+     "text": "three",
+     "start": 14.363,
+     "end": 14.603375
+    },
+    {
+     "text": "percent",
+     "start": 14.615375,
+     "end": 15.15625
+    },
+    {
+     "text": "Break",
+     "start": 15.540875,
+     "end": 15.817333
+    },
+    {
+     "text": "any",
+     "start": 15.9495,
+     "end": 16.141791
+    },
+    {
+     "text": "rule",
+     "start": 16.141833,
+     "end": 16.574541
+    },
+    {
+     "text": "and",
+     "start": 16.983166,
+     "end": 17.103374000000002
+    },
+    {
+     "text": "no",
+     "start": 17.103375,
+     "end": 17.283666
+    },
+    {
+     "text": "proof",
+     "start": 17.295666,
+     "end": 17.656249
+    },
+    {
+     "text": "exists",
+     "start": 17.66825,
+     "end": 18.29325
+    },
+    {
+     "text": "so",
+     "start": 18.569708,
+     "end": 18.677874
+    },
+    {
+     "text": "no",
+     "start": 18.677875,
+     "end": 18.846125
+    },
+    {
+     "text": "transaction",
+     "start": 18.846166,
+     "end": 19.471166
+    },
+    {
+     "text": "exists",
+     "start": 19.483166,
+     "end": 20.120166
+    }
+   ]
+  },
+  "agents": {
+   "file": "voice/agents.mp3",
+   "text": "Now watch the agents trade. A Treasury Seller sells one point eight million DAO tokens in three slices. Three market makers answer with sealed, escrowed quotes. Along the way, the circuits block a fat-finger price, a bid outside its mandate, and a quote its maker could not fund.",
+   "duration": 19.2,
+   "words": [
+    {
+     "text": "Now",
+     "start": 0.096166,
+     "end": 0.28845699999999996
+    },
+    {
+     "text": "watch",
+     "start": 0.288458,
+     "end": 0.576916
+    },
+    {
+     "text": "the",
+     "start": 0.588958,
+     "end": 0.697124
+    },
+    {
+     "text": "agents",
+     "start": 0.697125,
+     "end": 1.045666
+    },
+    {
+     "text": "trade",
+     "start": 1.045666,
+     "end": 1.478374
+    },
+    {
+     "text": "A",
+     "start": 1.863,
+     "end": 1.9110409
+    },
+    {
+     "text": "Treasury",
+     "start": 1.911041,
+     "end": 2.307666
+    },
+    {
+     "text": "Seller",
+     "start": 2.307708,
+     "end": 2.632208
+    },
+    {
+     "text": "sells",
+     "start": 2.632208,
+     "end": 3.016833
+    },
+    {
+     "text": "one",
+     "start": 3.028833,
+     "end": 3.329333
+    },
+    {
+     "text": "point",
+     "start": 3.329333,
+     "end": 3.653833
+    },
+    {
+     "text": "eight",
+     "start": 3.762,
+     "end": 4.026416
+    },
+    {
+     "text": "million",
+     "start": 4.038458,
+     "end": 4.519208000000001
+    },
+    {
+     "text": "DAO",
+     "start": 4.53125,
+     "end": 4.939916
+    },
+    {
+     "text": "tokens",
+     "start": 5.16825,
+     "end": 5.769208
+    },
+    {
+     "text": "in",
+     "start": 5.877416,
+     "end": 6.021624
+    },
+    {
+     "text": "three",
+     "start": 6.021625,
+     "end": 6.40625
+    },
+    {
+     "text": "slices",
+     "start": 6.41825,
+     "end": 7.127375
+    },
+    {
+     "text": "Three",
+     "start": 7.584125,
+     "end": 7.752375000000001
+    },
+    {
+     "text": "market",
+     "start": 7.764416,
+     "end": 8.100957
+    },
+    {
+     "text": "makers",
+     "start": 8.100958,
+     "end": 8.461541
+    },
+    {
+     "text": "answer",
+     "start": 8.473541,
+     "end": 8.822082000000002
+    },
+    {
+     "text": "with",
+     "start": 8.822125,
+     "end": 8.954333
+    },
+    {
+     "text": "sealed",
+     "start": 8.954333,
+     "end": 9.447124
+    },
+    {
+     "text": "escrowed",
+     "start": 9.711541,
+     "end": 10.132207000000001
+    },
+    {
+     "text": "quotes",
+     "start": 10.132208,
+     "end": 10.673083
+    },
+    {
+     "text": "Along",
+     "start": 11.057708,
+     "end": 11.346166
+    },
+    {
+     "text": "the",
+     "start": 11.346166,
+     "end": 11.418249
+    },
+    {
+     "text": "way",
+     "start": 11.41825,
+     "end": 11.802875
+    },
+    {
+     "text": "the",
+     "start": 12.211541,
+     "end": 12.307707
+    },
+    {
+     "text": "circuits",
+     "start": 12.319708,
+     "end": 12.728374
+    },
+    {
+     "text": "block",
+     "start": 12.740375,
+     "end": 13.112958
+    },
+    {
+     "text": "a",
+     "start": 13.197125,
+     "end": 13.2331659
+    },
+    {
+     "text": "fat-finger",
+     "start": 13.245208,
+     "end": 13.894249
+    },
+    {
+     "text": "price",
+     "start": 13.90625,
+     "end": 14.471166
+    },
+    {
+     "text": "a",
+     "start": 14.651458,
+     "end": 14.747583
+    },
+    {
+     "text": "bid",
+     "start": 14.747583,
+     "end": 14.999999
+    },
+    {
+     "text": "outside",
+     "start": 15.012,
+     "end": 15.540833000000001
+    },
+    {
+     "text": "its",
+     "start": 15.552875,
+     "end": 15.661041
+    },
+    {
+     "text": "mandate",
+     "start": 15.661041,
+     "end": 16.201916
+    },
+    {
+     "text": "and",
+     "start": 16.610583,
+     "end": 16.658665999999997
+    },
+    {
+     "text": "a",
+     "start": 16.658666,
+     "end": 16.706749
+    },
+    {
+     "text": "quote",
+     "start": 16.71875,
+     "end": 17.01925
+    },
+    {
+     "text": "its",
+     "start": 17.03125,
+     "end": 17.151458
+    },
+    {
+     "text": "maker",
+     "start": 17.163458,
+     "end": 17.716333
+    },
+    {
+     "text": "could",
+     "start": 17.98075,
+     "end": 18.149
+    },
+    {
+     "text": "not",
+     "start": 18.149041,
+     "end": 18.389416
+    },
+    {
+     "text": "fund",
+     "start": 18.401458,
+     "end": 18.858208
+    }
+   ]
+  },
+  "result": {
+   "file": "voice/result.mp3",
+   "text": "The result: every token sold, for about one point five million dollars. All three receipts verified by the auditor. And zero prices or sizes ever reached the chain.",
+   "duration": 11.04,
+   "words": [
+    {
+     "text": "The",
+     "start": 0.084125,
+     "end": 0.132208
+    },
+    {
+     "text": "result",
+     "start": 0.132208,
+     "end": 0.588958
+    },
+    {
+     "text": "every",
+     "start": 1.069708,
+     "end": 1.322124
+    },
+    {
+     "text": "token",
+     "start": 1.334125,
+     "end": 1.6947079999999999
+    },
+    {
+     "text": "sold",
+     "start": 1.694708,
+     "end": 2.079333
+    },
+    {
+     "text": "for",
+     "start": 2.33175,
+     "end": 2.4519159999999998
+    },
+    {
+     "text": "about",
+     "start": 2.451916,
+     "end": 2.752416
+    },
+    {
+     "text": "one",
+     "start": 2.752416,
+     "end": 3.016832
+    },
+    {
+     "text": "point",
+     "start": 3.016833,
+     "end": 3.2572080000000003
+    },
+    {
+     "text": "five",
+     "start": 3.26925,
+     "end": 3.6658749999999998
+    },
+    {
+     "text": "million",
+     "start": 3.677875,
+     "end": 4.002375
+    },
+    {
+     "text": "dollars",
+     "start": 4.002416,
+     "end": 4.579332
+    },
+    {
+     "text": "All",
+     "start": 4.963958,
+     "end": 5.132208
+    },
+    {
+     "text": "three",
+     "start": 5.132208,
+     "end": 5.3846240000000005
+    },
+    {
+     "text": "receipts",
+     "start": 5.384625,
+     "end": 5.913457999999999
+    },
+    {
+     "text": "verified",
+     "start": 5.9255,
+     "end": 6.538458
+    },
+    {
+     "text": "by",
+     "start": 6.538458,
+     "end": 6.646624
+    },
+    {
+     "text": "the",
+     "start": 6.646625,
+     "end": 6.742791
+    },
+    {
+     "text": "auditor",
+     "start": 6.742791,
+     "end": 7.247582
+    },
+    {
+     "text": "And",
+     "start": 7.620208,
+     "end": 7.716374
+    },
+    {
+     "text": "zero",
+     "start": 7.728375,
+     "end": 8.088958
+    },
+    {
+     "text": "prices",
+     "start": 8.088958,
+     "end": 8.762041
+    },
+    {
+     "text": "or",
+     "start": 8.858166,
+     "end": 9.014416
+    },
+    {
+     "text": "sizes",
+     "start": 9.026458,
+     "end": 9.771666
+    },
+    {
+     "text": "ever",
+     "start": 9.783666,
+     "end": 10.036041
+    },
+    {
+     "text": "reached",
+     "start": 10.036041,
+     "end": 10.288457000000001
+    },
+    {
+     "text": "the",
+     "start": 10.288458,
+     "end": 10.348541
+    },
+    {
+     "text": "chain",
+     "start": 10.360583,
+     "end": 10.697124
+    }
+   ]
+  },
+  "mandate": {
+   "file": "voice/mandate.mp3",
+   "text": "The mandate builder answers the big question: can I let an AI trade my treasury? The owner commits to a private policy. Now flip on a compromised agent that claims a looser mandate, and the real circuit refuses. No valid proof. Order blocked.",
+   "duration": 15.936,
+   "words": [
+    {
+     "text": "The",
+     "start": 0.096166,
+     "end": 0.14424900000000002
+    },
+    {
+     "text": "mandate",
+     "start": 0.14425,
+     "end": 0.733208
+    },
+    {
+     "text": "builder",
+     "start": 0.745208,
+     "end": 1.2499989999999999
+    },
+    {
+     "text": "answers",
+     "start": 1.370208,
+     "end": 1.838958
+    },
+    {
+     "text": "the",
+     "start": 1.838958,
+     "end": 1.9591660000000002
+    },
+    {
+     "text": "big",
+     "start": 2.055291,
+     "end": 2.3077069999999997
+    },
+    {
+     "text": "question",
+     "start": 2.319708,
+     "end": 2.8725829999999997
+    },
+    {
+     "text": "can",
+     "start": 3.341333,
+     "end": 3.461541
+    },
+    {
+     "text": "I",
+     "start": 3.461541,
+     "end": 3.533666
+    },
+    {
+     "text": "let",
+     "start": 3.533666,
+     "end": 3.689916
+    },
+    {
+     "text": "an",
+     "start": 3.701916,
+     "end": 3.786041
+    },
+    {
+     "text": "AI",
+     "start": 3.798083,
+     "end": 4.182708
+    },
+    {
+     "text": "trade",
+     "start": 4.182708,
+     "end": 4.507208
+    },
+    {
+     "text": "my",
+     "start": 4.507208,
+     "end": 4.615374
+    },
+    {
+     "text": "treasury",
+     "start": 4.615375,
+     "end": 5.120166
+    },
+    {
+     "text": "The",
+     "start": 5.516833,
+     "end": 5.600958
+    },
+    {
+     "text": "owner",
+     "start": 5.600958,
+     "end": 5.877416
+    },
+    {
+     "text": "commits",
+     "start": 5.877416,
+     "end": 6.358166000000001
+    },
+    {
+     "text": "to",
+     "start": 6.41825,
+     "end": 6.538457999999999
+    },
+    {
+     "text": "a",
+     "start": 6.538458,
+     "end": 6.610583
+    },
+    {
+     "text": "private",
+     "start": 6.610583,
+     "end": 7.019249
+    },
+    {
+     "text": "policy",
+     "start": 7.01925,
+     "end": 7.596166
+    },
+    {
+     "text": "Now",
+     "start": 7.992791,
+     "end": 8.221166
+    },
+    {
+     "text": "flip",
+     "start": 8.233166,
+     "end": 8.545666
+    },
+    {
+     "text": "on",
+     "start": 8.557708,
+     "end": 8.641833
+    },
+    {
+     "text": "a",
+     "start": 8.653833,
+     "end": 8.701916
+    },
+    {
+     "text": "compromised",
+     "start": 8.701916,
+     "end": 9.386999000000001
+    },
+    {
+     "text": "agent",
+     "start": 9.387,
+     "end": 9.759583000000001
+    },
+    {
+     "text": "that",
+     "start": 9.759625,
+     "end": 9.879790999999999
+    },
+    {
+     "text": "claims",
+     "start": 9.879791,
+     "end": 10.228332000000002
+    },
+    {
+     "text": "a",
+     "start": 10.228375,
+     "end": 10.276458
+    },
+    {
+     "text": "looser",
+     "start": 10.276458,
+     "end": 10.709124
+    },
+    {
+     "text": "mandate",
+     "start": 10.709125,
+     "end": 11.262
+    },
+    {
+     "text": "and",
+     "start": 11.682708,
+     "end": 11.7307489
+    },
+    {
+     "text": "the",
+     "start": 11.73075,
+     "end": 11.802875
+    },
+    {
+     "text": "real",
+     "start": 11.802875,
+     "end": 12.163458
+    },
+    {
+     "text": "circuit",
+     "start": 12.163458,
+     "end": 12.572124
+    },
+    {
+     "text": "refuses",
+     "start": 12.572125,
+     "end": 13.26925
+    },
+    {
+     "text": "No",
+     "start": 13.653833,
+     "end": 13.810083
+    },
+    {
+     "text": "valid",
+     "start": 13.810083,
+     "end": 14.122583
+    },
+    {
+     "text": "proof",
+     "start": 14.134625,
+     "end": 14.555291
+    },
+    {
+     "text": "Order",
+     "start": 14.951916,
+     "end": 15.132207000000001
+    },
+    {
+     "text": "blocked",
+     "start": 15.132208,
+     "end": 15.576916
+    }
+   ]
+  },
+  "guarantees": {
+   "file": "voice/guarantees.mp3",
+   "text": "Under the hood: one Compact contract, twelve circuits and six guarantees. Built for DAO treasuries, token unlocks, market makers and AI treasury agents.",
+   "duration": 11.496,
+   "words": [
+    {
+     "text": "Under",
+     "start": 0.084125,
+     "end": 0.228375
+    },
+    {
+     "text": "the",
+     "start": 0.228375,
+     "end": 0.276458
+    },
+    {
+     "text": "hood",
+     "start": 0.288458,
+     "end": 0.612958
+    },
+    {
+     "text": "one",
+     "start": 1.021625,
+     "end": 1.298083
+    },
+    {
+     "text": "Compact",
+     "start": 1.298083,
+     "end": 1.790874
+    },
+    {
+     "text": "contract",
+     "start": 1.790875,
+     "end": 2.4519159999999998
+    },
+    {
+     "text": "twelve",
+     "start": 2.64425,
+     "end": 2.932708
+    },
+    {
+     "text": "circuits",
+     "start": 2.932708,
+     "end": 3.497624
+    },
+    {
+     "text": "and",
+     "start": 3.713958,
+     "end": 3.894249
+    },
+    {
+     "text": "six",
+     "start": 3.90625,
+     "end": 4.194708
+    },
+    {
+     "text": "guarantees",
+     "start": 4.20675,
+     "end": 4.939916
+    },
+    {
+     "text": "Built",
+     "start": 5.3245,
+     "end": 5.540832999999999
+    },
+    {
+     "text": "for",
+     "start": 5.552875,
+     "end": 5.733166000000001
+    },
+    {
+     "text": "DAO",
+     "start": 5.745208,
+     "end": 5.997583
+    },
+    {
+     "text": "treasuries",
+     "start": 5.997583,
+     "end": 6.754791
+    },
+    {
+     "text": "token",
+     "start": 6.983166,
+     "end": 7.343749
+    },
+    {
+     "text": "unlocks",
+     "start": 7.35575,
+     "end": 8.028832999999999
+    },
+    {
+     "text": "market",
+     "start": 8.209125,
+     "end": 8.59375
+    },
+    {
+     "text": "makers",
+     "start": 8.60575,
+     "end": 9.170666
+    },
+    {
+     "text": "and",
+     "start": 9.338958,
+     "end": 9.567333
+    },
+    {
+     "text": "AI",
+     "start": 9.6995,
+     "end": 10.132208
+    },
+    {
+     "text": "treasury",
+     "start": 10.132208,
+     "end": 10.624999
+    },
+    {
+     "text": "agents",
+     "start": 10.637,
+     "end": 11.129791
+    }
+   ]
+  },
+  "live": {
+   "file": "voice/live.mp3",
+   "text": "And it is live. Connect your Lace wallet, generate a real zero-knowledge proof, and settle a real transaction on Midnight. Or switch the agents on-chain, and they deploy a fresh desk from your wallet in eleven proven transactions.",
+   "duration": 14.808,
+   "words": [
+    {
+     "text": "And",
+     "start": 0.096166,
+     "end": 0.16824899999999998
+    },
+    {
+     "text": "it",
+     "start": 0.16825,
+     "end": 0.228333
+    },
+    {
+     "text": "is",
+     "start": 0.228375,
+     "end": 0.348583
+    },
+    {
+     "text": "live",
+     "start": 0.360583,
+     "end": 0.793291
+    },
+    {
+     "text": "Connect",
+     "start": 1.189916,
+     "end": 1.454332
+    },
+    {
+     "text": "your",
+     "start": 1.454333,
+     "end": 1.562499
+    },
+    {
+     "text": "Lace",
+     "start": 1.5625,
+     "end": 1.802875
+    },
+    {
+     "text": "wallet",
+     "start": 1.814916,
+     "end": 2.199541
+    },
+    {
+     "text": "generate",
+     "start": 2.608166,
+     "end": 3.064916
+    },
+    {
+     "text": "a",
+     "start": 3.197125,
+     "end": 3.28125
+    },
+    {
+     "text": "real",
+     "start": 3.365375,
+     "end": 3.9783749999999998
+    },
+    {
+     "text": "zero-knowledge",
+     "start": 4.098541,
+     "end": 4.759582
+    },
+    {
+     "text": "proof",
+     "start": 4.759625,
+     "end": 5.264416
+    },
+    {
+     "text": "and",
+     "start": 5.540875,
+     "end": 5.625
+    },
+    {
+     "text": "settle",
+     "start": 5.625,
+     "end": 6.045666
+    },
+    {
+     "text": "a",
+     "start": 6.141833,
+     "end": 6.201916
+    },
+    {
+     "text": "real",
+     "start": 6.213958,
+     "end": 6.646624
+    },
+    {
+     "text": "transaction",
+     "start": 6.646625,
+     "end": 7.475958
+    },
+    {
+     "text": "on",
+     "start": 7.608166,
+     "end": 7.752416
+    },
+    {
+     "text": "Midnight",
+     "start": 7.764416,
+     "end": 8.269207
+    },
+    {
+     "text": "Or",
+     "start": 8.653833,
+     "end": 8.761999000000001
+    },
+    {
+     "text": "switch",
+     "start": 8.774041,
+     "end": 9.110582
+    },
+    {
+     "text": "the",
+     "start": 9.110583,
+     "end": 9.230791
+    },
+    {
+     "text": "agents",
+     "start": 9.242791,
+     "end": 9.651457
+    },
+    {
+     "text": "on-chain",
+     "start": 9.663458,
+     "end": 10.252416
+    },
+    {
+     "text": "and",
+     "start": 10.745208,
+     "end": 10.805291
+    },
+    {
+     "text": "they",
+     "start": 10.805291,
+     "end": 10.901457
+    },
+    {
+     "text": "deploy",
+     "start": 10.901458,
+     "end": 11.382208
+    },
+    {
+     "text": "a",
+     "start": 11.39425,
+     "end": 11.454333
+    },
+    {
+     "text": "fresh",
+     "start": 11.454333,
+     "end": 11.923083
+    },
+    {
+     "text": "desk",
+     "start": 11.923083,
+     "end": 12.187499
+    },
+    {
+     "text": "from",
+     "start": 12.1875,
+     "end": 12.33175
+    },
+    {
+     "text": "your",
+     "start": 12.33175,
+     "end": 12.451958
+    },
+    {
+     "text": "wallet",
+     "start": 12.463958,
+     "end": 12.800499
+    },
+    {
+     "text": "in",
+     "start": 12.8005,
+     "end": 12.896625
+    },
+    {
+     "text": "eleven",
+     "start": 12.896625,
+     "end": 13.341333
+    },
+    {
+     "text": "proven",
+     "start": 13.341333,
+     "end": 13.617791
+    },
+    {
+     "text": "transactions",
+     "start": 13.617791,
+     "end": 14.459124000000001
+    }
+   ]
+  },
+  "about": {
+   "file": "voice/about.mp3",
+   "text": "The About page tells the full story: the public mempool versus the private desk, the match proof in a single circuit, and exactly who sees what.",
+   "duration": 9.096,
+   "words": [
+    {
+     "text": "The",
+     "start": 0.096166,
+     "end": 0.204332
+    },
+    {
+     "text": "About",
+     "start": 0.204333,
+     "end": 0.48079099999999997
+    },
+    {
+     "text": "page",
+     "start": 0.492791,
+     "end": 0.913457
+    },
+    {
+     "text": "tells",
+     "start": 0.913458,
+     "end": 1.153833
+    },
+    {
+     "text": "the",
+     "start": 1.153833,
+     "end": 1.2379580000000001
+    },
+    {
+     "text": "full",
+     "start": 1.238,
+     "end": 1.610583
+    },
+    {
+     "text": "story",
+     "start": 1.622583,
+     "end": 2.067291
+    },
+    {
+     "text": "the",
+     "start": 2.488,
+     "end": 2.5721249999999998
+    },
+    {
+     "text": "public",
+     "start": 2.572125,
+     "end": 2.908666
+    },
+    {
+     "text": "mempool",
+     "start": 2.908666,
+     "end": 3.3173320000000004
+    },
+    {
+     "text": "versus",
+     "start": 3.329333,
+     "end": 3.713958
+    },
+    {
+     "text": "the",
+     "start": 3.713958,
+     "end": 3.798083
+    },
+    {
+     "text": "private",
+     "start": 3.798083,
+     "end": 4.254791
+    },
+    {
+     "text": "desk",
+     "start": 4.254791,
+     "end": 4.699499
+    },
+    {
+     "text": "the",
+     "start": 4.927875,
+     "end": 5.0120000000000005
+    },
+    {
+     "text": "match",
+     "start": 5.012,
+     "end": 5.396624999999999
+    },
+    {
+     "text": "proof",
+     "start": 5.408666,
+     "end": 5.877416
+    },
+    {
+     "text": "in",
+     "start": 5.9255,
+     "end": 5.985583
+    },
+    {
+     "text": "a",
+     "start": 5.985583,
+     "end": 6.033666
+    },
+    {
+     "text": "single",
+     "start": 6.033666,
+     "end": 6.370207000000001
+    },
+    {
+     "text": "circuit",
+     "start": 6.370208,
+     "end": 6.838958
+    },
+    {
+     "text": "and",
+     "start": 7.223541,
+     "end": 7.271624
+    },
+    {
+     "text": "exactly",
+     "start": 7.271625,
+     "end": 7.884625
+    },
+    {
+     "text": "who",
+     "start": 7.884625,
+     "end": 8.016833
+    },
+    {
+     "text": "sees",
+     "start": 8.028833,
+     "end": 8.389416
+    },
+    {
+     "text": "what",
+     "start": 8.389416,
+     "end": 8.737957000000002
+    }
+   ]
+  },
+  "outro": {
+   "file": "voice/outro.mp3",
+   "text": "Private OTC Agent Desk. Sealed quotes, zero-knowledge matches, and agents that cannot break their mandate. Try it now, on Midnight.",
+   "duration": 8.952,
+   "words": [
+    {
+     "text": "Private",
+     "start": 0.096166,
+     "end": 0.43270699999999995
+    },
+    {
+     "text": "OTC",
+     "start": 0.564916,
+     "end": 1.141832
+    },
+    {
+     "text": "Agent",
+     "start": 1.153833,
+     "end": 1.454333
+    },
+    {
+     "text": "Desk",
+     "start": 1.454333,
+     "end": 1.887041
+    },
+    {
+     "text": "Sealed",
+     "start": 2.259625,
+     "end": 2.548083
+    },
+    {
+     "text": "quotes",
+     "start": 2.548083,
+     "end": 3.124999
+    },
+    {
+     "text": "zero-knowledge",
+     "start": 3.341333,
+     "end": 3.9182490000000003
+    },
+    {
+     "text": "matches",
+     "start": 3.91825,
+     "end": 4.483166
+    },
+    {
+     "text": "and",
+     "start": 4.711541,
+     "end": 4.903832
+    },
+    {
+     "text": "agents",
+     "start": 4.915875,
+     "end": 5.264416
+    },
+    {
+     "text": "that",
+     "start": 5.264416,
+     "end": 5.3725819999999995
+    },
+    {
+     "text": "cannot",
+     "start": 5.372583,
+     "end": 5.865373999999999
+    },
+    {
+     "text": "break",
+     "start": 5.865375,
+     "end": 6.117791
+    },
+    {
+     "text": "their",
+     "start": 6.117791,
+     "end": 6.237999
+    },
+    {
+     "text": "mandate",
+     "start": 6.25,
+     "end": 6.802875
+    },
+    {
+     "text": "Try",
+     "start": 7.1995,
+     "end": 7.367749999999999
+    },
+    {
+     "text": "it",
+     "start": 7.367791,
+     "end": 7.427874
+    },
+    {
+     "text": "now",
+     "start": 7.427875,
+     "end": 7.776416
+    },
+    {
+     "text": "on",
+     "start": 7.96875,
+     "end": 8.125
+    },
+    {
+     "text": "Midnight",
+     "start": 8.125,
+     "end": 8.60575
+    }
+   ]
+  }
+ }
+}
