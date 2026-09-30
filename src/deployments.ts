@@ -26,6 +26,15 @@ export const DEPLOYMENTS: Record<AppNetwork, Deployments> = {
   preprod: {},
 };
 
+/** The storeMessage demo contract on a network, if one is deployed there. */
+export const storeMessageContractFor = (network?: string): string | undefined =>
+  network ? DEPLOYMENTS[network as AppNetwork]?.storeMessage : undefined;
+
+/** Networks that have the storeMessage demo contract deployed. */
+export const STORE_MESSAGE_NETWORKS = (Object.keys(DEPLOYMENTS) as AppNetwork[]).filter(
+  (network) => DEPLOYMENTS[network].storeMessage
+);
+
 const EXPLORERS: Record<AppNetwork, string> = {
   preview: 'https://preview.midnightexplorer.com',
   preprod: 'https://preprod.midnightexplorer.com',

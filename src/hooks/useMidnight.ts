@@ -1,7 +1,11 @@
 import { useState, useCallback } from 'react';
 import { type InitialAPI, type ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
-import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
+import {
+  IndexerFormattedError,
+  IndexerQueryError,
+  indexerPublicDataProvider
+} from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import {
@@ -10,6 +14,7 @@ import {
   type MidnightProviders,
   type PrivateStateProvider,
   type ProofProvider,
+  type PublicDataProvider,
   type UnboundTransaction,
   type WalletProvider
 } from '@midnight-ntwrk/midnight-js-types';
@@ -76,6 +81,57 @@ const isUserRejection = (err: any): boolean =>
   err?.code === 'Rejected' ||
   err?.code === 'PermissionRejected' ||
   /reject|denied|cancel/i.test(String(err?.message ?? err?.reason ?? ''));
+
+// How long to look for a transaction on-chain after Lace reported an error submitting it.
+const SUBMIT_CONFIRM_TIMEOUT_MS = 90_000;
+
+/** Polls the indexer until a transaction with this identifier is in a block, or the timeout passes. */
+const waitForTxOnChain = async (indexerUri: string, txId: string, timeoutMs: number): Promise<boolean> => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(indexerUri, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          query: 'query TX_ON_CHAIN($offset: TransactionOffset!) { transactions(offset: $offset) { id } }',
+          variables: { offset: { identifier: txId } }
+        })
+      });
+      const body = await res.json();
+      if (body?.data?.transactions?.length) return true;
+    } catch {
+      // Transient indexer/network error: keep polling until the deadline.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+  return false;
+};
+
+// The indexer answers with application/graphql-response+json, so even an HTTP 500 reaches Apollo as a
+// GraphQL error ("Internal Server Error") that its RetryLink never retries, and midnight-js aborts the
+// whole transaction on the first one. Indexer reads are idempotent, so retry them with backoff.
+const INDEXER_RETRY_DELAYS_MS = [1000, 2000, 4000, 8000, 8000];
+
+const withIndexerRetry =
+  <A extends unknown[], R>(call: (...args: A) => Promise<R>) =>
+  async (...args: A): Promise<R> => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await call(...args);
+      } catch (err) {
+        const transient = err instanceof IndexerQueryError || err instanceof IndexerFormattedError;
+        if (!transient) throw err;
+        if (attempt >= INDEXER_RETRY_DELAYS_MS.length) {
+          throw new Error(`The Midnight indexer kept failing (${attempt + 1} attempts): ${describeError(err)}`, {
+            cause: err
+          });
+        }
+        console.warn(`Indexer request failed, retrying (${attempt + 1}/${INDEXER_RETRY_DELAYS_MS.length}):`, err);
+        await new Promise((resolve) => setTimeout(resolve, INDEXER_RETRY_DELAYS_MS[attempt]));
+      }
+    }
+  };
 
 const DEFAULT_ENDPOINTS: Record<string, { indexer: string; indexerWs: string; proofServer: string }> = {
   undeployed: {
@@ -400,24 +456,54 @@ export function useMidnight(): UseMidnightResult {
 
       // 6. Submission: relay through Lace and return a REAL transaction identifier so the
       //    indexer can watch for finalization (a placeholder id makes the SDK fail).
+      //    Lace can reject with an InternalError after the node already accepted the tx (public RPC
+      //    endpoints drop the websocket mid-submit), so such a failure only counts if the tx never
+      //    shows up on-chain. Maps txId -> the error Lace reported.
+      const unconfirmedSubmits = new Map<string, Error>();
       const midnightProvider: MidnightProvider = {
         submitTx: async (tx: FinalizedTransaction) => {
           onProgress?.('Submitting transaction to the Midnight network...', 85);
-          try {
-            await connectedApi.submitTransaction(bytesToHex(tx.serialize()));
-          } catch (err) {
-            throw new Error(`Lace failed to submit the transaction. Details: ${describeError(err)}`, { cause: err });
-          }
           const [txId] = tx.identifiers();
           if (!txId) throw new Error('Submitted transaction has no identifier to track.');
-          onProgress?.('Waiting for the transaction to be included in a block...', 92);
+          try {
+            await connectedApi.submitTransaction(bytesToHex(tx.serialize()));
+            onProgress?.('Waiting for the transaction to be included in a block...', 92);
+          } catch (err) {
+            const submitError = new Error(`Lace failed to submit the transaction. Details: ${describeError(err)}`, {
+              cause: err
+            });
+            if (isUserRejection(err)) throw submitError;
+            console.warn('Lace reported a submit error; checking whether the transaction reached the chain:', err);
+            unconfirmedSubmits.set(txId, submitError);
+            onProgress?.('Lace reported an error while submitting; checking whether the transaction reached the chain...', 92);
+          }
           return txId;
+        }
+      };
+
+      const indexer = indexerPublicDataProvider(indexerUri, indexerWsUri, window.WebSocket as any);
+      const watchForTxData = withIndexerRetry(indexer.watchForTxData);
+      const publicDataProvider: PublicDataProvider = {
+        ...indexer,
+        queryContractState: withIndexerRetry(indexer.queryContractState),
+        queryZSwapAndContractState: withIndexerRetry(indexer.queryZSwapAndContractState),
+        queryDeployContractState: withIndexerRetry(indexer.queryDeployContractState),
+        queryUnshieldedBalances: withIndexerRetry(indexer.queryUnshieldedBalances),
+        watchForContractState: withIndexerRetry(indexer.watchForContractState),
+        watchForUnshieldedBalances: withIndexerRetry(indexer.watchForUnshieldedBalances),
+        watchForDeployTxData: withIndexerRetry(indexer.watchForDeployTxData),
+        watchForTxData: async (txId) => {
+          const submitError = unconfirmedSubmits.get(txId);
+          if (submitError && !(await waitForTxOnChain(indexerUri, txId, SUBMIT_CONFIRM_TIMEOUT_MS))) {
+            throw submitError;
+          }
+          return watchForTxData(txId);
         }
       };
 
       return {
         privateStateProvider: new InMemoryPrivateStateProvider(),
-        publicDataProvider: indexerPublicDataProvider(indexerUri, indexerWsUri, window.WebSocket as any),
+        publicDataProvider,
         zkConfigProvider,
         proofProvider,
         walletProvider,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IconExternal } from './ui/icons';
-import { APP_NETWORK, DEPLOYMENTS, contractExplorerUrl, networkLabel } from '../deployments';
+import { APP_NETWORK, STORE_MESSAGE_NETWORKS, contractExplorerUrl, networkLabel, storeMessageContractFor } from '../deployments';
 
 export type CallStatus = 'idle' | 'executing' | 'success' | 'error';
 
@@ -15,8 +15,8 @@ interface CircuitCallProps {
   onStatusChange?: (status: CallStatus) => void;
 }
 
-export const DEFAULT_CONTRACT = DEPLOYMENTS[APP_NETWORK].storeMessage ?? '';
-const APP_NETWORK_LABEL = networkLabel(APP_NETWORK);
+const KNOWN_CONTRACTS = new Set(STORE_MESSAGE_NETWORKS.map((network) => storeMessageContractFor(network)));
+const DEPLOYED_ON = STORE_MESSAGE_NETWORKS.map(networkLabel).join(' or ');
 
 // Thresholds match the progress percentages emitted by useMidnight().runStoreMessage.
 const STEPS = [
@@ -30,7 +30,7 @@ const STEPS = [
 type StepState = 'pending' | 'active' | 'done' | 'error';
 
 export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId, runStoreMessage, onStatusChange }) => {
-  const [contractAddress, setContractAddress] = useState(DEFAULT_CONTRACT);
+  const [contractAddress, setContractAddress] = useState(() => storeMessageContractFor(networkId ?? APP_NETWORK) ?? '');
   const [customMessage, setCustomMessage] = useState('');
   const [status, setStatus] = useState<CallStatus>('idle');
   const [progressStep, setProgressStep] = useState('');
@@ -41,6 +41,13 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
   useEffect(() => {
     onStatusChange?.(status);
   }, [status, onStatusChange]);
+
+  // Use the demo contract on whichever network Lace is connected to, unless the user typed their own.
+  useEffect(() => {
+    setContractAddress((current) =>
+      current.trim() === '' || KNOWN_CONTRACTS.has(current.trim()) ? storeMessageContractFor(networkId) ?? '' : current
+    );
+  }, [networkId]);
 
   const activeIndex = STEPS.reduce((acc, s, i) => (progressPercent >= s.at ? i : acc), -1);
 
@@ -78,8 +85,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
     }
   };
 
-  const wrongNetwork =
-    isConnected && networkId && networkId !== APP_NETWORK && DEFAULT_CONTRACT && contractAddress.trim() === DEFAULT_CONTRACT;
+  const notDeployedHere = isConnected && !storeMessageContractFor(networkId);
   const busy = status === 'executing';
   const explorerUrl = contractExplorerUrl(contractAddress.trim(), networkId);
 
@@ -120,19 +126,20 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({ isConnected, networkId
               disabled={busy}
               required
             />
-            {wrongNetwork && (
+            {notDeployedHere && (
               <div className="callout callout-warn" role="alert">
                 <div>
-                  You’re on <strong>{networkId}</strong>, but this contract is deployed on{' '}
-                  <strong>{APP_NETWORK_LABEL}</strong>. Switch Lace to {APP_NETWORK_LABEL} and reconnect.
+                  The demo contract isn’t deployed on <strong>{networkLabel(networkId)}</strong>
+                  {DEPLOYED_ON ? (
+                    <>
+                      . Switch Lace to <strong>{DEPLOYED_ON}</strong> and reconnect, or paste
+                    </>
+                  ) : (
+                    <>. Paste</>
+                  )}{' '}
+                  the address of a <code>storeMessage</code> contract deployed there.
                 </div>
               </div>
-            )}
-            {!DEFAULT_CONTRACT && (
-              <span className="hint">
-                The demo contract isn’t deployed on {APP_NETWORK_LABEL} yet. Paste the address of a deployed{' '}
-                <code>storeMessage</code> contract.
-              </span>
             )}
           </div>
 
