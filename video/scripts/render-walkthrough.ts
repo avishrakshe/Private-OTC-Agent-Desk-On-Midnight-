@@ -10,6 +10,7 @@
  *   npm run walkthrough:render
  *   npx tsx scripts/render-walkthrough.ts --id WalkthroughClean --out out/walkthrough-no-captions.mp4
  *   npx tsx scripts/render-walkthrough.ts --range 300-900 --out out/check/test.mp4    # a test clip
+ *   npx tsx scripts/render-walkthrough.ts --id DemoHook --out out/demo-hook.mp4       # the demo-day hook
  *
  * Frames go to the OS temp dir (≈1.5 GB), not into the synced project folder.
  */
@@ -19,13 +20,16 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { AUDIO_PLAN } from '../src/walkthrough/audio-plan';
+import { HOOK_AUDIO_PLAN } from '../src/hook/audio-plan';
+import { AUDIO_PLAN as WALKTHROUGH_PLAN, type Clip } from '../src/walkthrough/audio-plan';
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > -1 ? process.argv[i + 1] : fallback;
 };
 const id = arg('id', 'Walkthrough');
+// the soundtrack each composition plays in Studio
+const AUDIO_PLAN: Clip[] = id === 'DemoHook' ? HOOK_AUDIO_PLAN : WALKTHROUGH_PLAN;
 const output = path.resolve(arg('out', 'out/walkthrough.mp4'));
 const crf = arg('crf', '20');
 // 6 Chrome tabs was both faster and stable on a 16 GB machine; 9 ran out of memory
@@ -164,8 +168,9 @@ async function main() {
     }
   }
 
-  // master: bring the programme to about -16 dB RMS, then a 5 ms look-ahead limiter holds peaks
-  // under -1 dBFS (so one loud hit doesn't set the level for the whole narration)
+  // master: bring the programme to about -16 dB RMS (--rms), then a 5 ms look-ahead limiter holds
+  // peaks under -1 dBFS (so one loud hit doesn't set the level for the whole narration)
+  const targetRms = Number(arg('rms', '-16'));
   let sum = 0,
     count = 0;
   for (let k = 0; k < length; k++) {
@@ -176,7 +181,7 @@ async function main() {
     }
   }
   const rms = Math.sqrt(sum / Math.max(1, count));
-  const gain = Math.min(4, 10 ** (-16 / 20) / rms);
+  const gain = Math.min(4, 10 ** (targetRms / 20) / rms);
   const ceiling = 0.89;
   const look = Math.round(0.005 * SR);
   const release = Math.exp(-1 / (0.12 * SR));
@@ -222,7 +227,7 @@ async function main() {
   }
   fs.writeFileSync(path.join(work, 'mix.wav'), wav);
   console.log(
-    `Mixed ${AUDIO_PLAN.length} clips · +${(20 * Math.log10(gain)).toFixed(1)} dB to -16 dB RMS · limiter active ${((100 * limited) / length).toFixed(1)}% of the time`,
+    `Mixed ${AUDIO_PLAN.length} clips · +${(20 * Math.log10(gain)).toFixed(1)} dB to ${targetRms} dB RMS · limiter active ${((100 * limited) / length).toFixed(1)}% of the time`,
   );
 
   /* ───────── 3. encode ───────── */

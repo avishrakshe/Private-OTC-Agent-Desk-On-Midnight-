@@ -22,7 +22,9 @@
     "walkthrough:fonts": "tsx scripts/fetch-fonts.ts",
     "walkthrough:assets": "npm run walkthrough:fonts && npm run walkthrough:capture && npm run walkthrough:voice && npm run walkthrough:sfx",
     "walkthrough:render": "tsx scripts/render-walkthrough.ts",
-    "walkthrough:render:clean": "tsx scripts/render-walkthrough.ts --id WalkthroughClean --out out/walkthrough-no-captions.mp4"
+    "walkthrough:render:clean": "tsx scripts/render-walkthrough.ts --id WalkthroughClean --out out/walkthrough-no-captions.mp4",
+    "hook:music": "tsx scripts/hook-music.ts",
+    "hook:render": "tsx scripts/render-walkthrough.ts --id DemoHook --out out/demo-hook.mp4 --rms -14 --crf 18"
   },
   "dependencies": {
     "@remotion/cli": "4.0.529",

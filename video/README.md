@@ -75,6 +75,54 @@ Put a track at `public/music.mp3` and set `video.music = true` in `src/theme.ts`
 
 ---
 
+# Demo-day hook · 16 seconds before the slides
+
+A fast, beat-locked motion-graphics opener for pitching on stage: no narration, just type, hits and a synthesized 120 BPM track. It ends on the title card, and that frame holds, so the presenter can click straight into the slides. Source: `src/hook/`. Composition: `DemoHook`.
+
+| Output | Format |
+|---|---|
+| `out/demo-hook.mp4` | 1920×1080 · 30 fps · 480 frames · H.264 + AAC · ~6 MB |
+
+## Storyboard
+
+At 120 BPM one beat is exactly 15 frames, and every cut lands on a beat (`src/hook/beats.ts`).
+
+| Time | Scene (`src/hook/scenes/`) | What happens |
+|---|---|---|
+| 0–4 s | `Leak` | `SELL 600k DAO` is typed and broadcast; size, limit and wallet pop out as **VISIBLE**; bots close in. **FRONT-RUN.** **SANDWICHED.** |
+| 4–6 s | `Signal` | *Announced / before it fills.*, one word per beat over a bleeding price chart, then a glitch and a cut to black (the music stops too) |
+| 6–8 s | `Turn` | *What if nobody could see it?* The same order is redacted to ●●●● character by character and locks. Snare roll and riser |
+| 8–10 s | `Reveal` | The drop: white flash, logo burst, **Private OTC Agent Desk**, "Sealed-RFQ trading desk · built on Midnight" |
+| 10–14 s | `Pillars` | Sealed quotes → Proven, not revealed → Agents can't go rogue → **0** prices or sizes on-chain, two beats each |
+| 14–16 s | `EndCard` | Logo, name, *Nobody sees the order until it's filled.*, Built on Midnight · mn-demo.vercel.app. Holds |
+
+## Commands
+
+```bash
+npm run walkthrough:sfx   # once: the shared effects (public/audio is gitignored)
+npm run hook:music        # public/audio/hook-music.wav, synthesized to the cue sheet
+npm run studio            # preview (pick "DemoHook"), with sound
+npm run hook:render       # → out/demo-hook.mp4 (~4 min; same Windows-safe path as the walkthrough)
+node scripts/stills.mjs DemoHook 96 226 316 479   # PNG checks → out/check/
+```
+
+`hook:render` runs `scripts/render-walkthrough.ts --id DemoHook`, which mixes `src/hook/audio-plan.ts` instead of the walkthrough's plan, and masters a little louder (`--rms -14`).
+
+## Editing
+
+| To change… | Edit |
+|---|---|
+| When anything happens | `CUE` in `src/hook/beats.ts`. Scenes, camera kicks (`HITS`) and the music all read it, so rerun `npm run hook:music` after moving a cue |
+| The music | `scripts/hook-music.ts` (arrangement at the bottom: tension → glitch → build → drop → ring-out) |
+| Effects and their levels | `src/hook/audio-plan.ts` |
+| Pillar copy | `PILLARS` in `src/hook/scenes/Pillars.tsx` |
+
+## On stage
+
+Play it full screen from the MP4, or embed it as the first slide with autoplay. PowerPoint and Keynote stop on the last frame (the title card) by default; in PowerPoint, leave "Rewind after playing" off. Check the room's sound before you start: the first second is deliberately quiet, and the kick comes in at 1 s.
+
+---
+
 # Walkthrough video · narrated site tour
 
 A ~3 min 16 s product walkthrough with an AI voice-over, word-timed captions, a music bed and sound design. It explains the problem, the protocol, and then tours the real site (Desk and About pages) using screenshots captured from [mn-demo.vercel.app](https://mn-demo.vercel.app). Source: `src/walkthrough/`. Compositions: `Walkthrough` (with captions) and `WalkthroughClean` (no captions).

@@ -1,5 +1,7 @@
 import React from 'react';
 import { Composition } from 'remotion';
+import { DemoHook } from './hook/DemoHook';
+import { FPS as HOOK_FPS, TOTAL_FRAMES as HOOK_FRAMES } from './hook/beats';
 import { Intro } from './Intro';
 import { timing, video } from './theme';
 import { Walkthrough } from './walkthrough/Walkthrough';
@@ -46,6 +48,16 @@ export const RemotionRoot: React.FC = () => (
       width={1920}
       height={1080}
       defaultProps={{ captions: false }}
+    />
+    {/* 16-second beat-locked hook for demo day, played before the slides (src/hook) */}
+    <Composition
+      id="DemoHook"
+      component={DemoHook}
+      durationInFrames={HOOK_FRAMES}
+      fps={HOOK_FPS}
+      width={1920}
+      height={1080}
+      defaultProps={{ audio: true }}
     />
   </>
 );
