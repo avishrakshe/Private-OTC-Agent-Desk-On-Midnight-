@@ -12,10 +12,10 @@ Open **https://mn-demo.vercel.app**.
 No wallet is needed. The compiled contract runs in your browser.
 
 ### Run the agents on Midnight: Lace mode
-You need the **Lace** wallet with Midnight enabled, on the same network as the site (Preprod), with **DUST** for fees:
-1. Get tNIGHT from the [Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev), then in Lace designate it for DUST generation and wait a few minutes.
+You need the **Lace** wallet with Midnight enabled, on the same network as the site (Preview), with **DUST** for fees:
+1. Get tNIGHT from the [Preview faucet](https://midnight-tmnight-preview.nethermind.dev), then in Lace designate it for DUST generation and wait a few minutes.
 2. Click **Connect wallet** (top right) and approve in Lace.
-3. In **Agents**, switch to **On Midnight (Lace)** and press **Deploy & run on preprod**.
+3. In **Agents**, switch to **On Midnight (Lace)** and press **Deploy & run on preview**.
 4. Approve each transaction in Lace (11 in total: deploy, 2 deposits, 4 mandate steps, open RFQ, quote, match, claim). Allow 10–20 minutes.
 5. When it finishes, the summary links your freshly deployed desk on the explorer.
 
@@ -25,7 +25,7 @@ If Lace can't prove a transaction, the site falls back to a proof server on `htt
 In **Set a mandate**, change the limits or the order and watch the verdict, which comes from the real `submitQuote` circuit. Tick **Compromised agent** to see a looser, forged mandate rejected.
 
 ### Send a live transaction
-**Connect, prove, settle** sends a `storeMessage` transaction to the demo contract on Preprod. It shows the full prove → balance → submit pipeline with Lace.
+**Connect, prove, settle** sends a `storeMessage` transaction to the demo contract on Preview. It shows the full prove → balance → submit pipeline with Lace.
 
 ## 2. From the command line
 

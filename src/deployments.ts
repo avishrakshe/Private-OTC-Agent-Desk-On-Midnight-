@@ -3,12 +3,13 @@
  * connect buttons, the live transaction panel, the agents' on-chain run and every explorer link.
  *
  * Addresses come from the deploy scripts:
- *   npm run deploy -- --network preprod       # hello-world (storeMessage), used by "Connect, prove, settle"
- *   npm run deploy:otc -- --network preprod   # the sealed RFQ desk
+ *   npm run deploy -- --network preview       # hello-world (storeMessage), used by "Connect, prove, settle"
+ *   npm run deploy:otc -- --network preview   # the sealed RFQ desk
  */
 export type AppNetwork = 'preview' | 'preprod';
 
-export const APP_NETWORK: AppNetwork = 'preprod';
+// Preview: both demo contracts are deployed there. Switch to 'preprod' once DEPLOYMENTS.preprod is filled in.
+export const APP_NETWORK: AppNetwork = 'preview';
 
 interface Deployments {
   /** hello-world.compact, called by the "Connect, prove, settle" panel. */

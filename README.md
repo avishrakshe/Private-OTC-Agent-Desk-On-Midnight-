@@ -299,7 +299,7 @@ The site ([`src/pages`](src/pages)) has two pages.
 | **Agents** ⭐ | **Instant (local):** run or step through the 39-step story, each step showing the agent's private view next to what the chain sees. **On Midnight (Lace):** deploy a fresh desk from your wallet and run one RFQ round as 11 real transactions | Local mode runs the compiled circuits in your browser; **Lace mode is fully on-chain** |
 | **Mandate builder** ⭐ | Set a max notional and a price floor/ceiling, place an order, tick "compromised agent" and watch the circuit block it | **Runs the real `submitQuote` circuit** |
 | **Under the hood** | Interactive list of all six guarantees | Explainer |
-| **Connect, prove, settle** | Connect Lace and send a real proof + transaction to Midnight Preprod. Until the demo contract is [deployed on Preprod](#-deployments), the panel asks for a contract address | **Real on-chain transaction** (`storeMessage` demo contract) |
+| **Connect, prove, settle** | Connect Lace and send a real proof + transaction to Midnight Preview, where the demo contract is [deployed](#-deployments) | **Real on-chain transaction** (`storeMessage` demo contract) |
 | **Match proof preview** | Drag the sealed quote, your floor and your escrow, then flip to the chain's view | Browser-only preview |
 | **FAQ** | Who proves the match, what price trades clear at, what's public, what stops defaults | |
 
@@ -414,7 +414,7 @@ export circuit acceptQuote(rfqId, ownerSalt, maker, terms: QuoteTerms, termsSalt
 | **Midnight Preprod** | ⏳ Sealed RFQ desk: not deployed yet (`npm run deploy:otc -- --network preprod`) | |
 | **Midnight Preprod** | ⏳ `storeMessage` demo: not deployed yet (`npm run deploy -- --network preprod`) | |
 
-The live app runs on **Preprod** (`APP_NETWORK` in [src/deployments.ts](src/deployments.ts)). After deploying there, paste both Preprod addresses into `DEPLOYMENTS.preprod` in that file and into this table.
+The live app runs on **Preview** (`APP_NETWORK` in [src/deployments.ts](src/deployments.ts)), where both contracts are deployed. To move it to Preprod, deploy both contracts there, paste the addresses into `DEPLOYMENTS.preprod` in that file and into this table, then set `APP_NETWORK` to `'preprod'`.
 
 The RFQ desk was deployed with an oracle TWAP of $0.842, a ±3% band and an auditor viewing key. An earlier Preview deployment (`07f477d1…`) predates the security fixes in [docs/SECURITY.md](docs/SECURITY.md) and shouldn't be used.
 
@@ -426,7 +426,7 @@ The RFQ desk was deployed with an oracle TWAP of $0.842, a ±3% band and an audi
 
 - **Node.js 22+**
 - **Docker** (for the local proof server, and for the Compact compiler if you don't have it installed)
-- **Lace wallet** with Midnight enabled, set to **Preprod**, only if you want to send live transactions
+- **Lace wallet** with Midnight enabled, set to **Preview**, only if you want to send live transactions
 
 ### Run the site
 
